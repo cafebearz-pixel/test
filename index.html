@@ -77,7 +77,7 @@
         </div>
     </div>
 
-    <!-- Modal เพิ่มคิวงาน (ดีไซน์ใหม่) -->
+    <!-- Modal เพิ่มคิวงาน -->
     <div id="addQueueModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden modal-enter flex flex-col max-h-[90vh]">
             <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
@@ -124,8 +124,6 @@
                         </select>
                     </div>
 
-                    <input type="text" id="qLink" placeholder="ลิงก์แนบไฟล์ Google Drive (ถ้ามี)" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
-
                     <button type="submit" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition">บันทึกข้อมูลคิวงาน</button>
                 </form>
             </div>
@@ -136,10 +134,9 @@
     <header class="curved-header bg-gradient-to-b from-white to-blue-50 text-center pt-10 pb-14 px-4 mb-8">
         <!-- ภาพพื้นหลัง ปรับ opacity 30% -->
         <div class="absolute inset-0 z-0">
-            <img src="อบต.jpg" alt="พื้นหลัง อบต." class="w-full h-full object-cover opacity-30" onerror="this.style.display='none'">
+            <img src="อบต.jpg" alt="พื้นหลัง อบต." class="w-full h-full object-cover opacity-30">
         </div>
         
-        <!-- เนื้อหา Hero วางซ้อนด้านบน -->
         <div class="relative z-10">
             <h2 class="text-2xl md:text-3xl font-bold text-gray-400 mb-1">ยินดีต้อนรับสู่</h2>
             <h1 class="text-3xl md:text-4xl font-bold text-[#1e3a8a] mb-8">องค์การบริหารส่วนตำบลชำผักแพว</h1>
@@ -155,13 +152,45 @@
     <main class="max-w-5xl mx-auto px-4">
         
         <!-- ประกาศ -->
-        <div class="bg-[#10b981] text-white rounded-full px-4 py-2.5 flex items-center shadow-sm mb-8">
+        <div class="bg-[#10b981] text-white rounded-full px-4 py-2.5 flex items-center shadow-sm mb-6">
             <div class="bg-white rounded-full p-1 mr-3 flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                 </svg>
             </div>
             <span class="font-medium text-sm">ประกาศ : แจ้งเรื่องกำหนดการชำระภาษีที่ดินและสิ่งปลูกสร้าง ประจำปี 2569</span>
+        </div>
+
+        <!-- Big Numbers (สรุปสถิติคิวงาน) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <!-- ทั้งหมด -->
+            <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
+                <div class="bg-gradient-to-b from-blue-200 to-blue-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
+                    <span class="block text-blue-700 font-medium text-sm">ทั้งหมด</span>
+                    <span id="count-total" class="block text-blue-800 font-bold text-3xl mt-0.5">0</span>
+                </div>
+            </div>
+            <!-- กำลังทำ -->
+            <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
+                <div class="bg-gradient-to-b from-orange-200 to-orange-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
+                    <span class="block text-orange-700 font-medium text-sm">กำลังทำ</span>
+                    <span id="count-pending" class="block text-orange-800 font-bold text-3xl mt-0.5">0</span>
+                </div>
+            </div>
+            <!-- เสร็จสิ้น -->
+            <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
+                <div class="bg-gradient-to-b from-green-200 to-green-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
+                    <span class="block text-green-700 font-medium text-sm">เสร็จสิ้น</span>
+                    <span id="count-completed" class="block text-green-800 font-bold text-3xl mt-0.5">0</span>
+                </div>
+            </div>
+            <!-- ยกเลิก -->
+            <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
+                <div class="bg-gradient-to-b from-red-200 to-red-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
+                    <span class="block text-red-700 font-medium text-sm">ยกเลิก</span>
+                    <span id="count-canceled" class="block text-red-800 font-bold text-3xl mt-0.5">0</span>
+                </div>
+            </div>
         </div>
 
         <!-- Controls (แสดงเมื่อ Login) -->
@@ -184,7 +213,7 @@
             
             <div id="content-queue" class="tab-content block">
                 <h3 class="text-gray-400 text-xs font-medium mb-4 flex items-center gap-2">
-                    <span class="w-0.5 h-3 bg-gray-300 inline-block rounded"></span> 10 คิวแรก
+                    <span class="w-0.5 h-3 bg-gray-300 inline-block rounded"></span> รายการคิวงาน
                 </h3>
                 <div id="queueList" class="flex flex-col gap-4">
                     <!-- การ์ดคิวจะถูกสร้างผ่าน JavaScript -->
@@ -202,9 +231,7 @@
     </main>
 
     <script>
-        // ------------------------------------
-        // 1. ระบบจัดการแถบนำทาง (Navbar)
-        // ------------------------------------
+        // 1. ระบบ Navbar
         function setActiveNav(clickedElement) {
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
@@ -215,9 +242,7 @@
             clickedElement.classList.add('border-orange-500', 'text-blue-900');
         }
 
-        // ------------------------------------
-        // 2. ระบบแท็บ (Tabs)
-        // ------------------------------------
+        // 2. ระบบ Tabs
         function switchTab(tabId) {
             const tabBtns = document.querySelectorAll('.tab-btn');
             tabBtns.forEach(btn => {
@@ -237,9 +262,7 @@
             document.getElementById(`content-${tabId}`).classList.add('block');
         }
 
-        // ------------------------------------
         // 3. ระบบ Modal (Login & Add Queue)
-        // ------------------------------------
         let isLoggedIn = false;
 
         function openModal(modalId) {
@@ -279,11 +302,7 @@
             }
         }
 
-        // ------------------------------------
-        // 4. ระบบคำนวณวันที่ และจัดการคิวงาน
-        // ------------------------------------
-        
-        // ข้อมูลตั้งต้น (Mock Data)
+        // 4. ระบบฐานข้อมูลจำลอง (Mock Database)
         let queues = [
             { 
                 id: 1, 
@@ -293,19 +312,67 @@
                 dress: "ชุดสีฟ้า",
                 resp: "กองสาธารณสุขและสิ่งแวดล้อม",
                 coord: "นางสาวสมหญิง ใจดี",
-                dateRaw: "2026-07-21" // ปี ค.ศ. สำหรับคำนวณ
+                dateRaw: "2026-07-21",
+                jobStatus: "เสร็จสิ้น"
             },
             { 
                 id: 2, 
                 title: "โครงการเยาวชนไทยขับขี่ปลอดภัยมีวินัยจราจร", 
                 detail: "อบรมให้ความรู้กฎจราจรและภาคปฏิบัติ",
                 location: "โรงเรียนในเขตพื้นที่", 
-                dress: "ชุดสีฟ้า / ชุดปฏิบัติการ",
+                dress: "ชุดปฏิบัติการ",
                 resp: "สำนักปลัด",
                 coord: "นายสมชาย รักความปลอดภัย",
-                dateRaw: "2026-07-22"
+                dateRaw: "2026-07-22",
+                jobStatus: "รอดำเนินการ"
+            },
+            { 
+                id: 3, 
+                title: "โครงการส่งเสริมสุขภาพผู้สูงอายุ", 
+                detail: "ตรวจสุขภาพประจำปีให้ผู้สูงอายุในตำบล",
+                location: "ศาลาอเนกประสงค์ หมู่ 3", 
+                dress: "ชุดสุภาพ",
+                resp: "กองสาธารณสุขและสิ่งแวดล้อม",
+                coord: "นางใจดี มีสุข",
+                dateRaw: "2026-07-25",
+                jobStatus: "รอดำเนินการ"
+            },
+            { 
+                id: 4, 
+                title: "กิจกรรมปลูกป่าเฉลิมพระเกียรติ", 
+                detail: "ปลูกต้นไม้บริเวณป่าชุมชน",
+                location: "ป่าชุมชน บ้านชำผักแพว", 
+                dress: "ชุดจิตอาสา",
+                resp: "สำนักปลัด",
+                coord: "นายรักชาติ องอาจ",
+                dateRaw: "2026-06-15",
+                jobStatus: "เสร็จสิ้น"
+            },
+            { 
+                id: 5, 
+                title: "ประชุมสภา อบต. สมัยสามัญ", 
+                detail: "พิจารณาร่างข้อบัญญัติงบประมาณ",
+                location: "ห้องประชุมสภา อบต.", 
+                dress: "ชุดกากี",
+                resp: "กิจการสภา",
+                coord: "เลขานุการสภา",
+                dateRaw: "2026-07-10",
+                jobStatus: "ยกเลิก"
             }
         ];
+
+        // ฟังก์ชันอัปเดตตัวเลข Big Numbers
+        function updateBigNumbers() {
+            const total = queues.length;
+            const pending = queues.filter(q => q.jobStatus === 'รอดำเนินการ').length;
+            const completed = queues.filter(q => q.jobStatus === 'เสร็จสิ้น').length;
+            const canceled = queues.filter(q => q.jobStatus === 'ยกเลิก').length;
+
+            document.getElementById('count-total').textContent = total;
+            document.getElementById('count-pending').textContent = pending;
+            document.getElementById('count-completed').textContent = completed;
+            document.getElementById('count-canceled').textContent = canceled;
+        }
 
         // ฟังก์ชันแปลง Date เป็น วัน เดือน ปี(พ.ศ.)
         function formatThaiDate(dateString) {
@@ -313,16 +380,13 @@
             const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
             const d = date.getDate();
             const m = months[date.getMonth()];
-            const y = date.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
+            const y = date.getFullYear() + 543; 
             return { dayMonth: `${d} ${m}`, year: `${y}` };
         }
 
         // ฟังก์ชันคำนวณระยะห่างของวัน
         function calculateDaysStatus(targetDateStr) {
-            // สมมติให้วันปัจจุบันคือ 22 ก.ค. 2026 เพื่อให้ตรงกับข้อมูลตัวอย่าง
             const today = new Date('2026-07-22T00:00:00'); 
-            // หากต้องการใช้วันที่จริงของเครื่อง ให้ใช้: const today = new Date(); today.setHours(0,0,0,0);
-            
             const target = new Date(targetDateStr);
             target.setHours(0,0,0,0);
             
@@ -338,9 +402,9 @@
         function handleAddQueue(e) {
             e.preventDefault(); 
             
-            // ดึงค่า Multi-select
             const respSelect = document.getElementById('qResp');
             const selectedResp = Array.from(respSelect.selectedOptions).map(opt => opt.value).join(", ");
+            const selectedStatus = document.getElementById('qStatusDropdown').value;
             
             const newQueue = {
                 id: Date.now(),
@@ -350,10 +414,10 @@
                 dress: document.getElementById('qDress').value,
                 resp: selectedResp || "-",
                 coord: document.getElementById('qCoord').value,
-                dateRaw: document.getElementById('qDate').value
+                dateRaw: document.getElementById('qDate').value,
+                jobStatus: selectedStatus
             };
 
-            // ดันงานใหม่ไปไว้บนสุด
             queues.unshift(newQueue); 
             document.getElementById('addQueueForm').reset();
             closeModal('addQueueModal');
@@ -361,16 +425,15 @@
         }
 
         function deleteQueue(id) {
-            if(confirm("ลบคิวงานนี้?")) {
+            if(confirm("ยืนยันการลบคิวงานนี้?")) {
                 queues = queues.filter(q => q.id !== id);
                 renderUI();
             }
         }
 
-        // ------------------------------------
         // 5. ระบบวาดหน้าจอ (Render UI)
-        // ------------------------------------
         function renderUI() {
+            // อัปเดตปุ่มล็อคอิน
             const authBtn = document.getElementById('authBtn');
             if (isLoggedIn) {
                 authBtn.textContent = "ออกจากระบบ";
@@ -380,8 +443,10 @@
                 authBtn.className = "bg-[#10b981] text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-sm hover:bg-green-600 transition";
             }
 
-            // แสดง/ซ่อน ปุ่มเพิ่มคิว
             document.getElementById('adminControls').style.display = isLoggedIn ? 'flex' : 'none';
+
+            // อัปเดต Big Numbers
+            updateBigNumbers();
 
             // วาดรายการคิว
             const queueList = document.getElementById('queueList');
@@ -393,35 +458,37 @@
             }
 
             queues.forEach((q, index) => {
-                // คำนวณวันที่
                 const { dayMonth, year } = formatThaiDate(q.dateRaw);
-                const statusBadge = calculateDaysStatus(q.dateRaw);
+                let statusBadge = calculateDaysStatus(q.dateRaw);
                 
+                // หากงานเสร็จสิ้นหรือยกเลิกแล้ว ให้แสดงสถานะตามนั้นแทนการนับวัน
+                if(q.jobStatus === "เสร็จสิ้น") {
+                    statusBadge = { text: "เสร็จสิ้น", color: "bg-green-500" };
+                } else if(q.jobStatus === "ยกเลิก") {
+                    statusBadge = { text: "ยกเลิก", color: "bg-red-500" };
+                }
+
                 const deleteBtn = isLoggedIn ? `<button onclick="deleteQueue(${q.id})" class="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>` : '';
 
-                // UX/UI แบบใหม่ที่สะอาดตา คล้ายตัวอย่าง
                 const cardHTML = `
                 <div class="border border-gray-100 rounded-2xl p-5 md:p-6 flex flex-col md:flex-row gap-6 card-shadow relative bg-white items-start group hover:border-blue-100 transition">
                     ${deleteBtn}
                     
-                    <!-- วงกลมตัวเลข (รันอัตโนมัติ) -->
                     <div class="w-10 h-10 flex-shrink-0 bg-[#f97316] rounded-full flex items-center justify-center text-white font-bold text-lg mt-1 shadow-sm">
                         ${index + 1}
                     </div>
                     
-                    <!-- ข้อมูลตรงกลาง จัด 2 คอลัมน์ -->
                     <div class="flex-1 w-full pt-1">
                         <h4 class="font-bold text-[#1e3a8a] text-base mb-3 pr-8">${q.title}</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-xs text-gray-600">
-                            <p class="flex items-start gap-2"><span class="text-red-400">📌</span> <div><span class="font-semibold text-gray-700">สถานที่:</span> ${q.location}</div></p>
-                            <p class="flex items-start gap-2"><span class="text-green-500">👕</span> <div><span class="font-semibold text-gray-700">การแต่งกาย:</span> ${q.dress}</div></p>
-                            <p class="flex items-start gap-2"><span class="text-pink-400">📝</span> <div><span class="font-semibold text-gray-700">รายละเอียด:</span> ${q.detail}</div></p>
-                            <p class="flex items-start gap-2"><span class="text-blue-500">👤</span> <div><span class="font-semibold text-gray-700">ผู้รับผิดชอบ:</span> ${q.resp}</div></p>
-                            <p class="flex items-start gap-2 md:col-span-2"><span class="text-purple-400">📞</span> <div><span class="font-semibold text-gray-700">ผู้ประสานงาน:</span> ${q.coord}</div></p>
+                            <p class="flex items-start gap-2"><span class="text-red-400">📌</span> <span class="flex-1"><span class="font-semibold text-gray-700">สถานที่:</span> ${q.location}</span></p>
+                            <p class="flex items-start gap-2"><span class="text-green-500">👕</span> <span class="flex-1"><span class="font-semibold text-gray-700">การแต่งกาย:</span> ${q.dress}</span></p>
+                            <p class="flex items-start gap-2"><span class="text-pink-400">📝</span> <span class="flex-1"><span class="font-semibold text-gray-700">รายละเอียด:</span> ${q.detail}</span></p>
+                            <p class="flex items-start gap-2"><span class="text-blue-500">👤</span> <span class="flex-1"><span class="font-semibold text-gray-700">ผู้รับผิดชอบ:</span> ${q.resp}</span></p>
+                            <p class="flex items-start gap-2 md:col-span-2"><span class="text-purple-400">📞</span> <span class="flex-1"><span class="font-semibold text-gray-700">ผู้ประสานงาน:</span> ${q.coord}</span></p>
                         </div>
                     </div>
 
-                    <!-- กล่องวันที่และป้ายสถานะ -->
                     <div class="relative w-full md:w-32 flex-shrink-0 mt-4 md:mt-0 flex flex-col items-end">
                         <div class="${statusBadge.color} text-white text-[10px] px-3 py-1 rounded-full shadow-sm font-medium mb-2 w-max">
                             ${statusBadge.text}
