@@ -7,29 +7,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Prompt', sans-serif;
-            background-color: #e6f7f2;
-            min-height: 100vh;
-        }
-        .curved-header {
-            border-bottom-left-radius: 40px;
-            border-bottom-right-radius: 40px;
-            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            position: relative;
-        }
-        .card-shadow {
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-        }
-        .modal-enter {
-            animation: fadeIn 0.2s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        /* Custom Scrollbar for Form */
+        body { font-family: 'Prompt', sans-serif; background-color: #e6f7f2; min-height: 100vh; }
+        .curved-header { border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05); overflow: hidden; position: relative; }
+        .card-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .modal-enter { animation: fadeIn 0.2s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
@@ -89,16 +71,22 @@
                 <form id="addQueueForm" onsubmit="handleAddQueue(event)" class="space-y-4">
                     <input type="text" id="qTitle" placeholder="ชื่องาน/ภารกิจ" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm font-medium text-gray-700">
                     
-                    <textarea id="qDetail" placeholder="รายละเอียดของคิวงาน เช่น วัตถุประสงค์ หมายเหตุ รายละเอียดเพิ่มเติม" rows="3" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm resize-none"></textarea>
-                    
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">วันที่เริ่ม</label>
-                            <input type="date" id="qDate" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                            <input type="date" id="qStartDate" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">เวลาเริ่ม (ถ้ามี)</label>
-                            <input type="time" id="qTime" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                            <input type="time" id="qStartTime" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">วันที่สิ้นสุด (ถ้ามี)</label>
+                            <input type="date" id="qEndDate" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">เวลาสิ้นสุด (ถ้ามี)</label>
+                            <input type="time" id="qEndTime" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
                         </div>
                     </div>
 
@@ -124,6 +112,8 @@
                         </select>
                     </div>
 
+                    <input type="text" id="qLink" placeholder="ลิงก์แนบไฟล์ Google Drive (ถ้ามี)" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
+
                     <button type="submit" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition">บันทึกข้อมูลคิวงาน</button>
                 </form>
             </div>
@@ -132,7 +122,6 @@
 
     <!-- Hero Section -->
     <header class="curved-header bg-gradient-to-b from-white to-blue-50 text-center pt-10 pb-14 px-4 mb-8">
-        <!-- ภาพพื้นหลัง ปรับ opacity 30% -->
         <div class="absolute inset-0 z-0">
             <img src="อบต.jpg" alt="พื้นหลัง อบต." class="w-full h-full object-cover opacity-30">
         </div>
@@ -151,7 +140,6 @@
     <!-- Main Content -->
     <main class="max-w-5xl mx-auto px-4">
         
-        <!-- ประกาศ -->
         <div class="bg-[#10b981] text-white rounded-full px-4 py-2.5 flex items-center shadow-sm mb-6">
             <div class="bg-white rounded-full p-1 mr-3 flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
@@ -161,30 +149,26 @@
             <span class="font-medium text-sm">ประกาศ : แจ้งเรื่องกำหนดการชำระภาษีที่ดินและสิ่งปลูกสร้าง ประจำปี 2569</span>
         </div>
 
-        <!-- Big Numbers (สรุปสถิติคิวงาน) -->
+        <!-- Big Numbers -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <!-- ทั้งหมด -->
             <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
                 <div class="bg-gradient-to-b from-blue-200 to-blue-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
                     <span class="block text-blue-700 font-medium text-sm">ทั้งหมด</span>
                     <span id="count-total" class="block text-blue-800 font-bold text-3xl mt-0.5">0</span>
                 </div>
             </div>
-            <!-- กำลังทำ -->
             <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
                 <div class="bg-gradient-to-b from-orange-200 to-orange-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
                     <span class="block text-orange-700 font-medium text-sm">กำลังทำ</span>
                     <span id="count-pending" class="block text-orange-800 font-bold text-3xl mt-0.5">0</span>
                 </div>
             </div>
-            <!-- เสร็จสิ้น -->
             <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
                 <div class="bg-gradient-to-b from-green-200 to-green-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
                     <span class="block text-green-700 font-medium text-sm">เสร็จสิ้น</span>
                     <span id="count-completed" class="block text-green-800 font-bold text-3xl mt-0.5">0</span>
                 </div>
             </div>
-            <!-- ยกเลิก -->
             <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
                 <div class="bg-gradient-to-b from-red-200 to-red-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
                     <span class="block text-red-700 font-medium text-sm">ยกเลิก</span>
@@ -193,7 +177,7 @@
             </div>
         </div>
 
-        <!-- Controls (แสดงเมื่อ Login) -->
+        <!-- Controls -->
         <div id="adminControls" class="hidden mb-6 flex justify-end">
             <button onclick="openModal('addQueueModal')" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-sm hover:bg-blue-700 flex items-center gap-2 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -208,22 +192,16 @@
             <button id="tab-btn-phone" onclick="switchTab('phone')" class="tab-btn bg-white text-gray-500 font-medium px-8 py-3 rounded-t-2xl text-sm hover:bg-gray-50 transition-all">เบอร์โทร</button>
         </div>
 
-        <!-- Main Content Area -->
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 relative z-0 min-h-[400px]">
-            
             <div id="content-queue" class="tab-content block">
                 <h3 class="text-gray-400 text-xs font-medium mb-4 flex items-center gap-2">
-                    <span class="w-0.5 h-3 bg-gray-300 inline-block rounded"></span> รายการคิวงาน
+                    <span class="w-0.5 h-3 bg-gray-300 inline-block rounded"></span> รายการคิวงานทั้งหมด
                 </h3>
-                <div id="queueList" class="flex flex-col gap-4">
-                    <!-- การ์ดคิวจะถูกสร้างผ่าน JavaScript -->
-                </div>
+                <div id="queueList" class="flex flex-col gap-4"></div>
             </div>
-
             <div id="content-calendar" class="tab-content hidden flex items-center justify-center h-64">
                 <p class="text-gray-400 text-lg">📅 กำลังจัดทำระบบปฏิทิน อบต.</p>
             </div>
-
             <div id="content-phone" class="tab-content hidden flex items-center justify-center h-64">
                 <p class="text-gray-400 text-lg">📞 กำลังจัดทำสมุดรายนามและเบอร์โทรติดต่อ</p>
             </div>
@@ -231,10 +209,15 @@
     </main>
 
     <script>
-        // 1. ระบบ Navbar
+        // ==========================================
+        // อัปเดต API URL ของคุณแบมบี้เรียบร้อยแล้ว
+        // ==========================================
+        const API_URL = "https://script.google.com/macros/s/AKfycbx2WLgayblJSdhnA_Ad0Bjeng0tjn4aw7UzngKCctWOHJJYDCruvw1hpsSr4t-bNe8ogQ/exec";
+        
+        let queues = []; 
+
         function setActiveNav(clickedElement) {
-            const navLinks = document.querySelectorAll('.nav-link');
-            navLinks.forEach(link => {
+            document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('border-orange-500', 'text-blue-900');
                 link.classList.add('border-transparent', 'text-gray-500');
             });
@@ -242,35 +225,26 @@
             clickedElement.classList.add('border-orange-500', 'text-blue-900');
         }
 
-        // 2. ระบบ Tabs
         function switchTab(tabId) {
-            const tabBtns = document.querySelectorAll('.tab-btn');
-            tabBtns.forEach(btn => {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.className = "tab-btn bg-white text-gray-500 font-medium px-8 py-3 rounded-t-2xl text-sm hover:bg-gray-50 transition-all";
             });
+            document.getElementById(`tab-btn-${tabId}`).className = "tab-btn bg-[#60a5fa] text-white font-medium px-8 py-3 rounded-t-2xl text-sm shadow-sm transition-all";
 
-            const activeBtn = document.getElementById(`tab-btn-${tabId}`);
-            activeBtn.className = "tab-btn bg-[#60a5fa] text-white font-medium px-8 py-3 rounded-t-2xl text-sm shadow-sm transition-all";
-
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(content => {
+            document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.add('hidden');
                 content.classList.remove('block');
             });
-
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
             document.getElementById(`content-${tabId}`).classList.add('block');
         }
 
-        // 3. ระบบ Modal (Login & Add Queue)
         let isLoggedIn = false;
 
         function openModal(modalId) {
             document.getElementById(modalId).classList.remove('hidden');
             document.getElementById(modalId).classList.add('flex');
-            if(modalId === 'loginModal') {
-                document.getElementById('loginPassword').focus();
-            }
+            if(modalId === 'loginModal') document.getElementById('loginPassword').focus();
         }
 
         function closeModal(modalId) {
@@ -280,10 +254,7 @@
 
         function toggleAuth() {
             if (isLoggedIn) {
-                if(confirm("ต้องการออกจากระบบใช่หรือไม่?")) {
-                    isLoggedIn = false;
-                    renderUI();
-                }
+                if(confirm("ต้องการออกจากระบบใช่หรือไม่?")) { isLoggedIn = false; renderUI(); }
             } else {
                 document.getElementById('loginPassword').value = '';
                 document.getElementById('loginError').classList.add('hidden');
@@ -293,75 +264,61 @@
 
         function submitLogin() {
             const pass = document.getElementById('loginPassword').value;
-            if (pass === "cp123") {
-                isLoggedIn = true;
-                closeModal('loginModal');
-                renderUI();
-            } else {
-                document.getElementById('loginError').classList.remove('hidden');
+            if (pass === "cp123") { isLoggedIn = true; closeModal('loginModal'); renderUI(); } 
+            else { document.getElementById('loginError').classList.remove('hidden'); }
+        }
+
+        async function fetchQueues() {
+            const queueList = document.getElementById('queueList');
+            queueList.innerHTML = '<div class="flex justify-center items-center py-10"><p class="text-gray-500 animate-pulse">⏳ กำลังโหลดข้อมูลคิวงาน...</p></div>';
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                if (result.status === "success") {
+                    queues = result.data.reverse(); // เรียงจากล่าสุดขึ้นก่อน
+                    renderUI();
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                queueList.innerHTML = '<p class="text-center text-red-500 py-8">❌ เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
             }
         }
 
-        // 4. ระบบฐานข้อมูลจำลอง (Mock Database)
-        let queues = [
-            { 
-                id: 1, 
-                title: "โครงการอาสาสมัครท้องถิ่นรักษ์โลก (อถล.)", 
-                detail: "ประชุมชี้แจงแนวทางการดำเนินงานประจำปีงบประมาณ",
-                location: "ห้องประชุม อบต.", 
-                dress: "ชุดสีฟ้า",
-                resp: "กองสาธารณสุขและสิ่งแวดล้อม",
-                coord: "นางสาวสมหญิง ใจดี",
-                dateRaw: "2026-07-21",
-                jobStatus: "เสร็จสิ้น"
-            },
-            { 
-                id: 2, 
-                title: "โครงการเยาวชนไทยขับขี่ปลอดภัยมีวินัยจราจร", 
-                detail: "อบรมให้ความรู้กฎจราจรและภาคปฏิบัติ",
-                location: "โรงเรียนในเขตพื้นที่", 
-                dress: "ชุดปฏิบัติการ",
-                resp: "สำนักปลัด",
-                coord: "นายสมชาย รักความปลอดภัย",
-                dateRaw: "2026-07-22",
-                jobStatus: "รอดำเนินการ"
-            },
-            { 
-                id: 3, 
-                title: "โครงการส่งเสริมสุขภาพผู้สูงอายุ", 
-                detail: "ตรวจสุขภาพประจำปีให้ผู้สูงอายุในตำบล",
-                location: "ศาลาอเนกประสงค์ หมู่ 3", 
-                dress: "ชุดสุภาพ",
-                resp: "กองสาธารณสุขและสิ่งแวดล้อม",
-                coord: "นางใจดี มีสุข",
-                dateRaw: "2026-07-25",
-                jobStatus: "รอดำเนินการ"
-            },
-            { 
-                id: 4, 
-                title: "กิจกรรมปลูกป่าเฉลิมพระเกียรติ", 
-                detail: "ปลูกต้นไม้บริเวณป่าชุมชน",
-                location: "ป่าชุมชน บ้านชำผักแพว", 
-                dress: "ชุดจิตอาสา",
-                resp: "สำนักปลัด",
-                coord: "นายรักชาติ องอาจ",
-                dateRaw: "2026-06-15",
-                jobStatus: "เสร็จสิ้น"
-            },
-            { 
-                id: 5, 
-                title: "ประชุมสภา อบต. สมัยสามัญ", 
-                detail: "พิจารณาร่างข้อบัญญัติงบประมาณ",
-                location: "ห้องประชุมสภา อบต.", 
-                dress: "ชุดกากี",
-                resp: "กิจการสภา",
-                coord: "เลขานุการสภา",
-                dateRaw: "2026-07-10",
-                jobStatus: "ยกเลิก"
-            }
-        ];
+        async function handleAddQueue(e) {
+            e.preventDefault(); 
+            const respSelect = document.getElementById('qResp');
+            const selectedResp = Array.from(respSelect.selectedOptions).map(opt => opt.value).join(", ");
+            
+            // เตรียมข้อมูลให้ตรงกับ Column ในตาราง
+            const newQueue = {
+                id: Date.now().toString(),
+                title: document.getElementById('qTitle').value,
+                startDate: document.getElementById('qStartDate').value,
+                startTime: document.getElementById('qStartTime').value || "-",
+                endDate: document.getElementById('qEndDate').value || "-",
+                endTime: document.getElementById('qEndTime').value || "-",
+                location: document.getElementById('qLocation').value,
+                dress: document.getElementById('qDress').value,
+                resp: selectedResp || "-",
+                coord: document.getElementById('qCoord').value,
+                jobStatus: document.getElementById('qStatusDropdown').value,
+                link: document.getElementById('qLink').value || "-"
+            };
 
-        // ฟังก์ชันอัปเดตตัวเลข Big Numbers
+            queues.unshift(newQueue); 
+            renderUI();
+            
+            document.getElementById('addQueueForm').reset();
+            closeModal('addQueueModal');
+
+            try {
+                await fetch(API_URL, { method: "POST", body: JSON.stringify(newQueue) });
+            } catch (error) {
+                console.error("Error saving data:", error);
+                alert("เกิดข้อผิดพลาดขัดข้องในการบันทึกข้อมูล");
+            }
+        }
+
         function updateBigNumbers() {
             const total = queues.length;
             const pending = queues.filter(q => q.jobStatus === 'รอดำเนินการ').length;
@@ -374,9 +331,11 @@
             document.getElementById('count-canceled').textContent = canceled;
         }
 
-        // ฟังก์ชันแปลง Date เป็น วัน เดือน ปี(พ.ศ.)
         function formatThaiDate(dateString) {
+            if(!dateString || dateString === "-") return { dayMonth: "-", year: "-" };
             const date = new Date(dateString);
+            if(isNaN(date)) return { dayMonth: dateString, year: "" }; 
+            
             const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
             const d = date.getDate();
             const m = months[date.getMonth()];
@@ -384,10 +343,14 @@
             return { dayMonth: `${d} ${m}`, year: `${y}` };
         }
 
-        // ฟังก์ชันคำนวณระยะห่างของวัน
         function calculateDaysStatus(targetDateStr) {
-            const today = new Date('2026-07-22T00:00:00'); 
+            if(!targetDateStr || targetDateStr === "-") return { text: "ไม่ระบุวัน", color: "bg-gray-400" };
+            
+            const today = new Date(); 
+            today.setHours(0,0,0,0);
+            
             const target = new Date(targetDateStr);
+            if(isNaN(target)) return { text: "วันที่ไม่ถูกต้อง", color: "bg-gray-400" };
             target.setHours(0,0,0,0);
             
             const diffTime = target - today;
@@ -399,41 +362,7 @@
             return { text: "ผ่านมาแล้ว", color: "bg-gray-300" };
         }
 
-        function handleAddQueue(e) {
-            e.preventDefault(); 
-            
-            const respSelect = document.getElementById('qResp');
-            const selectedResp = Array.from(respSelect.selectedOptions).map(opt => opt.value).join(", ");
-            const selectedStatus = document.getElementById('qStatusDropdown').value;
-            
-            const newQueue = {
-                id: Date.now(),
-                title: document.getElementById('qTitle').value,
-                detail: document.getElementById('qDetail').value || "-",
-                location: document.getElementById('qLocation').value,
-                dress: document.getElementById('qDress').value,
-                resp: selectedResp || "-",
-                coord: document.getElementById('qCoord').value,
-                dateRaw: document.getElementById('qDate').value,
-                jobStatus: selectedStatus
-            };
-
-            queues.unshift(newQueue); 
-            document.getElementById('addQueueForm').reset();
-            closeModal('addQueueModal');
-            renderUI();
-        }
-
-        function deleteQueue(id) {
-            if(confirm("ยืนยันการลบคิวงานนี้?")) {
-                queues = queues.filter(q => q.id !== id);
-                renderUI();
-            }
-        }
-
-        // 5. ระบบวาดหน้าจอ (Render UI)
         function renderUI() {
-            // อัปเดตปุ่มล็อคอิน
             const authBtn = document.getElementById('authBtn');
             if (isLoggedIn) {
                 authBtn.textContent = "ออกจากระบบ";
@@ -444,11 +373,8 @@
             }
 
             document.getElementById('adminControls').style.display = isLoggedIn ? 'flex' : 'none';
-
-            // อัปเดต Big Numbers
             updateBigNumbers();
 
-            // วาดรายการคิว
             const queueList = document.getElementById('queueList');
             queueList.innerHTML = ''; 
 
@@ -458,34 +384,35 @@
             }
 
             queues.forEach((q, index) => {
-                const { dayMonth, year } = formatThaiDate(q.dateRaw);
-                let statusBadge = calculateDaysStatus(q.dateRaw);
+                const { dayMonth, year } = formatThaiDate(q.startDate);
+                let statusBadge = calculateDaysStatus(q.startDate);
                 
-                // หากงานเสร็จสิ้นหรือยกเลิกแล้ว ให้แสดงสถานะตามนั้นแทนการนับวัน
                 if(q.jobStatus === "เสร็จสิ้น") {
                     statusBadge = { text: "เสร็จสิ้น", color: "bg-green-500" };
                 } else if(q.jobStatus === "ยกเลิก") {
                     statusBadge = { text: "ยกเลิก", color: "bg-red-500" };
                 }
 
-                const deleteBtn = isLoggedIn ? `<button onclick="deleteQueue(${q.id})" class="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>` : '';
+                const fileLinkHTML = (q.link && q.link !== "-") 
+                    ? `<a href="${q.link}" target="_blank" class="text-blue-500 underline hover:text-blue-700 break-all text-xs">🔗 ไฟล์แนบ</a>` 
+                    : `<span class="text-gray-400">-</span>`;
 
                 const cardHTML = `
                 <div class="border border-gray-100 rounded-2xl p-5 md:p-6 flex flex-col md:flex-row gap-6 card-shadow relative bg-white items-start group hover:border-blue-100 transition">
-                    ${deleteBtn}
                     
                     <div class="w-10 h-10 flex-shrink-0 bg-[#f97316] rounded-full flex items-center justify-center text-white font-bold text-lg mt-1 shadow-sm">
                         ${index + 1}
                     </div>
                     
                     <div class="flex-1 w-full pt-1">
-                        <h4 class="font-bold text-[#1e3a8a] text-base mb-3 pr-8">${q.title}</h4>
+                        <h4 class="font-bold text-[#1e3a8a] text-base mb-3 pr-8">${q.title || '-'}</h4>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-xs text-gray-600">
-                            <p class="flex items-start gap-2"><span class="text-red-400">📌</span> <span class="flex-1"><span class="font-semibold text-gray-700">สถานที่:</span> ${q.location}</span></p>
-                            <p class="flex items-start gap-2"><span class="text-green-500">👕</span> <span class="flex-1"><span class="font-semibold text-gray-700">การแต่งกาย:</span> ${q.dress}</span></p>
-                            <p class="flex items-start gap-2"><span class="text-pink-400">📝</span> <span class="flex-1"><span class="font-semibold text-gray-700">รายละเอียด:</span> ${q.detail}</span></p>
-                            <p class="flex items-start gap-2"><span class="text-blue-500">👤</span> <span class="flex-1"><span class="font-semibold text-gray-700">ผู้รับผิดชอบ:</span> ${q.resp}</span></p>
-                            <p class="flex items-start gap-2 md:col-span-2"><span class="text-purple-400">📞</span> <span class="flex-1"><span class="font-semibold text-gray-700">ผู้ประสานงาน:</span> ${q.coord}</span></p>
+                            <p class="flex items-start gap-2"><span class="text-red-400">📌</span> <span class="flex-1"><span class="font-semibold text-gray-700">สถานที่:</span> ${q.location || '-'}</span></p>
+                            <p class="flex items-start gap-2"><span class="text-green-500">👕</span> <span class="flex-1"><span class="font-semibold text-gray-700">การแต่งกาย:</span> ${q.dress || '-'}</span></p>
+                            <p class="flex items-start gap-2"><span class="text-blue-500">👤</span> <span class="flex-1"><span class="font-semibold text-gray-700">ผู้รับผิดชอบ:</span> ${q.resp || '-'}</span></p>
+                            <p class="flex items-start gap-2"><span class="text-purple-400">📞</span> <span class="flex-1"><span class="font-semibold text-gray-700">ผู้ประสานงาน:</span> ${q.coord || '-'}</span></p>
+                            <p class="flex items-start gap-2 md:col-span-2"><span class="text-pink-400">🕒</span> <span class="flex-1"><span class="font-semibold text-gray-700">เวลา:</span> เริ่ม ${q.startTime || '-'} น. ${q.endTime !== "-" ? `ถึง ${q.endTime} น.` : ""}</span></p>
+                            <p class="flex items-start gap-2 md:col-span-2"><span class="text-yellow-500">📂</span> <span class="flex-1"><span class="font-semibold text-gray-700">ไฟล์แนบ:</span> ${fileLinkHTML}</span></p>
                         </div>
                     </div>
 
@@ -508,10 +435,9 @@
             if (e.key === 'Enter') submitLogin();
         });
 
-        // รันครั้งแรก
         window.onload = () => {
-            renderUI();
             switchTab('queue');
+            fetchQueues(); 
         };
     </script>
 </body>
