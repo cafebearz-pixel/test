@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>อบต.ชำผักแพว - หน้าแรก</title>
+    <!-- นำเข้าฟอนต์ Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- นำเข้า Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #dcfce7; /* สีพื้นหลังโทนฟ้าอมเขียวอ่อน */
+            background-image: linear-gradient(to bottom, #f0fdf4, #cffafe);
+            min-height: 100vh;
+        }
+        .curved-header {
+            background: linear-gradient(to right, #ffffff, #e0f2fe);
+            border-bottom-left-radius: 50px;
+            border-bottom-right-radius: 50px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #2563eb, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .tab-active {
+            background: linear-gradient(to right, #7dd3fc, #38bdf8);
+            color: white;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="text-gray-800 pb-10">
+
+    <!-- Navbar -->
+    <nav class="bg-white px-6 py-3 flex justify-between items-center shadow-sm sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <!-- โลโก้จำลอง -->
+            <div class="w-10 h-10 bg-yellow-400 rounded-full border-2 border-blue-500 flex items-center justify-center text-xs text-white font-bold">โลโก้</div>
+        </div>
+        <div class="hidden md:flex gap-6 text-sm font-medium text-blue-900">
+            <a href="#" class="border-b-2 border-orange-500 pb-1">หน้าแรก</a>
+            <a href="#" class="hover:text-blue-500">ปฏิทิน</a>
+            <a href="#" class="hover:text-blue-500">เบอร์โทร</a>
+            <a href="#" class="hover:text-blue-500">ติดต่อ</a>
+        </div>
+        <button id="authBtn" onclick="toggleAuth()" class="bg-gradient-to-b from-green-400 to-green-600 text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-md hover:from-green-500 hover:to-green-700 transition">
+            เข้าสู่ระบบ
+        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="curved-header relative text-center pt-10 pb-16 px-4">
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-2" style="-webkit-text-stroke: 1px #fff; text-shadow: 0px 2px 4px rgba(0,0,0,0.2);">ยินดีต้อนรับสู่</h2>
+        <h1 class="text-2xl md:text-3xl font-bold text-blue-900 mb-6 drop-shadow-md">องค์การบริหารส่วนตำบลชำผักแพว</h1>
+        
+        <!-- Search -->
+        <div class="max-w-xl mx-auto bg-white p-1.5 rounded-full flex shadow-lg">
+            <input type="text" placeholder="ค้นหา..." class="flex-1 px-4 outline-none rounded-l-full bg-transparent">
+            <button class="bg-gradient-to-b from-orange-400 to-orange-600 text-white px-6 py-1.5 rounded-full text-sm font-medium shadow">ค้นหา</button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 mt-6">
+        
+        <!-- แถบประกาศ -->
+        <div class="bg-gradient-to-r from-lime-500 to-green-500 text-white rounded-full px-4 py-2 flex items-center shadow-md mb-8">
+            <div class="bg-white rounded-full p-1 mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
+                </svg>
+            </div>
+            <span class="font-medium">ประกาศ</span>
+        </div>
+
+        <!-- ฟอร์มเพิ่มคิว (ซ่อนไว้จนกว่าจะล็อคอิน) -->
+        <div id="adminPanel" class="hidden bg-white p-6 rounded-2xl shadow-md border-2 border-blue-200 mb-8">
+            <h3 class="text-lg font-bold text-blue-800 mb-4">เพิ่มคิวงานใหม่ (สำหรับแอดมิน)</h3>
+            <form id="addQueueForm" onsubmit="handleAddQueue(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="qTitle" placeholder="ชื่อโครงการ/งาน" required class="border p-2 rounded-lg outline-blue-400">
+                <input type="text" id="qDate" placeholder="วันที่ (เช่น 25 ก.ค. 2569)" required class="border p-2 rounded-lg outline-blue-400">
+                <input type="text" id="qLocation" placeholder="สถานที่" class="border p-2 rounded-lg outline-blue-400">
+                <input type="text" id="qStatus" placeholder="สถานะ (เช่น อีก 2 วัน)" required class="border p-2 rounded-lg outline-blue-400">
+                <button type="submit" class="md:col-span-2 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700">บันทึกคิวงาน</button>
+            </form>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-2 mb-[-1px] relative z-10 pl-4">
+            <button class="tab-active px-6 py-2 rounded-t-2xl text-sm shadow-[0_-2px_5px_rgba(0,0,0,0.05)]">คิวนายก</button>
+            <button class="bg-white text-gray-500 px-6 py-2 rounded-t-2xl text-sm border-t border-x hover:bg-gray-50">ปฏิทิน อบต.</button>
+            <button class="bg-white text-gray-500 px-6 py-2 rounded-t-2xl text-sm border-t border-x hover:bg-gray-50">เบอร์โทร</button>
+        </div>
+
+        <!-- Queue Container -->
+        <div class="bg-white rounded-3xl border border-blue-100 shadow-xl p-6 relative z-0">
+            <h3 class="text-gray-400 text-sm font-medium mb-4 flex items-center gap-2">
+                <span class="w-1 h-4 bg-gray-300 inline-block rounded"></span> 10 คิวแรก
+            </h3>
+
+            <!-- ลิสต์รายการคิว -->
+            <div id="queueList" class="flex flex-col gap-4">
+                <!-- โค้ด JS จะมาสร้างการ์ดตรงนี้ -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Script จัดการการทำงาน -->
+    <script>
+        // สถานะการล็อคอิน
+        let isLoggedIn = false;
+
+        // ข้อมูลจำลอง (Mock Data)
+        let queues = [
+            { id: 1, title: "โครงการอาสาสมัครท้องถิ่นรักษ์โลก (อถล.)", location: "ห้องประชุม อบต.", date: "21 ก.ค. 2569", status: "อีก 1 วัน", statusColor: "bg-orange-500" },
+            { id: 2, title: "โครงการเยาวชนไทยขับขี่ปลอดภัยมีวินัยจราจร", location: "โรงเรียนในเขต", date: "22 ก.ค. 2569", status: "อีก 4 วัน", statusColor: "bg-green-500" },
+            { id: 3, title: "โครงการอาสาสมัครท้องถิ่นรักษ์โลก (อถล.)", location: "หมู่ที่ 1-5", date: "22 ก.ค. 2569", status: "", statusColor: "" },
+            { id: 4, title: "โครงการอาสาสมัครท้องถิ่นรักษ์โลก (อถล.)", location: "ลานอเนกประสงค์", date: "22 ก.ค. 2569", status: "", statusColor: "" }
+        ];
+
+        // ฟังก์ชันเข้าสู่ระบบ / ออกจากระบบ
+        function toggleAuth() {
+            if (isLoggedIn) {
+                // กรณีออกจากระบบ
+                isLoggedIn = false;
+                alert("ออกจากระบบเรียบร้อยแล้ว");
+            } else {
+                // กรณีเข้าสู่ระบบ
+                const password = prompt("กรุณากรอกรหัสผ่านเพื่อเข้าสู่ระบบ:");
+                if (password === "cp123") {
+                    isLoggedIn = true;
+                    alert("เข้าสู่ระบบสำเร็จ!");
+                } else if (password !== null) {
+                    alert("รหัสผ่านไม่ถูกต้อง");
+                }
+            }
+            renderUI();
+        }
+
+        // ฟังก์ชันเพิ่มคิว
+        function handleAddQueue(e) {
+            e.preventDefault(); // ป้องกันหน้าเว็บรีเฟรช
+            
+            const title = document.getElementById('qTitle').value;
+            const date = document.getElementById('qDate').value;
+            const location = document.getElementById('qLocation').value || "-";
+            const status = document.getElementById('qStatus').value;
+            
+            const newQueue = {
+                id: Date.now(),
+                title: title,
+                location: location,
+                date: date,
+                status: status,
+                statusColor: "bg-blue-500" // สีเริ่มต้น
+            };
+
+            queues.unshift(newQueue); // เพิ่มไปบนสุด
+            document.getElementById('addQueueForm').reset();
+            renderUI();
+        }
+
+        // ฟังก์ชันลบคิว
+        function deleteQueue(id) {
+            if(confirm("แน่ใจหรือไม่ว่าต้องการลบคิวงานนี้?")) {
+                queues = queues.filter(q => q.id !== id);
+                renderUI();
+            }
+        }
+
+        // ฟังก์ชันวาดหน้าจอ (Render)
+        function renderUI() {
+            // 1. อัปเดตปุ่มล็อคอิน
+            const authBtn = document.getElementById('authBtn');
+            if (isLoggedIn) {
+                authBtn.textContent = "ออกจากระบบ";
+                authBtn.classList.replace('from-green-400', 'from-red-400');
+                authBtn.classList.replace('to-green-600', 'to-red-600');
+                authBtn.classList.replace('hover:from-green-500', 'hover:from-red-500');
+                authBtn.classList.replace('hover:to-green-700', 'hover:to-red-700');
+            } else {
+                authBtn.textContent = "เข้าสู่ระบบ";
+                authBtn.classList.replace('from-red-400', 'from-green-400');
+                authBtn.classList.replace('to-red-600', 'to-green-600');
+                authBtn.classList.replace('hover:from-red-500', 'hover:from-green-500');
+                authBtn.classList.replace('hover:to-red-700', 'hover:to-green-700');
+            }
+
+            // 2. แสดง/ซ่อน แผงจัดการแอดมิน
+            const adminPanel = document.getElementById('adminPanel');
+            adminPanel.style.display = isLoggedIn ? 'block' : 'none';
+
+            // 3. วาดรายการคิว
+            const queueList = document.getElementById('queueList');
+            queueList.innerHTML = ''; // เคลียร์ของเก่า
+
+            if(queues.length === 0) {
+                queueList.innerHTML = '<p class="text-center text-gray-400 py-4">ไม่มีรายการคิวงาน</p>';
+                return;
+            }
+
+            queues.forEach((q, index) => {
+                // ป้ายสถานะ (ถ้ามี)
+                const statusBadge = q.status ? `<div class="${q.statusColor} text-white text-xs px-3 py-0.5 rounded-full shadow-sm absolute -top-3 right-4">${q.status}</div>` : '';
+                
+                // ปุ่มลบ (โชว์เฉพาะล็อคอิน)
+                const deleteBtn = isLoggedIn ? `<button onclick="deleteQueue(${q.id})" class="mt-2 text-xs text-red-500 hover:text-red-700 underline bg-red-50 px-2 py-1 rounded">ลบคิวงาน</button>` : '';
+
+                // การ์ดคิวงาน
+                const cardHTML = `
+                <div class="border border-gray-100 rounded-2xl p-4 flex gap-4 card-shadow relative bg-white items-center">
+                    ${statusBadge}
+                    <!-- วงกลมตัวเลข -->
+                    <div class="w-12 h-12 flex-shrink-0 bg-gradient-to-br from-orange-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-inner">
+                        ${index + 1}
+                    </div>
+                    
+                    <!-- ข้อมูล -->
+                    <div class="flex-1">
+                        <h4 class="font-bold text-blue-900 text-sm md:text-base">${q.title}</h4>
+                        <div class="text-xs text-gray-500 mt-1 space-y-0.5">
+                            <p>📌 สถานที่ : ${q.location}</p>
+                            <p>👕 การแต่งกาย : ชุดสีฟ้า</p>
+                        </div>
+                        ${deleteBtn}
+                    </div>
+
+                    <!-- กล่องวันที่ -->
+                    <div class="bg-gradient-to-b from-blue-100 to-blue-200 text-blue-800 rounded-xl px-4 py-3 flex-shrink-0 text-center shadow-sm w-28 border border-white">
+                        <span class="font-bold text-sm leading-tight block">${q.date.split(' ')[0]} ${q.date.split(' ')[1]}</span>
+                        <span class="font-bold text-lg leading-tight block">${q.date.split(' ')[2]}</span>
+                    </div>
+                </div>
+                `;
+                queueList.insertAdjacentHTML('beforeend', cardHTML);
+            });
+        }
+
+        // รันครั้งแรกตอนเปิดหน้าเว็บ
+        renderUI();
+    </script>
+</body>
+</html>
