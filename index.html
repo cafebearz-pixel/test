@@ -4,33 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>อบต.ชำผักแพว - หน้าแรก</title>
-    <!-- นำเข้าฟอนต์ Prompt -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- นำเข้า Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
             font-family: 'Prompt', sans-serif;
-            background-color: #e0f8f1; /* สีพื้นหลังโทนเขียวมิ้นต์อ่อนๆ แบบในรูป */
+            background-color: #e6f7f2;
             min-height: 100vh;
         }
         .curved-header {
-            background: linear-gradient(to bottom, #ffffff, #f0fdfa);
             border-bottom-left-radius: 40px;
             border-bottom-right-radius: 40px;
             box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            position: relative;
         }
         .card-shadow {
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
-        /* แอนิเมชันสำหรับหน้าต่าง Login */
         .modal-enter {
-            animation: fadeIn 0.3s ease-out forwards;
+            animation: fadeIn 0.2s ease-out forwards;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.95); }
             to { opacity: 1; transform: scale(1); }
         }
+        /* Custom Scrollbar for Form */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
     </style>
 </head>
 <body class="text-gray-800 pb-10">
@@ -38,64 +41,121 @@
     <!-- Navbar -->
     <nav class="bg-white px-6 py-4 flex justify-between items-center shadow-sm sticky top-0 z-40">
         <div class="flex items-center gap-3">
-            <!-- โลโก้ อบต. -->
             <img src="cpp.png" alt="โลโก้ อบต.ชำผักแพว" class="h-10 object-contain" onerror="this.outerHTML='<div class=\'w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500\'>cpp.png</div>'">
         </div>
         
-        <!-- เมนูหลัก -->
-        <div id="navMenu" class="hidden md:flex gap-6 text-sm font-medium text-blue-900">
-            <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-orange-500 pb-1">หน้าแรก</a>
+        <div id="navMenu" class="hidden md:flex gap-6 text-sm font-medium text-gray-500">
+            <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-orange-500 text-blue-900 pb-1 transition-all">หน้าแรก</a>
             <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ปฏิทิน</a>
             <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">เบอร์โทร</a>
-            <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">เพิ่ม</a>
             <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ฟอร์มต่างๆ</a>
             <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ธนาคารขยะ</a>
             <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ติดต่อ</a>
         </div>
 
-        <button id="authBtn" onclick="toggleAuth()" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition">
+        <button id="authBtn" onclick="toggleAuth()" class="bg-[#10b981] text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-sm hover:bg-green-600 transition">
             เข้าสู่ระบบ
         </button>
     </nav>
 
-    <!-- Modal เข้าสู่ระบบ (ซ่อนไว้เป็นค่าเริ่มต้น) -->
+    <!-- Modal เข้าสู่ระบบ -->
     <div id="loginModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden items-center justify-center">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden modal-enter">
             <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 text-center">
                 <h3 class="text-xl font-bold text-white">เข้าสู่ระบบจัดการ</h3>
-                <p class="text-blue-100 text-sm mt-1">สำหรับเจ้าหน้าที่ อบต.ชำผักแพว</p>
             </div>
             <div class="p-6">
                 <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">รหัสผ่าน</label>
-                    <input type="password" id="loginPassword" placeholder="กรอกรหัสผ่าน..." class="w-full border border-gray-300 px-4 py-2 rounded-lg outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition">
-                    <p id="loginError" class="text-red-500 text-xs mt-1 hidden">รหัสผ่านไม่ถูกต้อง</p>
+                    <input type="password" id="loginPassword" placeholder="รหัสผ่าน..." class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none focus:border-blue-500 transition">
+                    <p id="loginError" class="text-red-500 text-xs mt-1 hidden pl-1">รหัสผ่านไม่ถูกต้อง</p>
                 </div>
                 <div class="flex gap-3 mt-6">
-                    <button onclick="closeLoginModal()" class="flex-1 bg-gray-100 text-gray-600 py-2 rounded-lg font-medium hover:bg-gray-200 transition">ยกเลิก</button>
-                    <button onclick="submitLogin()" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition">ตกลง</button>
+                    <button onclick="closeModal('loginModal')" class="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl font-medium hover:bg-gray-200 transition">ยกเลิก</button>
+                    <button onclick="submitLogin()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl font-medium hover:bg-blue-700 transition">ตกลง</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Modal เพิ่มคิวงาน (ดีไซน์ใหม่) -->
+    <div id="addQueueModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden modal-enter flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
+                <h3 class="text-lg font-bold text-gray-800">เพิ่มคิวงาน/ภารกิจ</h3>
+                <button onclick="closeModal('addQueueModal')" class="text-gray-400 hover:text-red-500 text-xl font-bold">&times;</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto">
+                <form id="addQueueForm" onsubmit="handleAddQueue(event)" class="space-y-4">
+                    <input type="text" id="qTitle" placeholder="ชื่องาน/ภารกิจ" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm font-medium text-gray-700">
+                    
+                    <textarea id="qDetail" placeholder="รายละเอียดของคิวงาน เช่น วัตถุประสงค์ หมายเหตุ รายละเอียดเพิ่มเติม" rows="3" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm resize-none"></textarea>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">วันที่เริ่ม</label>
+                            <input type="date" id="qDate" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">เวลาเริ่ม (ถ้ามี)</label>
+                            <input type="time" id="qTime" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                        </div>
+                    </div>
+
+                    <select id="qStatusDropdown" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-700 appearance-none">
+                        <option value="รอดำเนินการ">รอดำเนินการ</option>
+                        <option value="เสร็จสิ้น">เสร็จสิ้น</option>
+                        <option value="ยกเลิก">ยกเลิก</option>
+                    </select>
+
+                    <input type="text" id="qLocation" placeholder="สถานที่" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
+                    <input type="text" id="qDress" placeholder="การแต่งกาย" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
+                    <input type="text" id="qCoord" placeholder="ผู้ประสานงาน" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">ผู้รับผิดชอบ (เลือกได้หลายคน / กด Ctrl เพื่อเลือก)</label>
+                        <select id="qResp" multiple class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-700 h-24">
+                            <option value="นายก อบต.">นายก อบต.</option>
+                            <option value="รองนายก อบต.">รองนายก อบต.</option>
+                            <option value="เลขานุการนายก">เลขานุการนายก</option>
+                            <option value="ปลัด อบต.">ปลัด อบต.</option>
+                            <option value="สำนักปลัด">สำนักปลัด</option>
+                            <option value="กองสาธารณสุขฯ">กองสาธารณสุขและสิ่งแวดล้อม</option>
+                        </select>
+                    </div>
+
+                    <input type="text" id="qLink" placeholder="ลิงก์แนบไฟล์ Google Drive (ถ้ามี)" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
+
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition">บันทึกข้อมูลคิวงาน</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Hero Section -->
-    <header class="curved-header relative text-center pt-8 pb-12 px-4 mb-8">
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-400 mb-1">ยินดีต้อนรับสู่</h2>
-        <h1 class="text-3xl md:text-4xl font-bold text-blue-900 mb-8 drop-shadow-sm">องค์การบริหารส่วนตำบลชำผักแพว</h1>
+    <header class="curved-header bg-gradient-to-b from-white to-blue-50 text-center pt-10 pb-14 px-4 mb-8">
+        <!-- ภาพพื้นหลัง ปรับ opacity 30% -->
+        <div class="absolute inset-0 z-0">
+            <img src="อบต.jpg" alt="พื้นหลัง อบต." class="w-full h-full object-cover opacity-30" onerror="this.style.display='none'">
+        </div>
         
-        <!-- Search -->
-        <div class="max-w-xl mx-auto bg-white p-1.5 rounded-full flex shadow-md border border-gray-100">
-            <input type="text" placeholder="ค้นหา..." class="flex-1 px-4 outline-none rounded-l-full bg-transparent">
-            <button class="bg-orange-500 text-white px-8 py-2 rounded-full text-sm font-medium shadow hover:bg-orange-600 transition">ค้นหา</button>
+        <!-- เนื้อหา Hero วางซ้อนด้านบน -->
+        <div class="relative z-10">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-400 mb-1">ยินดีต้อนรับสู่</h2>
+            <h1 class="text-3xl md:text-4xl font-bold text-[#1e3a8a] mb-8">องค์การบริหารส่วนตำบลชำผักแพว</h1>
+            
+            <div class="max-w-xl mx-auto bg-white p-1.5 rounded-full flex shadow-sm border border-gray-200">
+                <input type="text" placeholder="ค้นหา..." class="flex-1 px-4 outline-none rounded-l-full bg-transparent text-sm">
+                <button class="bg-[#f97316] text-white px-8 py-2 rounded-full text-sm font-medium hover:bg-orange-600 transition">ค้นหา</button>
+            </div>
         </div>
     </header>
 
     <!-- Main Content -->
     <main class="max-w-5xl mx-auto px-4">
         
-        <!-- แถบประกาศ -->
-        <div class="bg-green-500 text-white rounded-full px-4 py-2.5 flex items-center shadow-sm mb-8">
+        <!-- ประกาศ -->
+        <div class="bg-[#10b981] text-white rounded-full px-4 py-2.5 flex items-center shadow-sm mb-8">
             <div class="bg-white rounded-full p-1 mr-3 flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
@@ -104,76 +164,54 @@
             <span class="font-medium text-sm">ประกาศ : แจ้งเรื่องกำหนดการชำระภาษีที่ดินและสิ่งปลูกสร้าง ประจำปี 2569</span>
         </div>
 
-        <!-- ฟอร์มเพิ่มคิว (ซ่อนไว้จนกว่าจะล็อคอิน) -->
-        <div id="adminPanel" class="hidden bg-white p-6 rounded-2xl shadow-sm border-2 border-blue-100 mb-8">
-            <h3 class="text-lg font-bold text-blue-800 mb-4 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+        <!-- Controls (แสดงเมื่อ Login) -->
+        <div id="adminControls" class="hidden mb-6 flex justify-end">
+            <button onclick="openModal('addQueueModal')" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-sm hover:bg-blue-700 flex items-center gap-2 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 เพิ่มคิวงานใหม่
-            </h3>
-            <form id="addQueueForm" onsubmit="handleAddQueue(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input type="text" id="qTitle" placeholder="ชื่อคิว/โครงการ" required class="border border-gray-200 p-2.5 rounded-lg outline-blue-400">
-                <input type="text" id="qDate" placeholder="วันที่ (เช่น 21 ก.ค. 2569)" required class="border border-gray-200 p-2.5 rounded-lg outline-blue-400">
-                <input type="text" id="qDetail" placeholder="รายละเอียดแบบย่อ" class="border border-gray-200 p-2.5 rounded-lg outline-blue-400 md:col-span-2">
-                <input type="text" id="qLocation" placeholder="สถานที่" required class="border border-gray-200 p-2.5 rounded-lg outline-blue-400">
-                <input type="text" id="qDress" placeholder="การแต่งกาย (เช่น ชุดสีฟ้า)" required class="border border-gray-200 p-2.5 rounded-lg outline-blue-400">
-                <input type="text" id="qResp" placeholder="ผู้รับผิดชอบ" required class="border border-gray-200 p-2.5 rounded-lg outline-blue-400">
-                <input type="text" id="qCoord" placeholder="ผู้ประสานงาน" required class="border border-gray-200 p-2.5 rounded-lg outline-blue-400">
-                
-                <div class="md:col-span-2 flex items-center gap-3">
-                    <input type="text" id="qStatus" placeholder="สถานะป้ายเตือน (เช่น อีก 1 วัน) - เว้นว่างได้" class="border border-gray-200 p-2.5 rounded-lg outline-blue-400 flex-1">
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 whitespace-nowrap">บันทึกข้อมูล</button>
-                </div>
-            </form>
+            </button>
         </div>
 
         <!-- Tabs -->
         <div class="flex gap-2 mb-[-1px] relative z-10 pl-6">
-            <button id="tab-btn-queue" onclick="switchTab('queue')" class="tab-btn bg-gradient-to-r from-blue-400 to-blue-500 text-white font-medium px-8 py-2.5 rounded-t-2xl text-sm shadow-sm transition-all">คิวนายก</button>
-            <button id="tab-btn-calendar" onclick="switchTab('calendar')" class="tab-btn bg-white text-gray-500 font-medium px-8 py-2.5 rounded-t-2xl text-sm hover:bg-gray-50 transition-all">ปฏิทิน อบต.</button>
-            <button id="tab-btn-phone" onclick="switchTab('phone')" class="tab-btn bg-white text-gray-500 font-medium px-8 py-2.5 rounded-t-2xl text-sm hover:bg-gray-50 transition-all">เบอร์โทร</button>
+            <button id="tab-btn-queue" onclick="switchTab('queue')" class="tab-btn bg-[#60a5fa] text-white font-medium px-8 py-3 rounded-t-2xl text-sm shadow-sm transition-all">คิวนายก</button>
+            <button id="tab-btn-calendar" onclick="switchTab('calendar')" class="tab-btn bg-white text-gray-500 font-medium px-8 py-3 rounded-t-2xl text-sm hover:bg-gray-50 transition-all">ปฏิทิน อบต.</button>
+            <button id="tab-btn-phone" onclick="switchTab('phone')" class="tab-btn bg-white text-gray-500 font-medium px-8 py-3 rounded-t-2xl text-sm hover:bg-gray-50 transition-all">เบอร์โทร</button>
         </div>
 
         <!-- Main Content Area -->
-        <div class="bg-white rounded-3xl shadow-lg p-6 relative z-0 min-h-[400px]">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 relative z-0 min-h-[400px]">
             
-            <!-- โซนคิวนายก -->
             <div id="content-queue" class="tab-content block">
-                <h3 class="text-gray-400 text-sm font-medium mb-4 flex items-center gap-2">
-                    <span class="w-1 h-4 bg-gray-300 inline-block rounded"></span> 10 คิวแรก
+                <h3 class="text-gray-400 text-xs font-medium mb-4 flex items-center gap-2">
+                    <span class="w-0.5 h-3 bg-gray-300 inline-block rounded"></span> 10 คิวแรก
                 </h3>
                 <div id="queueList" class="flex flex-col gap-4">
-                    <!-- โค้ด JS จะมาสร้างการ์ดตรงนี้ -->
+                    <!-- การ์ดคิวจะถูกสร้างผ่าน JavaScript -->
                 </div>
             </div>
 
-            <!-- โซนปฏิทิน (Placeholder) -->
             <div id="content-calendar" class="tab-content hidden flex items-center justify-center h-64">
                 <p class="text-gray-400 text-lg">📅 กำลังจัดทำระบบปฏิทิน อบต.</p>
             </div>
 
-            <!-- โซนเบอร์โทร (Placeholder) -->
             <div id="content-phone" class="tab-content hidden flex items-center justify-center h-64">
                 <p class="text-gray-400 text-lg">📞 กำลังจัดทำสมุดรายนามและเบอร์โทรติดต่อ</p>
             </div>
-
         </div>
-
     </main>
 
-    <!-- Script ควบคุมการทำงาน -->
     <script>
         // ------------------------------------
-        // 1. ระบบจัดการแถบนำทาง (Navbar Active)
+        // 1. ระบบจัดการแถบนำทาง (Navbar)
         // ------------------------------------
         function setActiveNav(clickedElement) {
-            // ลบเส้นสีส้มออกจากทุกเมนู
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(link => {
                 link.classList.remove('border-orange-500', 'text-blue-900');
-                link.classList.add('border-transparent', 'text-gray-600');
+                link.classList.add('border-transparent', 'text-gray-500');
             });
-            // ใส่เส้นสีส้มให้เมนูที่ถูกคลิก
-            clickedElement.classList.remove('border-transparent', 'text-gray-600');
+            clickedElement.classList.remove('border-transparent', 'text-gray-500');
             clickedElement.classList.add('border-orange-500', 'text-blue-900');
         }
 
@@ -181,60 +219,60 @@
         // 2. ระบบแท็บ (Tabs)
         // ------------------------------------
         function switchTab(tabId) {
-            // รีเซ็ตปุ่มทั้งหมดเป็นสีขาว
             const tabBtns = document.querySelectorAll('.tab-btn');
             tabBtns.forEach(btn => {
-                btn.className = "tab-btn bg-white text-gray-500 font-medium px-8 py-2.5 rounded-t-2xl text-sm hover:bg-gray-50 transition-all";
+                btn.className = "tab-btn bg-white text-gray-500 font-medium px-8 py-3 rounded-t-2xl text-sm hover:bg-gray-50 transition-all";
             });
 
-            // ตั้งค่าปุ่มที่ถูกคลิกเป็นสีฟ้า
             const activeBtn = document.getElementById(`tab-btn-${tabId}`);
-            activeBtn.className = "tab-btn bg-gradient-to-r from-blue-400 to-blue-500 text-white font-medium px-8 py-2.5 rounded-t-2xl text-sm shadow-sm transition-all";
+            activeBtn.className = "tab-btn bg-[#60a5fa] text-white font-medium px-8 py-3 rounded-t-2xl text-sm shadow-sm transition-all";
 
-            // ซ่อนเนื้อหาทั้งหมด
             const contents = document.querySelectorAll('.tab-content');
             contents.forEach(content => {
                 content.classList.add('hidden');
                 content.classList.remove('block');
             });
 
-            // แสดงเนื้อหาที่สัมพันธ์กับแท็บ
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
             document.getElementById(`content-${tabId}`).classList.add('block');
         }
 
         // ------------------------------------
-        // 3. ระบบเข้าสู่ระบบ (Login Modal)
+        // 3. ระบบ Modal (Login & Add Queue)
         // ------------------------------------
         let isLoggedIn = false;
 
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.getElementById(modalId).classList.add('flex');
+            if(modalId === 'loginModal') {
+                document.getElementById('loginPassword').focus();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+
         function toggleAuth() {
             if (isLoggedIn) {
-                // หากเข้าระบบอยู่ ให้ทำการออกจากระบบ
                 if(confirm("ต้องการออกจากระบบใช่หรือไม่?")) {
                     isLoggedIn = false;
                     renderUI();
                 }
             } else {
-                // หากยังไม่เข้าระบบ ให้เปิด Modal
-                document.getElementById('loginModal').classList.remove('hidden');
-                document.getElementById('loginModal').classList.add('flex');
-                document.getElementById('loginPassword').value = ''; // เคลียร์ช่องรหัส
+                document.getElementById('loginPassword').value = '';
                 document.getElementById('loginError').classList.add('hidden');
-                document.getElementById('loginPassword').focus();
+                openModal('loginModal');
             }
-        }
-
-        function closeLoginModal() {
-            document.getElementById('loginModal').classList.add('hidden');
-            document.getElementById('loginModal').classList.remove('flex');
         }
 
         function submitLogin() {
             const pass = document.getElementById('loginPassword').value;
             if (pass === "cp123") {
                 isLoggedIn = true;
-                closeLoginModal();
+                closeModal('loginModal');
                 renderUI();
             } else {
                 document.getElementById('loginError').classList.remove('hidden');
@@ -242,8 +280,10 @@
         }
 
         // ------------------------------------
-        // 4. ระบบจัดการข้อมูลคิวงาน
+        // 4. ระบบคำนวณวันที่ และจัดการคิวงาน
         // ------------------------------------
+        
+        // ข้อมูลตั้งต้น (Mock Data)
         let queues = [
             { 
                 id: 1, 
@@ -253,9 +293,7 @@
                 dress: "ชุดสีฟ้า",
                 resp: "กองสาธารณสุขและสิ่งแวดล้อม",
                 coord: "นางสาวสมหญิง ใจดี",
-                date: "21 ก.ค. 2569", 
-                status: "อีก 1 วัน", 
-                statusColor: "bg-orange-500" 
+                dateRaw: "2026-07-21" // ปี ค.ศ. สำหรับคำนวณ
             },
             { 
                 id: 2, 
@@ -265,14 +303,44 @@
                 dress: "ชุดสีฟ้า / ชุดปฏิบัติการ",
                 resp: "สำนักปลัด",
                 coord: "นายสมชาย รักความปลอดภัย",
-                date: "22 ก.ค. 2569", 
-                status: "อีก 4 วัน", 
-                statusColor: "bg-green-500" 
+                dateRaw: "2026-07-22"
             }
         ];
 
+        // ฟังก์ชันแปลง Date เป็น วัน เดือน ปี(พ.ศ.)
+        function formatThaiDate(dateString) {
+            const date = new Date(dateString);
+            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            const d = date.getDate();
+            const m = months[date.getMonth()];
+            const y = date.getFullYear() + 543; // แปลง ค.ศ. เป็น พ.ศ.
+            return { dayMonth: `${d} ${m}`, year: `${y}` };
+        }
+
+        // ฟังก์ชันคำนวณระยะห่างของวัน
+        function calculateDaysStatus(targetDateStr) {
+            // สมมติให้วันปัจจุบันคือ 22 ก.ค. 2026 เพื่อให้ตรงกับข้อมูลตัวอย่าง
+            const today = new Date('2026-07-22T00:00:00'); 
+            // หากต้องการใช้วันที่จริงของเครื่อง ให้ใช้: const today = new Date(); today.setHours(0,0,0,0);
+            
+            const target = new Date(targetDateStr);
+            target.setHours(0,0,0,0);
+            
+            const diffTime = target - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if(diffDays === 0) return { text: "วันนี้", color: "bg-red-500" };
+            if(diffDays === 1) return { text: "พรุ่งนี้", color: "bg-orange-500" };
+            if(diffDays > 1) return { text: `อีก ${diffDays} วัน`, color: "bg-green-500" };
+            return { text: "ผ่านมาแล้ว", color: "bg-gray-300" };
+        }
+
         function handleAddQueue(e) {
             e.preventDefault(); 
+            
+            // ดึงค่า Multi-select
+            const respSelect = document.getElementById('qResp');
+            const selectedResp = Array.from(respSelect.selectedOptions).map(opt => opt.value).join(", ");
             
             const newQueue = {
                 id: Date.now(),
@@ -280,41 +348,40 @@
                 detail: document.getElementById('qDetail').value || "-",
                 location: document.getElementById('qLocation').value,
                 dress: document.getElementById('qDress').value,
-                resp: document.getElementById('qResp').value,
+                resp: selectedResp || "-",
                 coord: document.getElementById('qCoord').value,
-                date: document.getElementById('qDate').value,
-                status: document.getElementById('qStatus').value,
-                statusColor: "bg-blue-500" 
+                dateRaw: document.getElementById('qDate').value
             };
 
+            // ดันงานใหม่ไปไว้บนสุด
             queues.unshift(newQueue); 
             document.getElementById('addQueueForm').reset();
+            closeModal('addQueueModal');
             renderUI();
         }
 
         function deleteQueue(id) {
-            if(confirm("แน่ใจหรือไม่ว่าต้องการลบคิวงานนี้?")) {
+            if(confirm("ลบคิวงานนี้?")) {
                 queues = queues.filter(q => q.id !== id);
                 renderUI();
             }
         }
 
         // ------------------------------------
-        // 5. ระบบเรนเดอร์หน้าจอ (Update UI)
+        // 5. ระบบวาดหน้าจอ (Render UI)
         // ------------------------------------
         function renderUI() {
-            // อัปเดตปุ่มล็อคอิน
             const authBtn = document.getElementById('authBtn');
             if (isLoggedIn) {
                 authBtn.textContent = "ออกจากระบบ";
-                authBtn.className = "bg-red-500 text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-md hover:bg-red-600 transition";
+                authBtn.className = "bg-gray-100 text-gray-600 px-6 py-1.5 rounded-full text-sm font-medium hover:bg-gray-200 transition";
             } else {
                 authBtn.textContent = "เข้าสู่ระบบ";
-                authBtn.className = "bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-md hover:shadow-lg transition";
+                authBtn.className = "bg-[#10b981] text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-sm hover:bg-green-600 transition";
             }
 
-            // แสดง/ซ่อน แผงจัดการแอดมิน
-            document.getElementById('adminPanel').style.display = isLoggedIn ? 'block' : 'none';
+            // แสดง/ซ่อน ปุ่มเพิ่มคิว
+            document.getElementById('adminControls').style.display = isLoggedIn ? 'flex' : 'none';
 
             // วาดรายการคิว
             const queueList = document.getElementById('queueList');
@@ -326,52 +393,57 @@
             }
 
             queues.forEach((q, index) => {
-                const statusBadge = q.status ? `<div class="${q.statusColor} text-white text-[10px] px-3 py-1 rounded-full shadow-sm absolute -top-3 right-4 font-medium">${q.status}</div>` : '';
-                const deleteBtn = isLoggedIn ? `<button onclick="deleteQueue(${q.id})" class="absolute bottom-4 right-4 text-[11px] text-red-500 hover:text-white border border-red-200 hover:bg-red-500 px-3 py-1.5 rounded-md transition">ลบคิวงาน</button>` : '';
+                // คำนวณวันที่
+                const { dayMonth, year } = formatThaiDate(q.dateRaw);
+                const statusBadge = calculateDaysStatus(q.dateRaw);
+                
+                const deleteBtn = isLoggedIn ? `<button onclick="deleteQueue(${q.id})" class="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>` : '';
 
+                // UX/UI แบบใหม่ที่สะอาดตา คล้ายตัวอย่าง
                 const cardHTML = `
-                <div class="border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row gap-5 card-shadow relative bg-white items-start hover:shadow-md transition">
-                    ${statusBadge}
+                <div class="border border-gray-100 rounded-2xl p-5 md:p-6 flex flex-col md:flex-row gap-6 card-shadow relative bg-white items-start group hover:border-blue-100 transition">
+                    ${deleteBtn}
                     
-                    <!-- วงกลมตัวเลข -->
-                    <div class="w-12 h-12 flex-shrink-0 bg-orange-400 rounded-full flex items-center justify-center text-white font-bold text-xl shadow-inner mt-1">
+                    <!-- วงกลมตัวเลข (รันอัตโนมัติ) -->
+                    <div class="w-10 h-10 flex-shrink-0 bg-[#f97316] rounded-full flex items-center justify-center text-white font-bold text-lg mt-1 shadow-sm">
                         ${index + 1}
                     </div>
                     
-                    <!-- ข้อมูลตรงกลาง -->
-                    <div class="flex-1 w-full pb-8 md:pb-0">
-                        <h4 class="font-bold text-blue-900 text-base md:text-lg mb-2">${q.title}</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-gray-600">
-                            <p class="flex items-start gap-1.5"><span class="text-gray-400 w-4">📌</span> <b>สถานที่:</b> ${q.location}</p>
-                            <p class="flex items-start gap-1.5"><span class="text-gray-400 w-4">👕</span> <b>การแต่งกาย:</b> ${q.dress}</p>
-                            <p class="flex items-start gap-1.5"><span class="text-gray-400 w-4">📝</span> <b>รายละเอียด:</b> ${q.detail}</p>
-                            <p class="flex items-start gap-1.5"><span class="text-gray-400 w-4">👤</span> <b>ผู้รับผิดชอบ:</b> ${q.resp}</p>
-                            <p class="flex items-start gap-1.5 md:col-span-2"><span class="text-gray-400 w-4">📞</span> <b>ผู้ประสานงาน:</b> ${q.coord}</p>
+                    <!-- ข้อมูลตรงกลาง จัด 2 คอลัมน์ -->
+                    <div class="flex-1 w-full pt-1">
+                        <h4 class="font-bold text-[#1e3a8a] text-base mb-3 pr-8">${q.title}</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-xs text-gray-600">
+                            <p class="flex items-start gap-2"><span class="text-red-400">📌</span> <div><span class="font-semibold text-gray-700">สถานที่:</span> ${q.location}</div></p>
+                            <p class="flex items-start gap-2"><span class="text-green-500">👕</span> <div><span class="font-semibold text-gray-700">การแต่งกาย:</span> ${q.dress}</div></p>
+                            <p class="flex items-start gap-2"><span class="text-pink-400">📝</span> <div><span class="font-semibold text-gray-700">รายละเอียด:</span> ${q.detail}</div></p>
+                            <p class="flex items-start gap-2"><span class="text-blue-500">👤</span> <div><span class="font-semibold text-gray-700">ผู้รับผิดชอบ:</span> ${q.resp}</div></p>
+                            <p class="flex items-start gap-2 md:col-span-2"><span class="text-purple-400">📞</span> <div><span class="font-semibold text-gray-700">ผู้ประสานงาน:</span> ${q.coord}</div></p>
                         </div>
                     </div>
 
-                    <!-- กล่องวันที่ฝั่งขวา -->
-                    <div class="bg-blue-50 text-blue-800 rounded-xl px-4 py-3 flex-shrink-0 text-center w-full md:w-32 border border-blue-100 flex md:flex-col justify-center items-center gap-2 md:gap-0 mt-4 md:mt-0">
-                        <span class="font-medium text-sm block">${q.date.split(' ')[0]} ${q.date.split(' ')[1]}</span>
-                        <span class="font-bold text-xl block">${q.date.split(' ')[2]}</span>
+                    <!-- กล่องวันที่และป้ายสถานะ -->
+                    <div class="relative w-full md:w-32 flex-shrink-0 mt-4 md:mt-0 flex flex-col items-end">
+                        <div class="${statusBadge.color} text-white text-[10px] px-3 py-1 rounded-full shadow-sm font-medium mb-2 w-max">
+                            ${statusBadge.text}
+                        </div>
+                        <div class="bg-[#f0f9ff] text-[#1e3a8a] rounded-xl w-full py-4 text-center border border-blue-50 flex flex-col justify-center">
+                            <span class="font-medium text-xs block mb-1">${dayMonth}</span>
+                            <span class="font-bold text-xl block">${year}</span>
+                        </div>
                     </div>
-
-                    ${deleteBtn}
                 </div>
                 `;
                 queueList.insertAdjacentHTML('beforeend', cardHTML);
             });
         }
 
-        // อนุญาตให้กด Enter ในช่องรหัสผ่านเพื่อตกลงได้เลย
         document.getElementById('loginPassword').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') submitLogin();
         });
 
-        // รันครั้งแรกตอนโหลดหน้าเว็บเสร็จ
+        // รันครั้งแรก
         window.onload = () => {
             renderUI();
-            // ตั้งค่าแท็บเริ่มต้น
             switchTab('queue');
         };
     </script>
