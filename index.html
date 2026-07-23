@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>อบต.ชำผักแพว - หน้าแรก</title>
     
-    <link rel="preload" as="image" href="อบต.png">
+    <link rel="preload" as="image" href="อบต.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f0fdf4; min-height: 100vh; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f4fdf8; min-height: 100vh; }
         .curved-header { border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05); overflow: hidden; position: relative; }
-        .card-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .card-shadow { box-shadow: 0 2px 12px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.03); }
         .modal-enter { animation: fadeIn 0.2s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         
@@ -26,14 +26,32 @@
 
         /* เอฟเฟกต์แสงวิ่งวนรอบกรอบ สำหรับคิวงาน "วันนี้" */
         @keyframes glowToday {
-            0%, 100% { border-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.5), inset 0 0 8px rgba(239, 68, 68, 0.2); }
-            50% { border-color: #f87171; box-shadow: 0 0 25px rgba(239, 68, 68, 0.9), inset 0 0 15px rgba(239, 68, 68, 0.4); }
+            0%, 100% { border-color: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.4), inset 0 0 5px rgba(239, 68, 68, 0.1); }
+            50% { border-color: #f87171; box-shadow: 0 0 20px rgba(239, 68, 68, 0.8), inset 0 0 10px rgba(239, 68, 68, 0.2); }
         }
         .today-glow {
             animation: glowToday 1.5s infinite ease-in-out;
             border-width: 2px !important;
             transform: scale(1.01);
             z-index: 10;
+        }
+
+        /* เอฟเฟกต์ป้ายเตือนนับถอยหลัง (เด้งเข้าออก) */
+        @keyframes popBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .animate-pop { animation: popBounce 1s infinite ease-in-out; }
+
+        /* เอฟเฟกต์ข้อความประกาศวิ่งวน 15 วินาที */
+        @keyframes marquee {
+            0% { transform: translateX(100vw); }
+            100% { transform: translateX(-100%); }
+        }
+        .marquee-animate {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
         }
     </style>
 </head>
@@ -42,8 +60,7 @@
     <!-- Navbar -->
     <nav class="bg-white px-4 md:px-6 py-4 flex justify-between items-center shadow-sm sticky top-0 z-40">
         <div class="flex items-center gap-3">
-            <!-- ขยายโลโก้ให้ใหญ่ขึ้น -->
-            <img src="cpp.png" alt="โลโก้ อบต.ชำผักแพว" class="h-14 md:h-16 object-contain" onerror="this.outerHTML='<div class=\'w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500\'>โลโก้</div>'">
+            <img src="cpp.png" alt="โลโก้ อบต.ชำผักแพว" class="h-16 md:h-18 object-contain" onerror="this.outerHTML='<div class=\'w-14 h-14 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500\'>โลโก้</div>'">
         </div>
         
         <div id="navMenu" class="hidden md:flex gap-6 text-sm font-medium text-gray-500">
@@ -55,7 +72,7 @@
             <a href="#" class="border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ติดต่อ</a>
         </div>
 
-        <button id="authBtn" onclick="toggleAuth()" class="bg-[#10b981] text-white px-6 py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-green-600 transition">
+        <button id="authBtn" onclick="toggleAuth()" class="bg-[#10b981] text-white px-6 py-2.5 rounded-xl text-sm font-medium shadow-sm hover:bg-green-600 transition">
             เข้าสู่ระบบ
         </button>
     </nav>
@@ -79,7 +96,7 @@
         </div>
     </div>
 
-    <!-- Modal เพิ่ม/แก้ไขคิวงาน -->
+    <!-- Modal เพิ่ม/แก้ไขคิวงาน (เอา Required ออกหมดแล้ว) -->
     <div id="addQueueModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-auto overflow-hidden modal-enter flex flex-col max-h-[90vh]">
             <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
@@ -89,23 +106,23 @@
             
             <div class="p-6 overflow-y-auto">
                 <form id="addQueueForm" onsubmit="handleAddQueue(event)" class="space-y-4">
-                    <input type="text" id="qTitle" placeholder="ชื่องาน/ภารกิจ" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm font-medium text-gray-800">
+                    <input type="text" id="qTitle" placeholder="ชื่องาน/ภารกิจ" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm font-medium text-gray-800">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-600 mb-1">วันที่เริ่ม</label>
-                            <input type="date" id="qStartDate" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-700">
+                            <input type="date" id="qStartDate" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-700">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">เวลาเริ่ม (ถ้ามี)</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">เวลาเริ่ม</label>
                             <input type="time" id="qStartTime" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-700">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">วันที่สิ้นสุด (ถ้ามี)</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">วันที่สิ้นสุด</label>
                             <input type="date" id="qEndDate" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-700">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-600 mb-1">เวลาสิ้นสุด (ถ้ามี)</label>
+                            <label class="block text-sm font-medium text-gray-600 mb-1">เวลาสิ้นสุด</label>
                             <input type="time" id="qEndTime" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-700">
                         </div>
                     </div>
@@ -116,25 +133,26 @@
                         <option value="ยกเลิก">ยกเลิก</option>
                     </select>
 
-                    <input type="text" id="qLocation" placeholder="สถานที่" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
-                    <input type="text" id="qDress" placeholder="การแต่งกาย" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
-                    <input type="text" id="qCoord" placeholder="ผู้ประสานงาน" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
+                    <input type="text" id="qLocation" placeholder="สถานที่" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
+                    <input type="text" id="qDress" placeholder="การแต่งกาย" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
+                    <input type="text" id="qCoord" placeholder="ผู้ประสานงาน" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
                     
                     <div>
                         <label class="block text-sm font-medium text-gray-600 mb-1">ผู้รับผิดชอบ (เลือกได้หลายคน / กด Ctrl เพื่อเลือก)</label>
-                        <select id="qResp" multiple class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-800 h-28">
-                            <option value="นายก อบต.">นายก อบต.</option>
-                            <option value="รองนายก อบต.">รองนายก อบต.</option>
-                            <option value="เลขานุการนายก">เลขานุการนายก</option>
-                            <option value="ปลัด อบต.">ปลัด อบต.</option>
-                            <option value="สำนักปลัด">สำนักปลัด</option>
-                            <option value="กองสาธารณสุขฯ">กองสาธารณสุขและสิ่งแวดล้อม</option>
+                        <select id="qResp" multiple class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-800 h-32">
+                            <option value="นายก">นายก</option>
+                            <option value="รองนายก">รองนายก</option>
+                            <option value="เลขา">เลขา</option>
+                            <option value="ปลัด">ปลัด</option>
+                            <option value="หัวหน้าสำนัก">หัวหน้าสำนัก</option>
+                            <option value="หัวหน้าส่วนราชการ">หัวหน้าส่วนราชการ</option>
+                            <option value="ทั้งหมด">ทั้งหมด</option>
                         </select>
                     </div>
 
-                    <input type="text" id="qLink" placeholder="ลิงก์แนบไฟล์ Google Drive (ถ้ามี)" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
+                    <input type="text" id="qLink" placeholder="ลิงก์แนบไฟล์ Google Drive" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
 
-                    <button type="submit" id="submitBtn" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-medium text-lg hover:bg-blue-700 transition shadow-md">บันทึกข้อมูลคิวงาน</button>
+                    <button type="submit" id="submitBtn" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl font-medium text-lg hover:bg-blue-700 transition shadow-md">บันทึกข้อมูลคิวงาน</button>
                 </form>
             </div>
         </div>
@@ -143,13 +161,12 @@
     <!-- Hero Section -->
     <header class="curved-header bg-white text-center pt-10 pb-16 px-4 mb-6 relative overflow-hidden">
         <div class="absolute inset-0 z-0">
-            <img src="อบต.png" alt="พื้นหลัง อบต." decoding="async" loading="eager" class="w-full h-full object-cover opacity-20">
+            <img src="อบต.jpg" alt="พื้นหลัง อบต." decoding="async" loading="eager" class="w-full h-full object-cover opacity-20">
             <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white/70"></div>
         </div>
         
         <div class="relative z-10 w-full overflow-hidden">
             <h2 class="text-2xl md:text-3xl font-medium text-gray-500 mb-1">ยินดีต้อนรับสู่</h2>
-            <!-- ป้องกันคำตัดตกในมือถือด้วย whitespace-nowrap และใช้ขนาดฟอนต์แบบ Responsive 5vw บนจอเล็ก -->
             <h1 class="text-[5.5vw] min-[500px]:text-3xl md:text-5xl font-bold text-[#1e3a8a] mb-8 tracking-tight whitespace-nowrap overflow-hidden text-ellipsis px-2">องค์การบริหารส่วนตำบลชำผักแพว</h1>
             
             <div class="max-w-xl mx-auto bg-white p-1.5 rounded-full flex shadow-md border border-gray-200 w-[95%]">
@@ -161,90 +178,105 @@
 
     <main class="max-w-5xl mx-auto px-4 md:px-6">
         
+        <!-- ตัวช่วยบอกว่าเมนูเลื่อนได้ในมือถือ -->
+        <span class="md:hidden text-xs text-gray-400 block text-right pr-2 mb-1 animate-pulse">👈 เลื่อนเพื่อดูเมนู 👉</span>
+        
         <!-- เมนูสำหรับมือถือ (แสดงเฉพาะหน้าจอเล็ก) -->
         <div class="md:hidden overflow-x-auto scrollbar-hide mb-4">
             <div class="flex gap-2 w-max pb-2">
-                <a href="#" class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium border border-blue-200 whitespace-nowrap">หน้าแรก</a>
-                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ปฏิทิน</a>
-                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">เบอร์โทร</a>
-                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ฟอร์มต่างๆ</a>
-                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ธนาคารขยะ</a>
-                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ติดต่อ</a>
+                <a href="#" class="bg-blue-100 text-blue-800 px-5 py-2 rounded-full text-sm font-medium border border-blue-200 whitespace-nowrap">หน้าแรก</a>
+                <a href="#" class="bg-white text-gray-600 px-5 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ปฏิทิน</a>
+                <a href="#" class="bg-white text-gray-600 px-5 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">เบอร์โทร</a>
+                <a href="#" class="bg-white text-gray-600 px-5 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ฟอร์มต่างๆ</a>
+                <a href="#" class="bg-white text-gray-600 px-5 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ธนาคารขยะ</a>
+                <a href="#" class="bg-white text-gray-600 px-5 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ติดต่อ</a>
             </div>
         </div>
 
-        <!-- ประกาศ -->
-        <div class="bg-[#10b981] text-white rounded-lg px-5 py-3 flex items-center shadow-sm mb-6">
-            <div class="bg-white rounded-full p-1.5 mr-3 flex-shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" /></svg>
+        <!-- ประกาศแบบมีปุ่มแก้ไขและตัววิ่ง -->
+        <div class="bg-[#10b981] text-white rounded-xl py-3 flex items-center shadow-sm mb-6 relative overflow-hidden h-[54px] md:h-[60px]">
+            <div class="bg-[#059669] px-4 h-full flex items-center z-10 rounded-l-xl flex-shrink-0 shadow-[2px_0_10px_rgba(0,0,0,0.1)]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
+                <span class="font-bold ml-2 hidden md:inline">ประกาศ</span>
             </div>
-            <span class="font-medium text-sm md:text-base">ประกาศ : แจ้งเรื่องกำหนดการชำระภาษีที่ดินและสิ่งปลูกสร้าง ประจำปี 2569</span>
+            
+            <div class="flex-1 overflow-hidden relative h-full flex items-center mx-3">
+                <div id="announceText" class="marquee-animate font-medium text-sm md:text-base">
+                    แจ้งเรื่องกำหนดการชำระภาษีที่ดินและสิ่งปลูกสร้าง ประจำปี 2569
+                </div>
+            </div>
+
+            <!-- ปุ่มแก้ไขข้อความประกาศ (ซ่อนไว้รอ Login) -->
+            <button id="editAnnounceBtn" onclick="editAnnouncement()" class="hidden z-10 mr-3 bg-white/20 hover:bg-white/40 p-2 rounded-lg transition" title="แก้ไขข้อความประกาศ">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+            </button>
         </div>
 
         <!-- Big Numbers -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex-1">
-                <div class="bg-blue-50 rounded-xl py-4 px-4 text-center h-full border border-blue-100">
-                    <span class="block text-blue-800 font-medium text-sm mb-1">ทั้งหมด</span>
-                    <span id="count-total" class="block text-blue-700 font-bold text-4xl">0</span>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+            <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                <div class="bg-blue-50 rounded-xl py-3 md:py-4 px-4 text-center h-full border border-blue-100">
+                    <span class="block text-blue-800 font-medium text-[11px] md:text-sm mb-0.5">ทั้งหมด</span>
+                    <span id="count-total" class="block text-blue-700 font-bold text-3xl md:text-4xl">0</span>
                 </div>
             </div>
-            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex-1">
-                <div class="bg-orange-50 rounded-xl py-4 px-4 text-center h-full border border-orange-100">
-                    <span class="block text-orange-800 font-medium text-sm mb-1">กำลังทำ</span>
-                    <span id="count-pending" class="block text-orange-600 font-bold text-4xl">0</span>
+            <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                <div class="bg-orange-50 rounded-xl py-3 md:py-4 px-4 text-center h-full border border-orange-100">
+                    <span class="block text-orange-800 font-medium text-[11px] md:text-sm mb-0.5">กำลังทำ</span>
+                    <span id="count-pending" class="block text-orange-600 font-bold text-3xl md:text-4xl">0</span>
                 </div>
             </div>
-            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex-1">
-                <div class="bg-green-50 rounded-xl py-4 px-4 text-center h-full border border-green-100">
-                    <span class="block text-green-800 font-medium text-sm mb-1">เสร็จสิ้น</span>
-                    <span id="count-completed" class="block text-green-600 font-bold text-4xl">0</span>
+            <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                <div class="bg-green-50 rounded-xl py-3 md:py-4 px-4 text-center h-full border border-green-100">
+                    <span class="block text-green-800 font-medium text-[11px] md:text-sm mb-0.5">เสร็จสิ้น</span>
+                    <span id="count-completed" class="block text-green-600 font-bold text-3xl md:text-4xl">0</span>
                 </div>
             </div>
-            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex-1">
-                <div class="bg-red-50 rounded-xl py-4 px-4 text-center h-full border border-red-100">
-                    <span class="block text-red-800 font-medium text-sm mb-1">ยกเลิก</span>
-                    <span id="count-canceled" class="block text-red-600 font-bold text-4xl">0</span>
+            <div class="bg-white p-1.5 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                <div class="bg-red-50 rounded-xl py-3 md:py-4 px-4 text-center h-full border border-red-100">
+                    <span class="block text-red-800 font-medium text-[11px] md:text-sm mb-0.5">ยกเลิก</span>
+                    <span id="count-canceled" class="block text-red-600 font-bold text-3xl md:text-4xl">0</span>
                 </div>
             </div>
         </div>
 
         <!-- Controls (Admin) -->
         <div id="adminControls" class="hidden mb-6 flex justify-end">
-            <button onclick="openModal('addQueueModal')" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium shadow-md hover:bg-blue-700 flex items-center gap-2 transition">
+            <button onclick="openModal('addQueueModal')" class="bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium shadow-md hover:bg-blue-700 flex items-center gap-2 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 เพิ่มคิวงานใหม่
             </button>
         </div>
 
+        <span class="md:hidden text-xs text-gray-400 block text-right pr-2 mb-1 animate-pulse">👈 เลื่อนเพื่อดูแท็บ 👉</span>
         <!-- Tabs -->
         <div class="flex gap-2 mb-[-1px] relative z-10 pl-2 md:pl-6 overflow-x-auto scrollbar-hide w-full">
-            <button id="tab-btn-queue" onclick="switchTab('queue')" class="tab-btn bg-[#60a5fa] text-white font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm shadow-sm transition-all whitespace-nowrap border-t border-x border-[#60a5fa]">คิวนายก (รอดำเนินการ)</button>
-            <button id="tab-btn-completed-tab" onclick="switchTab('completed-tab')" class="tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap">คิวงานเสร็จสิ้น</button>
-            <button id="tab-btn-calendar" onclick="switchTab('calendar')" class="tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap">ปฏิทิน อบต.</button>
-            <button id="tab-btn-phone" onclick="switchTab('phone')" class="tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap">เบอร์โทร</button>
+            <button id="tab-btn-queue" onclick="switchTab('queue')" class="tab-btn bg-[#60a5fa] text-white font-medium px-6 md:px-8 py-3.5 rounded-t-xl text-sm shadow-sm transition-all whitespace-nowrap border-t border-x border-[#60a5fa]">คิวนายก (รอดำเนินการ)</button>
+            <button id="tab-btn-completed-tab" onclick="switchTab('completed-tab')" class="tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3.5 rounded-t-xl text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap">คิวงานเสร็จสิ้น</button>
+            <button id="tab-btn-calendar" onclick="switchTab('calendar')" class="tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3.5 rounded-t-xl text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap">ปฏิทิน อบต.</button>
+            <button id="tab-btn-phone" onclick="switchTab('phone')" class="tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3.5 rounded-t-xl text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap">เบอร์โทร</button>
         </div>
 
         <!-- Content Areas -->
-        <div class="bg-white rounded-b-2xl md:rounded-tr-2xl shadow-sm border border-gray-200 p-3 md:p-8 relative z-0 min-h-[500px]">
+        <div class="bg-white rounded-b-3xl md:rounded-tr-3xl shadow-sm border border-gray-200 p-4 md:p-8 relative z-0 min-h-[500px]">
             
             <div id="content-queue" class="tab-content block">
                 <h3 class="text-gray-500 text-sm font-semibold mb-6 flex items-center gap-2 border-b pb-2">
-                    <span class="w-1 h-4 bg-blue-500 inline-block rounded"></span> รายการคิวงานที่กำลังดำเนินการ
+                    <span class="w-1.5 h-5 bg-blue-500 inline-block rounded-full"></span> รายการคิวงานที่กำลังดำเนินการ
                 </h3>
-                <div id="queueList" class="flex flex-col gap-5">
+                <div id="queueList" class="flex flex-col gap-6">
                     <div class="animate-pulse flex flex-col gap-6">
-                        <div class="h-40 bg-gray-100 rounded-xl w-full border border-gray-200"></div>
-                        <div class="h-40 bg-gray-100 rounded-xl w-full border border-gray-200"></div>
+                        <div class="h-40 bg-gray-100 rounded-2xl w-full border border-gray-200"></div>
+                        <div class="h-40 bg-gray-100 rounded-2xl w-full border border-gray-200"></div>
                     </div>
                 </div>
             </div>
 
             <div id="content-completed-tab" class="tab-content hidden">
                 <h3 class="text-green-600 text-sm font-semibold mb-6 flex items-center gap-2 border-b pb-2">
-                    <span class="w-1 h-4 bg-green-500 inline-block rounded"></span> รายการคิวงานที่เสร็จสิ้นแล้ว
+                    <span class="w-1.5 h-5 bg-green-500 inline-block rounded-full"></span> รายการคิวงานที่เสร็จสิ้นแล้ว
                 </h3>
-                <div id="completedQueueList" class="flex flex-col gap-5"></div>
+                <div id="completedQueueList" class="flex flex-col gap-6"></div>
             </div>
 
             <div id="content-calendar" class="tab-content hidden flex items-center justify-center h-64">
@@ -261,13 +293,27 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbx2WLgayblJSdhnA_Ad0Bjeng0tjn4aw7UzngKCctWOHJJYDCruvw1hpsSr4t-bNe8ogQ/exec";
         let queues = []; 
         let isLoggedIn = false;
-        let editingId = null; // ตัวแปรเก็บ ID เมื่อกดปุ่มแก้ไข
+        let editingId = null;
+
+        function loadAnnouncement() {
+            const savedText = localStorage.getItem('announcementText');
+            if (savedText) document.getElementById('announceText').innerText = savedText;
+        }
+
+        function editAnnouncement() {
+            const currentText = document.getElementById('announceText').innerText;
+            const newText = prompt("แก้ไขข้อความประกาศ:", currentText);
+            if (newText !== null && newText.trim() !== "") {
+                document.getElementById('announceText').innerText = newText;
+                localStorage.setItem('announcementText', newText);
+            }
+        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = "tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap";
+                btn.className = "tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3.5 rounded-t-xl text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap";
             });
-            document.getElementById(`tab-btn-${tabId}`).className = "tab-btn bg-[#60a5fa] text-white font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm shadow-sm transition-all whitespace-nowrap border-t border-x border-[#60a5fa]";
+            document.getElementById(`tab-btn-${tabId}`).className = "tab-btn bg-[#60a5fa] text-white font-medium px-6 md:px-8 py-3.5 rounded-t-xl text-sm shadow-sm transition-all whitespace-nowrap border-t border-x border-[#60a5fa]";
 
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.add('hidden');
@@ -278,7 +324,6 @@
         }
 
         function openModal(modalId) {
-            // รีเซ็ตฟอร์มกลับเป็นโหมดเพิ่มข้อมูลปกติ หากไม่ได้กดแก้ไข
             if(modalId === 'addQueueModal' && !editingId) {
                 document.getElementById('addQueueForm').reset();
                 document.getElementById('modalTitle').innerText = "เพิ่มคิวงาน/ภารกิจ";
@@ -331,26 +376,24 @@
             }
         }
 
-        // ฟังก์ชันดึงข้อมูลมาแสดงใน Modal เพื่อแก้ไข
         function editQueue(id) {
             const q = queues.find(item => item.id == id);
             if(!q) return;
             
             editingId = id;
-            document.getElementById('qTitle').value = q.title;
-            document.getElementById('qStartDate').value = q.startDate;
-            document.getElementById('qStartTime').value = q.startTime === "-" ? "" : q.startTime;
-            document.getElementById('qEndDate').value = q.endDate === "-" ? "" : q.endDate;
-            document.getElementById('qEndTime').value = q.endTime === "-" ? "" : q.endTime;
-            document.getElementById('qLocation').value = q.location;
-            document.getElementById('qDress').value = q.dress;
-            document.getElementById('qCoord').value = q.coord;
-            document.getElementById('qStatusDropdown').value = q.jobStatus;
-            document.getElementById('qLink').value = q.link === "-" ? "" : q.link;
+            document.getElementById('qTitle').value = q.title || "";
+            document.getElementById('qStartDate').value = q.startDate || "";
+            document.getElementById('qStartTime').value = q.startTime === "-" ? "" : (q.startTime || "");
+            document.getElementById('qEndDate').value = q.endDate === "-" ? "" : (q.endDate || "");
+            document.getElementById('qEndTime').value = q.endTime === "-" ? "" : (q.endTime || "");
+            document.getElementById('qLocation').value = q.location === "-" ? "" : (q.location || "");
+            document.getElementById('qDress').value = q.dress === "-" ? "" : (q.dress || "");
+            document.getElementById('qCoord').value = q.coord === "-" ? "" : (q.coord || "");
+            document.getElementById('qStatusDropdown').value = q.jobStatus || "รอดำเนินการ";
+            document.getElementById('qLink').value = q.link === "-" ? "" : (q.link || "");
             
             document.getElementById('modalTitle').innerText = "แก้ไขคิวงาน/ภารกิจ";
             document.getElementById('submitBtn').innerText = "บันทึกการแก้ไข";
-            
             openModal('addQueueModal');
         }
 
@@ -360,26 +403,24 @@
             const selectedResp = Array.from(respSelect.selectedOptions).map(opt => opt.value).join(", ");
             
             const queueData = {
-                id: editingId ? editingId : Date.now().toString(), // ใช้ ID เดิมถ้าแก้
-                title: document.getElementById('qTitle').value,
-                startDate: document.getElementById('qStartDate').value,
+                id: editingId ? editingId : Date.now().toString(),
+                title: document.getElementById('qTitle').value || "-",
+                startDate: document.getElementById('qStartDate').value || "-",
                 startTime: document.getElementById('qStartTime').value || "-",
                 endDate: document.getElementById('qEndDate').value || "-",
                 endTime: document.getElementById('qEndTime').value || "-",
-                location: document.getElementById('qLocation').value,
-                dress: document.getElementById('qDress').value,
+                location: document.getElementById('qLocation').value || "-",
+                dress: document.getElementById('qDress').value || "-",
                 resp: selectedResp || "-",
-                coord: document.getElementById('qCoord').value,
+                coord: document.getElementById('qCoord').value || "-",
                 jobStatus: document.getElementById('qStatusDropdown').value,
                 link: document.getElementById('qLink').value || "-"
             };
 
             if (editingId) {
-                // โหมดแก้ไข
                 const index = queues.findIndex(item => item.id == editingId);
                 if(index !== -1) queues[index] = queueData;
             } else {
-                // โหมดเพิ่มใหม่
                 queues.unshift(queueData); 
             }
             
@@ -388,12 +429,8 @@
             closeModal('addQueueModal');
 
             try {
-                // โค้ด Backend เดิมยังรองรับแค่การเพิ่มข้อมูลใหม่ (Append)
-                // ส่วนการแก้ไขจะแสดงผลในหน้าเว็บทันที แต่จะสมบูรณ์ 100% ต้องแก้โค้ดฝั่ง Apps Script ด้วยครับ
                 await fetch(API_URL, { method: "POST", body: JSON.stringify(queueData) });
-            } catch (error) {
-                console.error(error);
-            }
+            } catch (error) { console.error(error); }
         }
 
         function deleteQueue(id) {
@@ -411,85 +448,85 @@
             document.getElementById('count-canceled').textContent = queues.filter(q => q.jobStatus === 'ยกเลิก').length;
         }
 
-        function formatThaiDate(dateString) {
-            if(!dateString || dateString === "-") return { dayMonth: "-", year: "-" };
-            const date = new Date(dateString);
-            if(isNaN(date)) return { dayMonth: dateString, year: "" }; 
-            const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-            return { dayMonth: `${date.getDate()} ${months[date.getMonth()]}`, year: `${date.getFullYear() + 543}` };
-        }
-
         function calculateDaysStatus(targetDateStr, status) {
-            if (status === "เสร็จสิ้น") return { text: "✓ เสร็จสิ้น", color: "bg-green-600", isToday: false };
-            if (status === "ยกเลิก") return { text: "✕ ยกเลิก", color: "bg-red-600", isToday: false };
-            if (!targetDateStr || targetDateStr === "-") return { text: "รอดำเนินการ", color: "bg-gray-500", isToday: false };
+            if (status === "เสร็จสิ้น") return { text: "✓ เสร็จสิ้น", color: "bg-green-600", isToday: false, isUrgent: false };
+            if (status === "ยกเลิก") return { text: "✕ ยกเลิก", color: "bg-red-600", isToday: false, isUrgent: false };
+            if (!targetDateStr || targetDateStr === "-") return { text: "รอดำเนินการ", color: "bg-gray-500", isToday: false, isUrgent: false };
             
             const today = new Date(); today.setHours(0,0,0,0);
             const target = new Date(targetDateStr); target.setHours(0,0,0,0);
-            if(isNaN(target)) return { text: "รอดำเนินการ", color: "bg-blue-600", isToday: false };
+            if(isNaN(target)) return { text: "รอดำเนินการ", color: "bg-blue-600", isToday: false, isUrgent: false };
             
             const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
             
-            if(diffDays === 0) return { text: "วันนี้ !", color: "bg-red-500", isToday: true };
-            if(diffDays === 1) return { text: "พรุ่งนี้", color: "bg-orange-500", isToday: false };
-            if(diffDays > 1) return { text: `อีก ${diffDays} วัน`, color: "bg-blue-500", isToday: false };
-            return { text: "เลยกำหนด", color: "bg-gray-400", isToday: false };
+            if(diffDays === 0) return { text: "วันนี้ !", color: "bg-red-500", isToday: true, isUrgent: true };
+            if(diffDays === 1) return { text: "พรุ่งนี้", color: "bg-orange-500", isToday: false, isUrgent: true };
+            if(diffDays > 1 && diffDays <= 3) return { text: `อีก ${diffDays} วัน`, color: "bg-orange-400", isToday: false, isUrgent: true };
+            if(diffDays > 3) return { text: `อีก ${diffDays} วัน`, color: "bg-blue-500", isToday: false, isUrgent: false };
+            return { text: "เลยกำหนด", color: "bg-gray-400", isToday: false, isUrgent: false };
         }
 
+        // ดีไซน์ใหม่: กล่องปฏิทินแบบทางการ 
         function generateCardHTML(q, index) {
-            const { dayMonth, year } = formatThaiDate(q.startDate);
+            let day = "-", month = "-", year = "-";
+            if(q.startDate && q.startDate !== "-") {
+                const d = new Date(q.startDate);
+                if(!isNaN(d)) {
+                    day = d.getDate();
+                    const months = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+                    month = months[d.getMonth()];
+                    year = d.getFullYear() + 543;
+                }
+            }
+
             const statusBadge = calculateDaysStatus(q.startDate, q.jobStatus);
             
-            // ปุ่มแก้ไขและลบ
             const actionBtns = isLoggedIn ? `
                 <div class="absolute top-3 right-3 flex gap-2 z-20">
-                    <button onclick="editQueue(${q.id})" class="text-gray-400 bg-white hover:text-blue-600 hover:bg-blue-50 p-1.5 rounded-md transition shadow-sm border border-gray-100" title="แก้ไข">
+                    <button onclick="editQueue('${q.id}')" class="text-gray-400 bg-white hover:text-blue-600 hover:bg-blue-50 p-1.5 rounded-lg transition shadow-sm border border-gray-200" title="แก้ไข">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                     </button>
-                    <button onclick="deleteQueue(${q.id})" class="text-gray-400 bg-white hover:text-red-600 hover:bg-red-50 p-1.5 rounded-md transition shadow-sm border border-gray-100" title="ลบ">
+                    <button onclick="deleteQueue('${q.id}')" class="text-gray-400 bg-white hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg transition shadow-sm border border-gray-200" title="ลบ">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
                     </button>
                 </div>` : '';
                 
-            const fileLinkHTML = (q.link && q.link !== "-") ? `<a href="${q.link}" target="_blank" class="text-blue-600 font-medium hover:underline">🔗 คลิกดูไฟล์แนบ</a>` : `-`;
+            const fileLinkHTML = (q.link && q.link !== "-") ? `<a href="${q.link}" target="_blank" class="text-blue-600 font-medium hover:underline flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg> คลิกดูไฟล์แนบ</a>` : `-`;
             
-            // เช็คว่าต้องใส่คลาสแสงวิ่งวนไหม
-            const cardGlowClass = statusBadge.isToday ? "today-glow" : "border-gray-200 hover:shadow-md";
+            // เช็คว่าต้องใส่เอฟเฟกต์ไฟวิ่ง หรือ ป้ายเตือนเด้ง ไหม
+            const cardGlowClass = statusBadge.isToday ? "today-glow" : "hover:border-blue-200 hover:shadow-lg";
+            const badgeAnimateClass = statusBadge.isUrgent ? "animate-pop" : "";
             
-            // บังคับให้เป็น flex-row ทั้งในมือถือและคอม (ไม่ซ้อนทับกัน)
             return `
-            <div class="border ${cardGlowClass} rounded-xl p-0 flex flex-row shadow-sm bg-white transition-all overflow-hidden relative w-full">
+            <div class="bg-white border border-gray-200 ${cardGlowClass} rounded-2xl p-4 md:p-6 card-shadow transition-all relative w-full mb-2">
                 ${actionBtns}
                 
-                <!-- หมายเลข หรือแถบสีซ้ายสุด -->
-                <div class="hidden md:flex w-16 bg-blue-50 flex-col items-center justify-center border-r border-gray-100 p-4">
-                    <span class="text-blue-800 font-bold text-2xl">${index + 1}</span>
-                </div>
-
-                <!-- เนื้อหาตรงกลาง -->
-                <div class="flex-1 p-3 md:p-6 min-w-0">
-                    <div class="md:hidden inline-block bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs font-bold mb-2">คิวที่ ${index + 1}</div>
-                    
-                    <!-- ขนาดฟอนต์ใหญ่ขึ้น -->
-                    <h4 class="font-bold text-gray-900 text-xl md:text-2xl mb-3 pr-12 truncate md:whitespace-normal">${q.title || '-'}</h4>
-                    
-                    <div class="grid grid-cols-1 gap-y-2 text-sm md:text-base text-gray-700">
-                        <p class="flex items-start gap-2"><span class="text-red-500 w-5">📍</span> <span class="flex-1"><strong class="text-gray-900">สถานที่:</strong> ${q.location || '-'}</span></p>
-                        <p class="flex items-start gap-2"><span class="text-green-600 w-5">👕</span> <span class="flex-1"><strong class="text-gray-900">การแต่งกาย:</strong> ${q.dress || '-'}</span></p>
-                        <p class="flex items-start gap-2"><span class="text-purple-600 w-5">📞</span> <span class="flex-1"><strong class="text-gray-900">ประสานงาน:</strong> ${q.coord || '-'}</span></p>
-                        <p class="flex items-start gap-2 bg-gray-50 p-2 rounded-lg mt-1"><span class="text-gray-600 w-5">🕒</span> <span class="flex-1"><strong class="text-gray-900">เวลา:</strong> เริ่ม ${q.startTime || '-'} น. ${q.endTime !== "-" ? `ถึง ${q.endTime} น.` : ""}</span></p>
+                <div class="flex flex-row items-start gap-4 md:gap-6">
+                    <!-- กล่องปฏิทินที่โดดเด่นและเป็นทางการ (วันที่ใหญ่ พ.ศ.เล็ก) -->
+                    <div class="w-16 h-20 md:w-20 md:h-24 flex flex-col justify-between items-center bg-white border border-blue-100 rounded-xl flex-shrink-0 shadow-sm overflow-hidden">
+                        <div class="bg-blue-600 text-white w-full text-center py-1 text-[10px] md:text-xs font-bold tracking-wider">${month} <span class="font-normal opacity-80">${year}</span></div>
+                        <div class="flex-1 flex items-center justify-center text-blue-900 font-bold text-3xl md:text-4xl bg-blue-50/30 w-full">${day}</div>
                     </div>
-                </div>
 
-                <!-- กล่องวันที่และสถานะ (ฝั่งขวา) ปรับให้ไม่ซ้อนทับกันในมือถือ -->
-                <div class="w-24 md:w-48 bg-gray-50 border-l border-gray-200 p-2 md:p-5 flex flex-col justify-center items-center gap-2 md:gap-3 flex-shrink-0">
-                    <div class="${statusBadge.color} text-white px-1 md:px-4 py-1.5 md:py-2 rounded-lg text-xs md:text-sm font-bold w-full text-center shadow-sm tracking-wide break-words">
-                        ${statusBadge.text}
-                    </div>
-                    <div class="bg-white border border-gray-200 rounded-xl w-full py-2 md:py-4 text-center shadow-sm">
-                        <!-- วันที่ตัวใหญ่ พ.ศ. ตัวเล็ก -->
-                        <span class="text-blue-900 font-bold text-xl md:text-3xl block mb-0.5 md:mb-1">${dayMonth}</span>
-                        <span class="text-gray-500 font-medium text-[10px] md:text-sm block">${year}</span>
+                    <!-- ข้อมูลตรงกลาง จัดให้ wrap อัตโนมัติบนมือถือ -->
+                    <div class="flex-1 min-w-0 pr-8 md:pr-0">
+                        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-3">
+                            <h4 class="font-bold text-gray-900 text-[17px] md:text-xl break-words leading-snug md:pr-4">${q.title || '-'}</h4>
+                            <div class="w-max mt-1 md:mt-0 ${statusBadge.color} ${badgeAnimateClass} text-white px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm font-bold shadow-sm tracking-wide flex-shrink-0 border border-white/20">
+                                ${statusBadge.text}
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2.5 gap-x-4 text-[13px] md:text-[14px] text-gray-700 bg-gray-50/80 p-3.5 md:p-4 rounded-xl border border-gray-100/80">
+                            <p class="flex items-start gap-2.5"><span class="text-red-500 w-4 mt-0.5">📍</span> <span class="flex-1"><strong class="text-gray-900">สถานที่:</strong> ${q.location || '-'}</span></p>
+                            <p class="flex items-start gap-2.5"><span class="text-green-600 w-4 mt-0.5">👕</span> <span class="flex-1"><strong class="text-gray-900">การแต่งกาย:</strong> ${q.dress || '-'}</span></p>
+                            <p class="flex items-start gap-2.5"><span class="text-blue-600 w-4 mt-0.5">👤</span> <span class="flex-1"><strong class="text-gray-900">ผู้รับผิดชอบ:</strong> ${q.resp || '-'}</span></p>
+                            <p class="flex items-start gap-2.5"><span class="text-purple-600 w-4 mt-0.5">📞</span> <span class="flex-1"><strong class="text-gray-900">ผู้ประสานงาน:</strong> ${q.coord || '-'}</span></p>
+                            <div class="md:col-span-2 pt-2 mt-1 border-t border-gray-200/60 grid grid-cols-1 md:grid-cols-2 gap-y-2.5">
+                                <p class="flex items-start gap-2.5"><span class="text-gray-500 w-4 mt-0.5">🕒</span> <span class="flex-1"><strong class="text-gray-900">เวลา:</strong> เริ่ม ${q.startTime || '-'} น. ${q.endTime !== "-" ? `ถึง ${q.endTime} น.` : ""}</span></p>
+                                <p class="flex items-start gap-2.5"><span class="text-yellow-600 w-4 mt-0.5">📂</span> <span class="flex-1"><strong class="text-gray-900">เอกสารแนบ:</strong> ${fileLinkHTML}</span></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>`;
@@ -497,12 +534,18 @@
 
         function renderUI() {
             const authBtn = document.getElementById('authBtn');
+            const editAnnounceBtn = document.getElementById('editAnnounceBtn');
+            
             if (isLoggedIn) {
                 authBtn.textContent = "ออกจากระบบ";
-                authBtn.className = "bg-gray-100 text-gray-700 border border-gray-300 px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition";
+                authBtn.className = "bg-gray-100 text-gray-700 border border-gray-300 px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition";
+                editAnnounceBtn.classList.remove('hidden');
+                editAnnounceBtn.classList.add('block');
             } else {
                 authBtn.textContent = "เข้าสู่ระบบ";
-                authBtn.className = "bg-[#10b981] text-white px-6 py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-green-600 transition";
+                authBtn.className = "bg-[#10b981] text-white px-6 py-2.5 rounded-xl text-sm font-medium shadow-sm hover:bg-green-600 transition";
+                editAnnounceBtn.classList.add('hidden');
+                editAnnounceBtn.classList.remove('block');
             }
             document.getElementById('adminControls').style.display = isLoggedIn ? 'flex' : 'none';
             updateBigNumbers();
@@ -512,14 +555,14 @@
 
             const queueList = document.getElementById('queueList');
             if(activeQueues.length === 0) {
-                queueList.innerHTML = '<div class="text-center py-10 bg-gray-50 rounded-xl border border-gray-200"><p class="text-gray-500 text-lg">ไม่มีรายการคิวงานรอดำเนินการ</p></div>';
+                queueList.innerHTML = '<div class="text-center py-12 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm"><p class="text-gray-500 text-lg">ไม่มีรายการคิวงานรอดำเนินการ</p></div>';
             } else {
                 queueList.innerHTML = activeQueues.map((q, i) => generateCardHTML(q, i)).join('');
             }
 
             const completedQueueList = document.getElementById('completedQueueList');
             if(completedQueues.length === 0) {
-                completedQueueList.innerHTML = '<div class="text-center py-10 bg-gray-50 rounded-xl border border-gray-200"><p class="text-gray-500 text-lg">ยังไม่มีคิวงานที่เสร็จสิ้น</p></div>';
+                completedQueueList.innerHTML = '<div class="text-center py-12 bg-gray-50 rounded-2xl border border-gray-200 shadow-sm"><p class="text-gray-500 text-lg">ยังไม่มีคิวงานที่เสร็จสิ้น</p></div>';
             } else {
                 completedQueueList.innerHTML = completedQueues.map((q, i) => generateCardHTML(q, i)).join('');
             }
@@ -527,7 +570,11 @@
 
         document.getElementById('loginPassword').addEventListener('keypress', e => { if (e.key === 'Enter') submitLogin(); });
         
-        window.onload = () => { switchTab('queue'); fetchQueues(); };
+        window.onload = () => { 
+            loadAnnouncement();
+            switchTab('queue'); 
+            fetchQueues(); 
+        };
     </script>
 </body>
 </html>
