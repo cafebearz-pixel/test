@@ -4,38 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>อบต.ชำผักแพว - หน้าแรก</title>
+    
+    <!-- โหลดรูปพื้นหลังล่วงหน้าเพื่อความรวดเร็ว -->
+    <link rel="preload" as="image" href="อบต.png">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #e6f7f2; min-height: 100vh; }
+        body { font-family: 'Prompt', sans-serif; background-color: #f0fdf4; min-height: 100vh; }
         .curved-header { border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.05); overflow: hidden; position: relative; }
-        .card-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.02); }
+        .card-shadow { box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .modal-enter { animation: fadeIn 0.2s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        ::-webkit-scrollbar { width: 6px; }
+        
+        /* ซ่อน Scrollbar แต่ยังเลื่อนได้ (สำหรับมือถือ) */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Custom Scrollbar สำหรับ Form */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="text-gray-800 pb-10">
 
-    <!-- Navbar -->
+    <!-- Navbar (คอมพิวเตอร์) -->
     <nav class="bg-white px-6 py-4 flex justify-between items-center shadow-sm sticky top-0 z-40">
         <div class="flex items-center gap-3">
             <img src="cpp.png" alt="โลโก้ อบต.ชำผักแพว" class="h-10 object-contain" onerror="this.outerHTML='<div class=\'w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xs text-gray-500\'>cpp.png</div>'">
         </div>
         
+        <!-- ซ่อนบนมือถือ แสดงบน md ขึ้นไป -->
         <div id="navMenu" class="hidden md:flex gap-6 text-sm font-medium text-gray-500">
-            <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-orange-500 text-blue-900 pb-1 transition-all">หน้าแรก</a>
-            <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ปฏิทิน</a>
-            <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">เบอร์โทร</a>
-            <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ฟอร์มต่างๆ</a>
-            <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ธนาคารขยะ</a>
-            <a href="#" onclick="setActiveNav(this)" class="nav-link border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ติดต่อ</a>
+            <a href="#" class="border-b-2 border-orange-500 text-blue-900 pb-1">หน้าแรก</a>
+            <a href="#" class="border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ปฏิทิน</a>
+            <a href="#" class="border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">เบอร์โทร</a>
+            <a href="#" class="border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ฟอร์มต่างๆ</a>
+            <a href="#" class="border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ธนาคารขยะ</a>
+            <a href="#" class="border-b-2 border-transparent hover:text-blue-500 pb-1 transition-all">ติดต่อ</a>
         </div>
 
-        <button id="authBtn" onclick="toggleAuth()" class="bg-[#10b981] text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-sm hover:bg-green-600 transition">
+        <button id="authBtn" onclick="toggleAuth()" class="bg-[#10b981] text-white px-6 py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-green-600 transition">
             เข้าสู่ระบบ
         </button>
     </nav>
@@ -43,17 +54,17 @@
     <!-- Modal เข้าสู่ระบบ -->
     <div id="loginModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden items-center justify-center">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden modal-enter">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-700 p-6 text-center">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 p-6 text-center">
                 <h3 class="text-xl font-bold text-white">เข้าสู่ระบบจัดการ</h3>
             </div>
             <div class="p-6">
                 <div class="mb-4">
-                    <input type="password" id="loginPassword" placeholder="รหัสผ่าน..." class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-xl outline-none focus:border-blue-500 transition">
+                    <input type="password" id="loginPassword" placeholder="รหัสผ่าน..." class="w-full bg-gray-50 border border-gray-200 px-4 py-3 rounded-lg outline-none focus:border-blue-500 transition">
                     <p id="loginError" class="text-red-500 text-xs mt-1 hidden pl-1">รหัสผ่านไม่ถูกต้อง</p>
                 </div>
                 <div class="flex gap-3 mt-6">
-                    <button onclick="closeModal('loginModal')" class="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-xl font-medium hover:bg-gray-200 transition">ยกเลิก</button>
-                    <button onclick="submitLogin()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-xl font-medium hover:bg-blue-700 transition">ตกลง</button>
+                    <button onclick="closeModal('loginModal')" class="flex-1 bg-gray-100 text-gray-600 py-2.5 rounded-lg font-medium hover:bg-gray-200 transition">ยกเลิก</button>
+                    <button onclick="submitLogin()" class="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition">ตกลง</button>
                 </div>
             </div>
         </div>
@@ -61,48 +72,48 @@
 
     <!-- Modal เพิ่มคิวงาน -->
     <div id="addQueueModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden modal-enter flex flex-col max-h-[90vh]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-auto overflow-hidden modal-enter flex flex-col max-h-[90vh]">
             <div class="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
                 <h3 class="text-lg font-bold text-gray-800">เพิ่มคิวงาน/ภารกิจ</h3>
-                <button onclick="closeModal('addQueueModal')" class="text-gray-400 hover:text-red-500 text-xl font-bold">&times;</button>
+                <button onclick="closeModal('addQueueModal')" class="text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
             </div>
             
             <div class="p-6 overflow-y-auto">
                 <form id="addQueueForm" onsubmit="handleAddQueue(event)" class="space-y-4">
-                    <input type="text" id="qTitle" placeholder="ชื่องาน/ภารกิจ" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm font-medium text-gray-700">
+                    <input type="text" id="qTitle" placeholder="ชื่องาน/ภารกิจ" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm font-medium text-gray-800">
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">วันที่เริ่ม</label>
-                            <input type="date" id="qStartDate" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                            <label class="block text-sm font-medium text-gray-600 mb-1">วันที่เริ่ม</label>
+                            <input type="date" id="qStartDate" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-700">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">เวลาเริ่ม (ถ้ามี)</label>
-                            <input type="time" id="qStartTime" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                            <label class="block text-sm font-medium text-gray-600 mb-1">เวลาเริ่ม (ถ้ามี)</label>
+                            <input type="time" id="qStartTime" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-700">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">วันที่สิ้นสุด (ถ้ามี)</label>
-                            <input type="date" id="qEndDate" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                            <label class="block text-sm font-medium text-gray-600 mb-1">วันที่สิ้นสุด (ถ้ามี)</label>
+                            <input type="date" id="qEndDate" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-700">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">เวลาสิ้นสุด (ถ้ามี)</label>
-                            <input type="time" id="qEndTime" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-600">
+                            <label class="block text-sm font-medium text-gray-600 mb-1">เวลาสิ้นสุด (ถ้ามี)</label>
+                            <input type="time" id="qEndTime" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-700">
                         </div>
                     </div>
 
-                    <select id="qStatusDropdown" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-700 appearance-none">
+                    <select id="qStatusDropdown" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-800">
                         <option value="รอดำเนินการ">รอดำเนินการ</option>
                         <option value="เสร็จสิ้น">เสร็จสิ้น</option>
                         <option value="ยกเลิก">ยกเลิก</option>
                     </select>
 
-                    <input type="text" id="qLocation" placeholder="สถานที่" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
-                    <input type="text" id="qDress" placeholder="การแต่งกาย" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
-                    <input type="text" id="qCoord" placeholder="ผู้ประสานงาน" required class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
+                    <input type="text" id="qLocation" placeholder="สถานที่" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
+                    <input type="text" id="qDress" placeholder="การแต่งกาย" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
+                    <input type="text" id="qCoord" placeholder="ผู้ประสานงาน" required class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
                     
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 mb-1 ml-1">ผู้รับผิดชอบ (เลือกได้หลายคน / กด Ctrl เพื่อเลือก)</label>
-                        <select id="qResp" multiple class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm text-gray-700 h-24">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">ผู้รับผิดชอบ (เลือกได้หลายคน / กด Ctrl เพื่อเลือก)</label>
+                        <select id="qResp" multiple class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm text-gray-800 h-28">
                             <option value="นายก อบต.">นายก อบต.</option>
                             <option value="รองนายก อบต.">รองนายก อบต.</option>
                             <option value="เลขานุการนายก">เลขานุการนายก</option>
@@ -112,96 +123,129 @@
                         </select>
                     </div>
 
-                    <input type="text" id="qLink" placeholder="ลิงก์แนบไฟล์ Google Drive (ถ้ามี)" class="w-full bg-gray-50 border border-gray-100 p-3 rounded-2xl outline-blue-400 text-sm">
+                    <input type="text" id="qLink" placeholder="ลิงก์แนบไฟล์ Google Drive (ถ้ามี)" class="w-full bg-white border border-gray-300 p-3 rounded-lg outline-blue-500 text-sm">
 
-                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-2xl font-medium hover:bg-blue-700 transition">บันทึกข้อมูลคิวงาน</button>
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white py-3 rounded-lg font-medium text-lg hover:bg-blue-700 transition shadow-md">บันทึกข้อมูลคิวงาน</button>
                 </form>
             </div>
         </div>
     </div>
 
     <!-- Hero Section -->
-    <header class="curved-header bg-gradient-to-b from-white to-blue-50 text-center pt-10 pb-14 px-4 mb-8">
+    <header class="curved-header bg-white text-center pt-10 pb-16 px-4 mb-6">
         <div class="absolute inset-0 z-0">
-            <img src="อบต.png" alt="พื้นหลัง อบต." class="w-full h-full object-cover opacity-30">
+            <img src="อบต.png" alt="พื้นหลัง อบต." decoding="async" loading="eager" class="w-full h-full object-cover opacity-20">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent to-white/70"></div>
         </div>
         
         <div class="relative z-10">
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-400 mb-1">ยินดีต้อนรับสู่</h2>
-            <h1 class="text-3xl md:text-4xl font-bold text-[#1e3a8a] mb-8">องค์การบริหารส่วนตำบลชำผักแพว</h1>
+            <h2 class="text-2xl md:text-3xl font-medium text-gray-500 mb-1">ยินดีต้อนรับสู่</h2>
+            <h1 class="text-3xl md:text-5xl font-bold text-[#1e3a8a] mb-8 tracking-tight">องค์การบริหารส่วนตำบลชำผักแพว</h1>
             
-            <div class="max-w-xl mx-auto bg-white p-1.5 rounded-full flex shadow-sm border border-gray-200">
-                <input type="text" placeholder="ค้นหา..." class="flex-1 px-4 outline-none rounded-l-full bg-transparent text-sm">
-                <button class="bg-[#f97316] text-white px-8 py-2 rounded-full text-sm font-medium hover:bg-orange-600 transition">ค้นหา</button>
+            <div class="max-w-xl mx-auto bg-white p-1.5 rounded-full flex shadow-md border border-gray-200">
+                <input type="text" placeholder="ค้นหา..." class="flex-1 px-5 outline-none rounded-l-full bg-transparent text-base">
+                <button class="bg-[#f97316] text-white px-8 py-2.5 rounded-full text-base font-medium hover:bg-orange-600 transition shadow-sm">ค้นหา</button>
             </div>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="max-w-5xl mx-auto px-4">
+    <main class="max-w-5xl mx-auto px-4 md:px-6">
         
-        <div class="bg-[#10b981] text-white rounded-full px-4 py-2.5 flex items-center shadow-sm mb-6">
-            <div class="bg-white rounded-full p-1 mr-3 flex-shrink-0">
+        <!-- เมนูสำหรับมือถือ (แสดงเฉพาะหน้าจอเล็ก) ย้ายมาอยู่เหนือประกาศ -->
+        <div class="md:hidden overflow-x-auto scrollbar-hide mb-4">
+            <div class="flex gap-2 w-max pb-2">
+                <a href="#" class="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-medium border border-blue-200 whitespace-nowrap">หน้าแรก</a>
+                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ปฏิทิน</a>
+                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">เบอร์โทร</a>
+                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ฟอร์มต่างๆ</a>
+                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ธนาคารขยะ</a>
+                <a href="#" class="bg-white text-gray-600 px-4 py-2 rounded-full text-sm font-medium border border-gray-200 whitespace-nowrap hover:bg-gray-50">ติดต่อ</a>
+            </div>
+        </div>
+
+        <!-- ประกาศ -->
+        <div class="bg-[#10b981] text-white rounded-lg px-5 py-3 flex items-center shadow-sm mb-6">
+            <div class="bg-white rounded-full p-1.5 mr-3 flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z" />
                 </svg>
             </div>
-            <span class="font-medium text-sm">ประกาศ : แจ้งเรื่องกำหนดการชำระภาษีที่ดินและสิ่งปลูกสร้าง ประจำปี 2569</span>
+            <span class="font-medium text-sm md:text-base">ประกาศ : แจ้งเรื่องกำหนดการชำระภาษีที่ดินและสิ่งปลูกสร้าง ประจำปี 2569</span>
         </div>
 
         <!-- Big Numbers -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
-                <div class="bg-gradient-to-b from-blue-200 to-blue-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
-                    <span class="block text-blue-700 font-medium text-sm">ทั้งหมด</span>
-                    <span id="count-total" class="block text-blue-800 font-bold text-3xl mt-0.5">0</span>
+            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                <div class="bg-blue-50 rounded-xl py-4 px-4 text-center h-full border border-blue-100">
+                    <span class="block text-blue-800 font-medium text-sm mb-1">ทั้งหมด</span>
+                    <span id="count-total" class="block text-blue-700 font-bold text-4xl">0</span>
                 </div>
             </div>
-            <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
-                <div class="bg-gradient-to-b from-orange-200 to-orange-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
-                    <span class="block text-orange-700 font-medium text-sm">กำลังทำ</span>
-                    <span id="count-pending" class="block text-orange-800 font-bold text-3xl mt-0.5">0</span>
+            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                <div class="bg-orange-50 rounded-xl py-4 px-4 text-center h-full border border-orange-100">
+                    <span class="block text-orange-800 font-medium text-sm mb-1">กำลังทำ</span>
+                    <span id="count-pending" class="block text-orange-600 font-bold text-4xl">0</span>
                 </div>
             </div>
-            <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
-                <div class="bg-gradient-to-b from-green-200 to-green-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
-                    <span class="block text-green-700 font-medium text-sm">เสร็จสิ้น</span>
-                    <span id="count-completed" class="block text-green-800 font-bold text-3xl mt-0.5">0</span>
+            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                <div class="bg-green-50 rounded-xl py-4 px-4 text-center h-full border border-green-100">
+                    <span class="block text-green-800 font-medium text-sm mb-1">เสร็จสิ้น</span>
+                    <span id="count-completed" class="block text-green-600 font-bold text-4xl">0</span>
                 </div>
             </div>
-            <div class="bg-white p-1.5 rounded-[20px] shadow-sm border border-gray-100 flex-1 hover:shadow-md transition duration-300">
-                <div class="bg-gradient-to-b from-red-200 to-red-50 rounded-2xl py-3 px-4 text-center h-full flex flex-col justify-center border border-white">
-                    <span class="block text-red-700 font-medium text-sm">ยกเลิก</span>
-                    <span id="count-canceled" class="block text-red-800 font-bold text-3xl mt-0.5">0</span>
+            <div class="bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex-1">
+                <div class="bg-red-50 rounded-xl py-4 px-4 text-center h-full border border-red-100">
+                    <span class="block text-red-800 font-medium text-sm mb-1">ยกเลิก</span>
+                    <span id="count-canceled" class="block text-red-600 font-bold text-4xl">0</span>
                 </div>
             </div>
         </div>
 
-        <!-- Controls -->
+        <!-- Controls (Admin) -->
         <div id="adminControls" class="hidden mb-6 flex justify-end">
-            <button onclick="openModal('addQueueModal')" class="bg-blue-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium shadow-sm hover:bg-blue-700 flex items-center gap-2 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            <button onclick="openModal('addQueueModal')" class="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium shadow-md hover:bg-blue-700 flex items-center gap-2 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                 เพิ่มคิวงานใหม่
             </button>
         </div>
 
         <!-- Tabs -->
-        <div class="flex gap-2 mb-[-1px] relative z-10 pl-6">
-            <button id="tab-btn-queue" onclick="switchTab('queue')" class="tab-btn bg-[#60a5fa] text-white font-medium px-8 py-3 rounded-t-2xl text-sm shadow-sm transition-all">คิวนายก</button>
-            <button id="tab-btn-calendar" onclick="switchTab('calendar')" class="tab-btn bg-white text-gray-500 font-medium px-8 py-3 rounded-t-2xl text-sm hover:bg-gray-50 transition-all">ปฏิทิน อบต.</button>
-            <button id="tab-btn-phone" onclick="switchTab('phone')" class="tab-btn bg-white text-gray-500 font-medium px-8 py-3 rounded-t-2xl text-sm hover:bg-gray-50 transition-all">เบอร์โทร</button>
+        <div class="flex gap-2 mb-[-1px] relative z-10 pl-4 md:pl-6 overflow-x-auto scrollbar-hide w-full">
+            <button id="tab-btn-queue" onclick="switchTab('queue')" class="tab-btn bg-[#60a5fa] text-white font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm shadow-sm transition-all whitespace-nowrap">คิวนายก (รอดำเนินการ)</button>
+            <button id="tab-btn-completed-tab" onclick="switchTab('completed-tab')" class="tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap">คิวงานเสร็จสิ้น</button>
+            <button id="tab-btn-calendar" onclick="switchTab('calendar')" class="tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap">ปฏิทิน อบต.</button>
+            <button id="tab-btn-phone" onclick="switchTab('phone')" class="tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap">เบอร์โทร</button>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 relative z-0 min-h-[400px]">
+        <!-- Content Areas -->
+        <div class="bg-white rounded-b-2xl rounded-tr-2xl shadow-sm border border-gray-200 p-4 md:p-8 relative z-0 min-h-[500px]">
+            
+            <!-- แท็บคิวรอดำเนินการ -->
             <div id="content-queue" class="tab-content block">
-                <h3 class="text-gray-400 text-xs font-medium mb-4 flex items-center gap-2">
-                    <span class="w-0.5 h-3 bg-gray-300 inline-block rounded"></span> รายการคิวงานทั้งหมด
+                <h3 class="text-gray-500 text-sm font-semibold mb-6 flex items-center gap-2 border-b pb-2">
+                    <span class="w-1 h-4 bg-blue-500 inline-block rounded"></span> รายการคิวงานที่กำลังดำเนินการ
                 </h3>
-                <div id="queueList" class="flex flex-col gap-4"></div>
+                <div id="queueList" class="flex flex-col gap-6">
+                    <!-- โครงร่างกระดูกตอนกำลังโหลด (Skeleton Loader) เพื่อให้เว็บดูไวขึ้น -->
+                    <div class="animate-pulse flex flex-col gap-6">
+                        <div class="h-40 bg-gray-100 rounded-xl w-full border border-gray-200"></div>
+                        <div class="h-40 bg-gray-100 rounded-xl w-full border border-gray-200"></div>
+                    </div>
+                </div>
             </div>
+
+            <!-- แท็บคิวเสร็จสิ้น -->
+            <div id="content-completed-tab" class="tab-content hidden">
+                <h3 class="text-green-600 text-sm font-semibold mb-6 flex items-center gap-2 border-b pb-2">
+                    <span class="w-1 h-4 bg-green-500 inline-block rounded"></span> รายการคิวงานที่เสร็จสิ้นแล้ว
+                </h3>
+                <div id="completedQueueList" class="flex flex-col gap-6"></div>
+            </div>
+
             <div id="content-calendar" class="tab-content hidden flex items-center justify-center h-64">
                 <p class="text-gray-400 text-lg">📅 กำลังจัดทำระบบปฏิทิน อบต.</p>
             </div>
+            
             <div id="content-phone" class="tab-content hidden flex items-center justify-center h-64">
                 <p class="text-gray-400 text-lg">📞 กำลังจัดทำสมุดรายนามและเบอร์โทรติดต่อ</p>
             </div>
@@ -209,27 +253,15 @@
     </main>
 
     <script>
-        // ==========================================
-        // อัปเดต API URL ของคุณแบมบี้เรียบร้อยแล้ว
-        // ==========================================
         const API_URL = "https://script.google.com/macros/s/AKfycbx2WLgayblJSdhnA_Ad0Bjeng0tjn4aw7UzngKCctWOHJJYDCruvw1hpsSr4t-bNe8ogQ/exec";
-        
         let queues = []; 
-
-        function setActiveNav(clickedElement) {
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('border-orange-500', 'text-blue-900');
-                link.classList.add('border-transparent', 'text-gray-500');
-            });
-            clickedElement.classList.remove('border-transparent', 'text-gray-500');
-            clickedElement.classList.add('border-orange-500', 'text-blue-900');
-        }
+        let isLoggedIn = false;
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = "tab-btn bg-white text-gray-500 font-medium px-8 py-3 rounded-t-2xl text-sm hover:bg-gray-50 transition-all";
+                btn.className = "tab-btn bg-white text-gray-500 font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm hover:bg-gray-50 border-t border-x border-gray-200 transition-all whitespace-nowrap";
             });
-            document.getElementById(`tab-btn-${tabId}`).className = "tab-btn bg-[#60a5fa] text-white font-medium px-8 py-3 rounded-t-2xl text-sm shadow-sm transition-all";
+            document.getElementById(`tab-btn-${tabId}`).className = "tab-btn bg-[#60a5fa] text-white font-medium px-6 md:px-8 py-3 rounded-t-lg text-sm shadow-sm transition-all whitespace-nowrap border-t border-x border-[#60a5fa]";
 
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.add('hidden');
@@ -238,8 +270,6 @@
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
             document.getElementById(`content-${tabId}`).classList.add('block');
         }
-
-        let isLoggedIn = false;
 
         function openModal(modalId) {
             document.getElementById(modalId).classList.remove('hidden');
@@ -263,24 +293,34 @@
         }
 
         function submitLogin() {
-            const pass = document.getElementById('loginPassword').value;
-            if (pass === "cp123") { isLoggedIn = true; closeModal('loginModal'); renderUI(); } 
-            else { document.getElementById('loginError').classList.remove('hidden'); }
+            if (document.getElementById('loginPassword').value === "cp123") { 
+                isLoggedIn = true; closeModal('loginModal'); renderUI(); 
+            } else { 
+                document.getElementById('loginError').classList.remove('hidden'); 
+            }
         }
 
         async function fetchQueues() {
-            const queueList = document.getElementById('queueList');
-            queueList.innerHTML = '<div class="flex justify-center items-center py-10"><p class="text-gray-500 animate-pulse">⏳ กำลังโหลดข้อมูลคิวงาน...</p></div>';
+            // ระบบ Cache: ช่วยให้โหลดข้อมูลไวขึ้นทันตาเห็น
+            const cached = sessionStorage.getItem('queuesData');
+            if (cached) {
+                queues = JSON.parse(cached);
+                renderUI(); // วาดหน้าจอทันทีจาก Cache
+            }
+
             try {
                 const response = await fetch(API_URL);
                 const result = await response.json();
                 if (result.status === "success") {
-                    queues = result.data.reverse(); // เรียงจากล่าสุดขึ้นก่อน
-                    renderUI();
+                    queues = result.data.reverse(); 
+                    sessionStorage.setItem('queuesData', JSON.stringify(queues)); // อัปเดต Cache
+                    renderUI(); // วาดหน้าจอใหม่ด้วยข้อมูลจริง
                 }
             } catch (error) {
-                console.error("Error fetching data:", error);
-                queueList.innerHTML = '<p class="text-center text-red-500 py-8">❌ เกิดข้อผิดพลาดในการโหลดข้อมูล</p>';
+                console.error("Error:", error);
+                if (!cached) {
+                    document.getElementById('queueList').innerHTML = '<p class="text-center text-red-500 py-8">❌ เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล</p>';
+                }
             }
         }
 
@@ -289,7 +329,6 @@
             const respSelect = document.getElementById('qResp');
             const selectedResp = Array.from(respSelect.selectedOptions).map(opt => opt.value).join(", ");
             
-            // เตรียมข้อมูลให้ตรงกับ Column ในตาราง
             const newQueue = {
                 id: Date.now().toString(),
                 title: document.getElementById('qTitle').value,
@@ -306,6 +345,7 @@
             };
 
             queues.unshift(newQueue); 
+            sessionStorage.setItem('queuesData', JSON.stringify(queues));
             renderUI();
             
             document.getElementById('addQueueForm').reset();
@@ -314,131 +354,122 @@
             try {
                 await fetch(API_URL, { method: "POST", body: JSON.stringify(newQueue) });
             } catch (error) {
-                console.error("Error saving data:", error);
-                alert("เกิดข้อผิดพลาดขัดข้องในการบันทึกข้อมูล");
+                alert("บันทึกข้อมูลส่วนหน้าสำเร็จ แต่การซิงค์ขึ้นฐานข้อมูลหลักล้มเหลว");
             }
         }
 
         function updateBigNumbers() {
-            const total = queues.length;
-            const pending = queues.filter(q => q.jobStatus === 'รอดำเนินการ').length;
-            const completed = queues.filter(q => q.jobStatus === 'เสร็จสิ้น').length;
-            const canceled = queues.filter(q => q.jobStatus === 'ยกเลิก').length;
-
-            document.getElementById('count-total').textContent = total;
-            document.getElementById('count-pending').textContent = pending;
-            document.getElementById('count-completed').textContent = completed;
-            document.getElementById('count-canceled').textContent = canceled;
+            document.getElementById('count-total').textContent = queues.length;
+            document.getElementById('count-pending').textContent = queues.filter(q => q.jobStatus === 'รอดำเนินการ').length;
+            document.getElementById('count-completed').textContent = queues.filter(q => q.jobStatus === 'เสร็จสิ้น').length;
+            document.getElementById('count-canceled').textContent = queues.filter(q => q.jobStatus === 'ยกเลิก').length;
         }
 
         function formatThaiDate(dateString) {
             if(!dateString || dateString === "-") return { dayMonth: "-", year: "-" };
             const date = new Date(dateString);
             if(isNaN(date)) return { dayMonth: dateString, year: "" }; 
-            
             const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
-            const d = date.getDate();
-            const m = months[date.getMonth()];
-            const y = date.getFullYear() + 543; 
-            return { dayMonth: `${d} ${m}`, year: `${y}` };
+            return { dayMonth: `${date.getDate()} ${months[date.getMonth()]}`, year: `${date.getFullYear() + 543}` };
         }
 
-        function calculateDaysStatus(targetDateStr) {
-            if(!targetDateStr || targetDateStr === "-") return { text: "ไม่ระบุวัน", color: "bg-gray-400" };
+        function calculateDaysStatus(targetDateStr, status) {
+            if (status === "เสร็จสิ้น") return { text: "✓ เสร็จสิ้น", color: "bg-green-600" };
+            if (status === "ยกเลิก") return { text: "✕ ยกเลิก", color: "bg-red-600" };
+            if (!targetDateStr || targetDateStr === "-") return { text: "รอดำเนินการ", color: "bg-gray-500" };
             
-            const today = new Date(); 
-            today.setHours(0,0,0,0);
+            const today = new Date(); today.setHours(0,0,0,0);
+            const target = new Date(targetDateStr); target.setHours(0,0,0,0);
+            if(isNaN(target)) return { text: "รอดำเนินการ", color: "bg-blue-600" };
             
-            const target = new Date(targetDateStr);
-            if(isNaN(target)) return { text: "วันที่ไม่ถูกต้อง", color: "bg-gray-400" };
-            target.setHours(0,0,0,0);
+            const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
             
-            const diffTime = target - today;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if(diffDays === 0) return { text: "วันนี้", color: "bg-red-500" };
+            if(diffDays === 0) return { text: "วันนี้ !", color: "bg-red-500" };
             if(diffDays === 1) return { text: "พรุ่งนี้", color: "bg-orange-500" };
-            if(diffDays > 1) return { text: `อีก ${diffDays} วัน`, color: "bg-green-500" };
-            return { text: "ผ่านมาแล้ว", color: "bg-gray-300" };
+            if(diffDays > 1) return { text: `อีก ${diffDays} วัน`, color: "bg-blue-500" };
+            return { text: "เลยกำหนด", color: "bg-gray-400" };
+        }
+
+        function generateCardHTML(q, index) {
+            const { dayMonth, year } = formatThaiDate(q.startDate);
+            const statusBadge = calculateDaysStatus(q.startDate, q.jobStatus);
+            const deleteBtn = isLoggedIn ? `<button class="absolute top-4 right-4 text-gray-300 hover:text-red-500 transition"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg></button>` : '';
+            const fileLinkHTML = (q.link && q.link !== "-") ? `<a href="${q.link}" target="_blank" class="text-blue-600 font-medium hover:underline">🔗 คลิกดูไฟล์แนบ</a>` : `-`;
+            
+            // ดีไซน์ใหม่: เป็นทางการขึ้น อ่านง่ายขึ้น กล่องแยกสัดส่วนชัดเจน
+            return `
+            <div class="border border-gray-200 rounded-xl p-0 flex flex-col md:flex-row shadow-sm bg-white hover:shadow-md transition overflow-hidden relative">
+                ${deleteBtn}
+                
+                <!-- หมายเลข (ดีไซน์เหลี่ยม) -->
+                <div class="hidden md:flex w-16 bg-blue-50 flex-col items-center justify-center border-r border-gray-100 p-4">
+                    <span class="text-blue-800 font-bold text-2xl">${index + 1}</span>
+                </div>
+
+                <!-- เนื้อหาตรงกลาง -->
+                <div class="flex-1 p-5 md:p-6">
+                    <div class="md:hidden inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-md text-sm font-bold mb-3">คิวที่ ${index + 1}</div>
+                    <h4 class="font-bold text-gray-900 text-lg md:text-xl mb-4 pr-6">${q.title || '-'}</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3 text-sm text-gray-700">
+                        <p class="flex items-start gap-2"><span class="text-red-500 w-5">📍</span> <span class="flex-1"><strong class="text-gray-900">สถานที่:</strong> ${q.location || '-'}</span></p>
+                        <p class="flex items-start gap-2"><span class="text-green-600 w-5">👕</span> <span class="flex-1"><strong class="text-gray-900">การแต่งกาย:</strong> ${q.dress || '-'}</span></p>
+                        <p class="flex items-start gap-2"><span class="text-blue-600 w-5">👤</span> <span class="flex-1"><strong class="text-gray-900">รับผิดชอบ:</strong> ${q.resp || '-'}</span></p>
+                        <p class="flex items-start gap-2"><span class="text-purple-600 w-5">📞</span> <span class="flex-1"><strong class="text-gray-900">ประสานงาน:</strong> ${q.coord || '-'}</span></p>
+                        <p class="flex items-start gap-2 md:col-span-2 bg-gray-50 p-2 rounded-lg"><span class="text-gray-600 w-5">🕒</span> <span class="flex-1"><strong class="text-gray-900">เวลา:</strong> เริ่ม ${q.startTime || '-'} น. ${q.endTime !== "-" ? `ถึง ${q.endTime} น.` : ""}</span></p>
+                        <p class="flex items-start gap-2 md:col-span-2"><span class="text-yellow-600 w-5">📂</span> <span class="flex-1"><strong class="text-gray-900">ไฟล์แนบ:</strong> ${fileLinkHTML}</span></p>
+                    </div>
+                </div>
+
+                <!-- กล่องวันที่และสถานะ (ฝั่งขวา) ใหญ่และเด่นขึ้น -->
+                <div class="w-full md:w-48 bg-gray-50 border-t md:border-t-0 md:border-l border-gray-200 p-5 flex flex-col justify-center items-center gap-3">
+                    <div class="${statusBadge.color} text-white px-4 py-2 rounded-lg text-sm font-bold w-full text-center shadow-sm tracking-wide">
+                        ${statusBadge.text}
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-xl w-full py-4 text-center shadow-sm">
+                        <span class="text-gray-500 font-medium text-sm block mb-1">${dayMonth}</span>
+                        <span class="text-blue-900 font-bold text-2xl block">${year}</span>
+                    </div>
+                </div>
+            </div>`;
         }
 
         function renderUI() {
             const authBtn = document.getElementById('authBtn');
             if (isLoggedIn) {
                 authBtn.textContent = "ออกจากระบบ";
-                authBtn.className = "bg-gray-100 text-gray-600 px-6 py-1.5 rounded-full text-sm font-medium hover:bg-gray-200 transition";
+                authBtn.className = "bg-gray-100 text-gray-700 border border-gray-300 px-6 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition";
             } else {
                 authBtn.textContent = "เข้าสู่ระบบ";
-                authBtn.className = "bg-[#10b981] text-white px-6 py-1.5 rounded-full text-sm font-medium shadow-sm hover:bg-green-600 transition";
+                authBtn.className = "bg-[#10b981] text-white px-6 py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-green-600 transition";
             }
-
             document.getElementById('adminControls').style.display = isLoggedIn ? 'flex' : 'none';
             updateBigNumbers();
 
-            const queueList = document.getElementById('queueList');
-            queueList.innerHTML = ''; 
+            // แยกข้อมูลคิวงาน
+            const activeQueues = queues.filter(q => q.jobStatus !== "เสร็จสิ้น");
+            const completedQueues = queues.filter(q => q.jobStatus === "เสร็จสิ้น");
 
-            if(queues.length === 0) {
-                queueList.innerHTML = '<p class="text-center text-gray-400 py-8">ไม่มีรายการคิวงาน</p>';
-                return;
+            // วาดแท็บคิวปกติ
+            const queueList = document.getElementById('queueList');
+            if(activeQueues.length === 0) {
+                queueList.innerHTML = '<div class="text-center py-10 bg-gray-50 rounded-xl border border-gray-200"><p class="text-gray-500 text-lg">ไม่มีรายการคิวงานรอดำเนินการ</p></div>';
+            } else {
+                queueList.innerHTML = activeQueues.map((q, i) => generateCardHTML(q, i)).join('');
             }
 
-            queues.forEach((q, index) => {
-                const { dayMonth, year } = formatThaiDate(q.startDate);
-                let statusBadge = calculateDaysStatus(q.startDate);
-                
-                if(q.jobStatus === "เสร็จสิ้น") {
-                    statusBadge = { text: "เสร็จสิ้น", color: "bg-green-500" };
-                } else if(q.jobStatus === "ยกเลิก") {
-                    statusBadge = { text: "ยกเลิก", color: "bg-red-500" };
-                }
-
-                const fileLinkHTML = (q.link && q.link !== "-") 
-                    ? `<a href="${q.link}" target="_blank" class="text-blue-500 underline hover:text-blue-700 break-all text-xs">🔗 ไฟล์แนบ</a>` 
-                    : `<span class="text-gray-400">-</span>`;
-
-                const cardHTML = `
-                <div class="border border-gray-100 rounded-2xl p-5 md:p-6 flex flex-col md:flex-row gap-6 card-shadow relative bg-white items-start group hover:border-blue-100 transition">
-                    
-                    <div class="w-10 h-10 flex-shrink-0 bg-[#f97316] rounded-full flex items-center justify-center text-white font-bold text-lg mt-1 shadow-sm">
-                        ${index + 1}
-                    </div>
-                    
-                    <div class="flex-1 w-full pt-1">
-                        <h4 class="font-bold text-[#1e3a8a] text-base mb-3 pr-8">${q.title || '-'}</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2.5 text-xs text-gray-600">
-                            <p class="flex items-start gap-2"><span class="text-red-400">📌</span> <span class="flex-1"><span class="font-semibold text-gray-700">สถานที่:</span> ${q.location || '-'}</span></p>
-                            <p class="flex items-start gap-2"><span class="text-green-500">👕</span> <span class="flex-1"><span class="font-semibold text-gray-700">การแต่งกาย:</span> ${q.dress || '-'}</span></p>
-                            <p class="flex items-start gap-2"><span class="text-blue-500">👤</span> <span class="flex-1"><span class="font-semibold text-gray-700">ผู้รับผิดชอบ:</span> ${q.resp || '-'}</span></p>
-                            <p class="flex items-start gap-2"><span class="text-purple-400">📞</span> <span class="flex-1"><span class="font-semibold text-gray-700">ผู้ประสานงาน:</span> ${q.coord || '-'}</span></p>
-                            <p class="flex items-start gap-2 md:col-span-2"><span class="text-pink-400">🕒</span> <span class="flex-1"><span class="font-semibold text-gray-700">เวลา:</span> เริ่ม ${q.startTime || '-'} น. ${q.endTime !== "-" ? `ถึง ${q.endTime} น.` : ""}</span></p>
-                            <p class="flex items-start gap-2 md:col-span-2"><span class="text-yellow-500">📂</span> <span class="flex-1"><span class="font-semibold text-gray-700">ไฟล์แนบ:</span> ${fileLinkHTML}</span></p>
-                        </div>
-                    </div>
-
-                    <div class="relative w-full md:w-32 flex-shrink-0 mt-4 md:mt-0 flex flex-col items-end">
-                        <div class="${statusBadge.color} text-white text-[10px] px-3 py-1 rounded-full shadow-sm font-medium mb-2 w-max">
-                            ${statusBadge.text}
-                        </div>
-                        <div class="bg-[#f0f9ff] text-[#1e3a8a] rounded-xl w-full py-4 text-center border border-blue-50 flex flex-col justify-center">
-                            <span class="font-medium text-xs block mb-1">${dayMonth}</span>
-                            <span class="font-bold text-xl block">${year}</span>
-                        </div>
-                    </div>
-                </div>
-                `;
-                queueList.insertAdjacentHTML('beforeend', cardHTML);
-            });
+            // วาดแท็บคิวเสร็จสิ้น
+            const completedQueueList = document.getElementById('completedQueueList');
+            if(completedQueues.length === 0) {
+                completedQueueList.innerHTML = '<div class="text-center py-10 bg-gray-50 rounded-xl border border-gray-200"><p class="text-gray-500 text-lg">ยังไม่มีคิวงานที่เสร็จสิ้น</p></div>';
+            } else {
+                completedQueueList.innerHTML = completedQueues.map((q, i) => generateCardHTML(q, i)).join('');
+            }
         }
 
-        document.getElementById('loginPassword').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') submitLogin();
-        });
-
-        window.onload = () => {
-            switchTab('queue');
-            fetchQueues(); 
-        };
+        document.getElementById('loginPassword').addEventListener('keypress', e => { if (e.key === 'Enter') submitLogin(); });
+        
+        window.onload = () => { switchTab('queue'); fetchQueues(); };
     </script>
 </body>
 </html>
