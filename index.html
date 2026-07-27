@@ -12,35 +12,38 @@
 
     <style>
         :root{
-            --bg: #FAF7F1;
+            --bg: #F5FAFE;
             --surface: #FFFFFF;
-            --ink: #1C2620;
-            --muted: #6E7A70;
-            --border: #E7E1D3;
+            --ink: #1E2A38;
+            --muted: #66788D;
+            --border: #E1EBF5;
 
-            --primary: #1F4B3F;
-            --primary-light: #2D6A4F;
-            --primary-dark: #143028;
-            --primary-tint: #EAF0EC;
+            --primary: #2E7BC4;
+            --primary-light: #4E97D9;
+            --primary-dark: #1F5A94;
+            --primary-tint: #E9F3FC;
 
-            --accent: #C08A28;
-            --accent-light: #E3B15A;
-            --accent-tint: #FBF1DD;
+            --accent: #E4954F;
+            --accent-light: #EFB37D;
+            --accent-tint: #FDEFE0;
 
-            --danger: #B23A2E;
-            --danger-tint: #FBEAE7;
-            --warning: #C97A2B;
-            --warning-tint: #FBEEDE;
+            --success: #4FA97C;
+            --success-light: #7FC49D;
+            --success-tint: #E9F7F0;
+
+            --danger: #DB7A63;
+            --danger-tint: #FBEDE8;
+            --warning: #E0B23F;
+            --warning-tint: #FCF3DA;
         }
 
         *{ -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Prompt', sans-serif; background-color: var(--bg); color: var(--ink); min-height: 100vh; }
-        .font-display { font-family: 'Fraunces', serif; }
         .num { font-family: 'Fraunces', serif; font-variant-numeric: tabular-nums; }
 
         /* ---------- structure ---------- */
         .glass-nav{
-            background: rgba(250,247,241,0.82);
+            background: rgba(245,250,254,0.82);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
             border-bottom: 1px solid var(--border);
@@ -48,15 +51,14 @@
 
         .paper-texture{
             background-image:
-                radial-gradient(circle at 15% 20%, rgba(31,75,63,0.06) 0%, transparent 45%),
-                radial-gradient(circle at 85% 0%, rgba(192,138,40,0.10) 0%, transparent 40%);
+                radial-gradient(circle at 15% 20%, rgba(46,123,196,0.06) 0%, transparent 45%),
+                radial-gradient(circle at 85% 0%, rgba(228,149,79,0.09) 0%, transparent 40%);
         }
 
         .hero-panel{
             background: linear-gradient(180deg, #FFFFFF 0%, var(--bg) 100%);
             border: 1px solid var(--border);
-            border-radius: 28px;
-            box-shadow: 0 1px 2px rgba(20,48,40,0.04);
+            box-shadow: 0 1px 2px rgba(31,90,148,0.05);
             position: relative;
             overflow: hidden;
         }
@@ -72,7 +74,7 @@
 
         .search-pill{
             border: 1px solid var(--border);
-            box-shadow: 0 1px 2px rgba(20,48,40,0.04);
+            box-shadow: 0 1px 2px rgba(31,90,148,0.05);
             transition: box-shadow .2s ease, border-color .2s ease;
         }
         .search-pill:focus-within{
@@ -85,8 +87,8 @@
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #D9D2C0; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #C7BEA5; }
+        ::-webkit-scrollbar-thumb { background: #C6D7E8; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #AFC5DB; }
 
         /* ---------- announcement ---------- */
         .announce-bar{
@@ -112,7 +114,7 @@
             position:absolute; left:0; top:0; bottom:0; width:4px;
             background: var(--bar-color, var(--primary));
         }
-        .stat-card:hover{ transform: translateY(-2px); box-shadow: 0 10px 24px -12px rgba(20,48,40,0.18); }
+        .stat-card:hover{ transform: translateY(-2px); box-shadow: 0 10px 24px -12px rgba(31,90,148,0.16); }
 
         /* ---------- pill tabs ---------- */
         .tab-group{
@@ -129,7 +131,7 @@
         .tab-btn.is-active{
             background: var(--primary);
             color: #fff;
-            box-shadow: 0 6px 14px -6px rgba(20,48,40,0.45);
+            box-shadow: 0 6px 14px -6px rgba(31,90,148,0.4);
         }
         .tab-btn:not(.is-active){ color: var(--muted); }
         .tab-btn:not(.is-active):hover{ background: var(--primary-tint); color: var(--primary-dark); }
@@ -148,14 +150,14 @@
             transition: box-shadow .25s ease, border-color .25s ease, transform .2s ease;
         }
         .queue-card:hover{
-            border-color: #D7CFB8;
-            box-shadow: 0 14px 30px -18px rgba(20,48,40,0.25);
+            border-color: #C3DBF0;
+            box-shadow: 0 14px 30px -18px rgba(31,90,148,0.22);
             transform: translateY(-1px);
         }
 
         @keyframes glowToday {
-            0%, 100% { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-tint), 0 10px 24px -14px rgba(178,58,46,0.45); }
-            50% { border-color: #D4685A; box-shadow: 0 0 0 6px var(--danger-tint), 0 14px 30px -14px rgba(178,58,46,0.55); }
+            0%, 100% { border-color: var(--danger); box-shadow: 0 0 0 3px var(--danger-tint), 0 10px 24px -14px rgba(219,122,99,0.45); }
+            50% { border-color: #E2937F; box-shadow: 0 0 0 6px var(--danger-tint), 0 14px 30px -14px rgba(219,122,99,0.55); }
         }
         .today-glow{
             animation: glowToday 2s infinite ease-in-out;
@@ -196,7 +198,7 @@
             background: var(--primary);
             color: #fff;
             transition: background .2s ease, transform .15s ease, box-shadow .2s ease;
-            box-shadow: 0 8px 20px -10px rgba(20,48,40,0.55);
+            box-shadow: 0 8px 20px -10px rgba(31,90,148,0.5);
         }
         .btn-primary:hover{ background: var(--primary-light); transform: translateY(-1px); }
         .btn-primary:active{ transform: translateY(0); }
@@ -205,7 +207,7 @@
             background: var(--accent);
             color: #fff;
             transition: background .2s ease, transform .15s ease;
-            box-shadow: 0 8px 20px -10px rgba(192,138,40,0.55);
+            box-shadow: 0 8px 20px -10px rgba(228,149,79,0.55);
         }
         .btn-accent:hover{ background: var(--accent-light); transform: translateY(-1px); }
 
@@ -214,7 +216,7 @@
             color: var(--primary-dark);
             transition: background .2s ease;
         }
-        .btn-ghost:hover{ background: #DCE7E0; }
+        .btn-ghost:hover{ background: #D9EAF9; }
 
         .icon-btn{
             border: 1px solid var(--border);
@@ -252,7 +254,7 @@
     </nav>
 
     <!-- Modal เข้าสู่ระบบ -->
-    <div id="loginModal" class="fixed inset-0 bg-[#14211B]/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div id="loginModal" class="fixed inset-0 bg-[#0F2A44]/45 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-sm mx-auto overflow-hidden modal-enter">
             <div class="p-7 text-center" style="background: linear-gradient(160deg, var(--primary-dark), var(--primary))">
                 <div class="w-12 h-12 rounded-2xl bg-white/15 flex items-center justify-center mx-auto mb-3">
@@ -275,7 +277,7 @@
     </div>
 
     <!-- Modal เพิ่ม/แก้ไขคิวงาน -->
-    <div id="addQueueModal" class="fixed inset-0 bg-[#14211B]/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div id="addQueueModal" class="fixed inset-0 bg-[#0F2A44]/45 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
         <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl mx-auto overflow-hidden modal-enter flex flex-col max-h-[90vh]">
             <div class="px-6 py-5 flex justify-between items-center" style="background:var(--primary-tint); border-bottom:1px solid var(--border)">
                 <div>
@@ -363,8 +365,8 @@
     </div>
 
     <!-- Hero Section -->
-    <header class="max-w-6xl mx-auto px-4 md:px-6 pt-6">
-        <div class="hero-panel px-6 md:px-14 pt-14 pb-16 text-center">
+    <header class="max-w-6xl mx-auto px-3 md:px-6 pt-4 md:pt-6">
+        <div class="hero-panel px-4 sm:px-6 md:px-14 pt-9 md:pt-14 pb-10 md:pb-16 text-center rounded-[20px] md:rounded-[28px]">
             <svg class="hero-leaf -top-6 -right-6 w-40 h-40 md:w-56 md:h-56" viewBox="0 0 200 200" fill="none">
                 <circle cx="100" cy="100" r="98" stroke="var(--accent)" stroke-opacity="0.18" stroke-width="1.5"/>
                 <circle cx="100" cy="100" r="70" stroke="var(--primary)" stroke-opacity="0.12" stroke-width="1.5"/>
@@ -375,8 +377,8 @@
 
             <div class="relative z-10">
                 <span class="eyebrow inline-block px-4 py-1.5 rounded-full mb-5" style="background:var(--primary-tint); color:var(--primary-dark)">ยินดีต้อนรับสู่เว็บไซต์ทางการ</span>
-                <h1 class="font-display text-[8vw] min-[500px]:text-4xl md:text-6xl font-semibold mb-3 tracking-tight leading-[1.1] px-2" style="color:var(--primary-dark)">
-                    องค์การบริหารส่วนตำบล<br class="hidden sm:block"> ชำผักแพว
+                <h1 class="font-bold mb-3 tracking-tight leading-tight whitespace-nowrap overflow-hidden text-ellipsis px-1" style="color:var(--primary-dark); font-size:clamp(0.85rem, 4.6vw, 3.25rem);">
+                    องค์การบริหารส่วนตำบลชำผักแพว
                 </h1>
                 <p class="text-sm md:text-base mb-9" style="color:var(--muted)">ระบบติดตามคิวงานและภารกิจ ฝ่ายบริหาร อบต.ชำผักแพว</p>
 
@@ -436,12 +438,12 @@
                 </div>
                 <span id="count-pending" class="num block font-semibold text-3xl md:text-4xl" style="color:var(--warning)">0</span>
             </div>
-            <div class="stat-card p-5" style="--bar-color:var(--primary-light)">
+            <div class="stat-card p-5" style="--bar-color:var(--success)">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-medium" style="color:var(--muted)">เสร็จสิ้น</span>
-                    <svg class="w-4 h-4" style="color:var(--primary-light)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                    <svg class="w-4 h-4" style="color:var(--success)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 </div>
-                <span id="count-completed" class="num block font-semibold text-3xl md:text-4xl" style="color:var(--primary-light)">0</span>
+                <span id="count-completed" class="num block font-semibold text-3xl md:text-4xl" style="color:var(--success)">0</span>
             </div>
             <div class="stat-card p-5" style="--bar-color:var(--danger)">
                 <div class="flex items-center justify-between mb-2">
@@ -660,9 +662,9 @@
         }
 
         function calculateDaysStatus(targetDateStr, status) {
-            if (status === "เสร็จสิ้น") return { text: "✓ เสร็จสิ้น", color: "background:var(--primary-light)", isToday: false, isUrgent: false };
+            if (status === "เสร็จสิ้น") return { text: "✓ เสร็จสิ้น", color: "background:var(--success)", isToday: false, isUrgent: false };
             if (status === "ยกเลิก") return { text: "✕ ยกเลิก", color: "background:var(--danger)", isToday: false, isUrgent: false };
-            if (!targetDateStr || targetDateStr === "-") return { text: "รอดำเนินการ", color: "background:#9AA39B", isToday: false, isUrgent: false };
+            if (!targetDateStr || targetDateStr === "-") return { text: "รอดำเนินการ", color: "background:#93A9C2", isToday: false, isUrgent: false };
 
             const today = new Date(); today.setHours(0,0,0,0);
             const target = new Date(targetDateStr); target.setHours(0,0,0,0);
@@ -671,10 +673,10 @@
             const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
 
             if(diffDays === 0) return { text: "วันนี้ !", color: "background:var(--danger)", isToday: true, isUrgent: true };
-            if(diffDays === 1) return { text: "พรุ่งนี้", color: "background:var(--warning)", isToday: false, isUrgent: true };
-            if(diffDays > 1 && diffDays <= 3) return { text: `อีก ${diffDays} วัน`, color: "background:var(--accent)", isToday: false, isUrgent: true };
+            if(diffDays === 1) return { text: "พรุ่งนี้", color: "background:var(--accent)", isToday: false, isUrgent: true };
+            if(diffDays > 1 && diffDays <= 3) return { text: `อีก ${diffDays} วัน`, color: "background:var(--warning)", isToday: false, isUrgent: true };
             if(diffDays > 3) return { text: `อีก ${diffDays} วัน`, color: "background:var(--primary)", isToday: false, isUrgent: false };
-            return { text: "เลยกำหนด", color: "background:#9AA39B", isToday: false, isUrgent: false };
+            return { text: "เลยกำหนด", color: "background:#93A9C2", isToday: false, isUrgent: false };
         }
 
         function generateCardHTML(q, index) {
