@@ -167,6 +167,26 @@
         @keyframes popBounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
         .animate-pop { animation: popBounce 1.6s infinite ease-in-out; }
 
+        @keyframes gentleBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-7px); }
+        }
+        .next-up-bounce{
+            animation: gentleBounce 2.8s ease-in-out infinite;
+            border-color: var(--accent) !important;
+        }
+        .next-up-ribbon{
+            position:absolute; top:-11px; left:20px; z-index:20;
+            background: var(--accent);
+            color:#fff;
+            font-size:0.72rem;
+            font-weight:600;
+            padding:4px 12px;
+            border-radius:999px;
+            display:flex; align-items:center; gap:5px;
+            box-shadow: 0 4px 10px -4px rgba(228,149,79,0.6);
+        }
+
         .date-block{
             background: var(--primary-tint);
             border: 1px solid var(--border);
@@ -223,6 +243,29 @@
             background: var(--surface);
             transition: background .2s ease, color .2s ease, border-color .2s ease;
         }
+        .icon-btn:disabled{ opacity:0.35; cursor:not-allowed; }
+
+        /* ---------- calendar ---------- */
+        .cal-day{
+            aspect-ratio: 1 / 1;
+            display:flex; flex-direction:column; align-items:center; justify-content:center;
+            gap:3px;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            transition: background .15s ease, border-color .15s ease;
+            cursor:pointer;
+            padding:2px;
+        }
+        .cal-day:hover{ background: var(--primary-tint); }
+        .cal-day-num{ font-size:0.82rem; font-weight:500; color:var(--ink); }
+        .cal-dots{ display:flex; gap:3px; height:6px; align-items:center; }
+        .cal-dot{ width:5px; height:5px; border-radius:50%; display:inline-block; flex-shrink:0; }
+        .cal-today{ border-color:var(--primary); border-width:2px; }
+        .cal-today .cal-day-num{ color:var(--primary-dark); font-weight:700; }
+        .cal-selected{ background: var(--primary) !important; }
+        .cal-selected .cal-day-num{ color:#fff; }
+        .cal-empty{ aspect-ratio: 1 / 1; }
 
         [x-cloak]{ display:none; }
     </style>
@@ -492,8 +535,30 @@
                 <div id="completedQueueList" class="flex flex-col gap-5"></div>
             </div>
 
-            <div id="content-calendar" class="tab-content hidden flex items-center justify-center h-64">
-                <p class="text-lg" style="color:var(--muted)">📅 กำลังจัดทำระบบปฏิทิน อบต.</p>
+            <div id="content-calendar" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-5">
+                    <button id="calPrevBtn" onclick="changeCalMonth(-1)" class="icon-btn w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center" style="color:var(--primary-dark)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <h3 id="calMonthLabel" class="font-semibold text-base md:text-lg" style="color:var(--primary-dark)">-</h3>
+                    <button id="calNextBtn" onclick="changeCalMonth(1)" class="icon-btn w-9 h-9 md:w-10 md:h-10 rounded-full flex items-center justify-center" style="color:var(--primary-dark)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-7 gap-1 md:gap-1.5 mb-1.5 text-center text-[11px] md:text-xs font-medium" style="color:var(--muted)">
+                    <span>อา</span><span>จ</span><span>อ</span><span>พ</span><span>พฤ</span><span>ศ</span><span>ส</span>
+                </div>
+                <div id="calGrid" class="grid grid-cols-7 gap-1 md:gap-1.5 mb-5"></div>
+
+                <div class="flex items-center flex-wrap gap-x-5 gap-y-2 text-xs mb-5" style="color:var(--muted)">
+                    <span class="flex items-center gap-1.5"><span class="cal-dot" style="background:var(--success)"></span> คิวนายก</span>
+                    <span class="flex items-center gap-1.5"><span class="cal-dot" style="background:var(--primary)"></span> วันสำคัญ</span>
+                </div>
+
+                <div id="calDetail" class="p-4 rounded-xl text-sm" style="background:var(--bg); border:1px solid var(--border)">
+                    <p style="color:var(--muted)">แตะวันที่ในปฏิทินเพื่อดูรายละเอียด</p>
+                </div>
             </div>
 
             <div id="content-phone" class="tab-content hidden flex items-center justify-center h-64">
@@ -507,6 +572,151 @@
         let queues = [];
         let isLoggedIn = false;
         let editingId = null;
+
+        // ---------- calendar ----------
+        const CAL_MIN_YEAR = 2026, CAL_MAX_YEAR = 2037; // พ.ศ. 2569-2580
+        let calYear = new Date().getFullYear();
+        let calMonth = new Date().getMonth() + 1;
+        if (calYear < CAL_MIN_YEAR) { calYear = CAL_MIN_YEAR; calMonth = 1; }
+        if (calYear > CAL_MAX_YEAR) { calYear = CAL_MAX_YEAR; calMonth = 12; }
+        let calSelectedDate = null;
+
+        const THAI_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+
+        // วันสำคัญ/วันหยุดราชการที่มีวันที่ตายตัวทุกปี (ใช้ซ้ำได้ทุกปีในช่วง 2569-2580)
+        const ANNUAL_FIXED_HOLIDAYS = [
+            { m:1,  d:1,  name:"วันขึ้นปีใหม่" },
+            { m:4,  d:6,  name:"วันจักรี" },
+            { m:4,  d:13, name:"วันสงกรานต์ (วันผู้สูงอายุ)" },
+            { m:4,  d:14, name:"วันสงกรานต์ (วันครอบครัว)" },
+            { m:4,  d:15, name:"วันสงกรานต์ (วันเถลิงศก)" },
+            { m:5,  d:1,  name:"วันแรงงานแห่งชาติ" },
+            { m:5,  d:4,  name:"วันฉัตรมงคล" },
+            { m:6,  d:3,  name:"วันเฉลิมพระชนมพรรษา สมเด็จพระนางเจ้าฯ พระบรมราชินี" },
+            { m:7,  d:28, name:"วันเฉลิมพระชนมพรรษา พระบาทสมเด็จพระเจ้าอยู่หัว" },
+            { m:8,  d:12, name:"วันแม่แห่งชาติ" },
+            { m:10, d:13, name:"วันคล้ายวันสวรรคต ร.9" },
+            { m:10, d:23, name:"วันปิยมหาราช" },
+            { m:12, d:5,  name:"วันพ่อแห่งชาติ" },
+            { m:12, d:10, name:"วันรัฐธรรมนูญ" },
+            { m:12, d:31, name:"วันสิ้นปี" },
+        ];
+
+        // วันสำคัญทางจันทรคติ/วันหยุดชดเชย ที่ประกาศทางการแล้วเฉพาะปี (ปัจจุบันยืนยันแล้วถึงปี พ.ศ. 2569)
+        // เพิ่มข้อมูลของปีถัดไปได้ที่นี่เมื่อทางราชการประกาศวันหยุดอย่างเป็นทางการ
+        const EXTRA_HOLIDAYS_BY_YEAR = {
+            2026: [
+                { m:1,  d:2,  name:"วันหยุดพิเศษ (ตามมติ ครม.)" },
+                { m:3,  d:3,  name:"วันมาฆบูชา" },
+                { m:5,  d:9,  name:"วันพืชมงคล" },
+                { m:5,  d:31, name:"วันวิสาขบูชา" },
+                { m:6,  d:1,  name:"วันหยุดชดเชยวันวิสาขบูชา" },
+                { m:7,  d:29, name:"วันอาสาฬหบูชา" },
+                { m:7,  d:30, name:"วันเข้าพรรษา" },
+                { m:10, d:16, name:"วันหยุดพิเศษ กทม. (ประชุมธนาคารโลก-IMF)" },
+            ],
+        };
+
+        function pad2(n) { return n.toString().padStart(2, '0'); }
+        function dateKey(y, m, d) { return `${y}-${pad2(m)}-${pad2(d)}`; }
+        function todayKey() { const t = new Date(); return dateKey(t.getFullYear(), t.getMonth()+1, t.getDate()); }
+
+        function getHolidaysForMonth(y, m) {
+            const fixed = ANNUAL_FIXED_HOLIDAYS.filter(h => h.m === m).map(h => ({ d: h.d, name: h.name }));
+            const extra = (EXTRA_HOLIDAYS_BY_YEAR[y] || []).filter(h => h.m === m).map(h => ({ d: h.d, name: h.name }));
+            return [...fixed, ...extra];
+        }
+
+        function getQueuesForDate(dstr) {
+            return queues.filter(q => q.startDate === dstr && q.jobStatus !== "ยกเลิก");
+        }
+
+        function changeCalMonth(delta) {
+            let m = calMonth + delta, y = calYear;
+            if (m < 1) { m = 12; y--; }
+            if (m > 12) { m = 1; y++; }
+            if (y < CAL_MIN_YEAR || y > CAL_MAX_YEAR) return;
+            calMonth = m; calYear = y;
+            renderCalendar();
+        }
+
+        function selectCalDate(dstr) {
+            calSelectedDate = (calSelectedDate === dstr) ? null : dstr;
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calGrid');
+            const label = document.getElementById('calMonthLabel');
+            if (!grid || !label) return;
+
+            label.textContent = `${THAI_MONTHS[calMonth-1]} ${calYear + 543}`;
+            document.getElementById('calPrevBtn').disabled = (calYear === CAL_MIN_YEAR && calMonth === 1);
+            document.getElementById('calNextBtn').disabled = (calYear === CAL_MAX_YEAR && calMonth === 12);
+
+            const firstDayIndex = new Date(calYear, calMonth - 1, 1).getDay();
+            const daysInMonth = new Date(calYear, calMonth, 0).getDate();
+            const holidays = getHolidaysForMonth(calYear, calMonth);
+            const tKey = todayKey();
+
+            let html = '';
+            for (let i = 0; i < firstDayIndex; i++) html += `<div class="cal-empty"></div>`;
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const dstr = dateKey(calYear, calMonth, d);
+                const holiday = holidays.find(h => h.d === d);
+                const dayQueues = getQueuesForDate(dstr);
+                const stateClass = [
+                    dstr === tKey ? 'cal-today' : '',
+                    dstr === calSelectedDate ? 'cal-selected' : ''
+                ].filter(Boolean).join(' ');
+
+                html += `
+                <button type="button" onclick="selectCalDate('${dstr}')" class="cal-day ${stateClass}">
+                    <span class="cal-day-num">${d}</span>
+                    <span class="cal-dots">
+                        ${dayQueues.length ? '<span class="cal-dot" style="background:var(--success)"></span>' : ''}
+                        ${holiday ? '<span class="cal-dot" style="background:var(--primary)"></span>' : ''}
+                    </span>
+                </button>`;
+            }
+            grid.innerHTML = html;
+            renderCalDetail();
+        }
+
+        function renderCalDetail() {
+            const box = document.getElementById('calDetail');
+            if (!box) return;
+
+            if (!calSelectedDate) {
+                box.innerHTML = `<p style="color:var(--muted)">แตะวันที่ในปฏิทินเพื่อดูรายละเอียด</p>`;
+                return;
+            }
+
+            const [y, m, d] = calSelectedDate.split('-').map(Number);
+            const holiday = getHolidaysForMonth(y, m).find(h => h.d === d);
+            const dayQueues = getQueuesForDate(calSelectedDate);
+            const thaiDate = `วัน${['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'][new Date(y, m-1, d).getDay()]}ที่ ${d} ${THAI_MONTHS[m-1]} ${y + 543}`;
+
+            let html = `<p class="font-semibold mb-3" style="color:var(--primary-dark)">${thaiDate}</p>`;
+
+            if (holiday) {
+                html += `<div class="flex items-center gap-2 mb-3"><span class="cal-dot" style="background:var(--primary)"></span><span>${holiday.name}</span></div>`;
+            }
+
+            if (dayQueues.length) {
+                html += dayQueues.map(q => `
+                    <div class="flex items-center gap-2.5 py-2" style="border-top:1px solid var(--border)">
+                        <span class="cal-dot flex-shrink-0" style="background:var(--success)"></span>
+                        <span class="flex-1">${q.title || '-'}</span>
+                        <span class="text-xs flex-shrink-0" style="color:var(--muted)">${q.startTime && q.startTime !== '-' ? q.startTime + ' น.' : ''}</span>
+                    </div>`).join('');
+            } else if (!holiday) {
+                html += `<p style="color:var(--muted)">ไม่มีคิวงานหรือวันสำคัญในวันนี้</p>`;
+            }
+
+            box.innerHTML = html;
+        }
 
         function loadAnnouncement() {
             const savedText = localStorage.getItem('announcementText');
@@ -679,7 +889,24 @@
             return { text: "เลยกำหนด", color: "background:#93A9C2", isToday: false, isUrgent: false };
         }
 
-        function generateCardHTML(q, index) {
+        function findNearestUpcomingId(list) {
+            const today = new Date(); today.setHours(0,0,0,0);
+            let nearestId = null, nearestDiff = Infinity;
+            list.forEach(q => {
+                if (q.jobStatus === "เสร็จสิ้น" || q.jobStatus === "ยกเลิก") return;
+                if (!q.startDate || q.startDate === "-") return;
+                const target = new Date(q.startDate); target.setHours(0,0,0,0);
+                if (isNaN(target)) return;
+                const diffDays = Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+                if (diffDays >= 0 && diffDays < nearestDiff) {
+                    nearestDiff = diffDays;
+                    nearestId = q.id;
+                }
+            });
+            return nearestId;
+        }
+
+        function generateCardHTML(q, index, nearestId) {
             let day = "-", month = "-", year = "-";
             if(q.startDate && q.startDate !== "-") {
                 const d = new Date(q.startDate);
@@ -692,6 +919,7 @@
             }
 
             const statusBadge = calculateDaysStatus(q.startDate, q.jobStatus);
+            const isNextUp = nearestId !== null && q.id === nearestId;
 
             const actionBtns = isLoggedIn ? `
                 <div class="absolute top-3 right-3 flex gap-2 z-20">
@@ -705,12 +933,19 @@
 
             const fileLinkHTML = (q.link && q.link !== "-") ? `<a href="${q.link}" target="_blank" class="font-medium hover:underline flex items-center gap-1" style="color:var(--primary)"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg> คลิกดูไฟล์แนบ</a>` : `-`;
 
-            const cardStateClass = statusBadge.isToday ? "today-glow" : "";
+            const cardStateClass = [statusBadge.isToday ? "today-glow" : "", isNextUp ? "next-up-bounce" : ""].filter(Boolean).join(" ");
             const badgeAnimateClass = statusBadge.isUrgent ? "animate-pop" : "";
+
+            const nextUpRibbon = isNextUp ? `
+                <div class="next-up-ribbon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 01.894.553l1.382 2.764 3.05.443a1 1 0 01.554 1.706l-2.207 2.152.521 3.037a1 1 0 01-1.451 1.054L10 12.25l-2.743 1.459a1 1 0 01-1.451-1.054l.521-3.037L4.12 7.466a1 1 0 01.554-1.706l3.05-.443L9.106 2.553A1 1 0 0110 2z"/></svg>
+                    คิวถัดไป
+                </div>` : '';
 
             return `
             <div class="queue-card ${cardStateClass} p-4 md:p-6 relative w-full">
                 ${actionBtns}
+                ${nextUpRibbon}
 
                 <div class="flex flex-row items-start gap-4 md:gap-6">
                     <div class="date-block w-16 h-20 md:w-20 md:h-24 flex flex-col justify-between items-center flex-shrink-0 overflow-hidden">
@@ -720,20 +955,20 @@
 
                     <div class="flex-1 min-w-0 pr-8 md:pr-0">
                         <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-3">
-                            <h4 class="font-semibold text-[17px] md:text-xl break-words leading-snug md:pr-4" style="color:var(--ink)">${q.title || '-'}</h4>
-                            <div class="badge w-max mt-1 md:mt-0 ${badgeAnimateClass} text-white px-3 md:px-4 py-1.5 rounded-full text-xs md:text-sm flex-shrink-0" style="${statusBadge.color}">
+                            <h4 class="font-semibold text-lg md:text-2xl break-words leading-snug md:pr-4" style="color:var(--ink)">${q.title || '-'}</h4>
+                            <div class="badge w-max mt-1 md:mt-0 ${badgeAnimateClass} text-white px-4 py-2 rounded-full text-sm md:text-base flex-shrink-0" style="${statusBadge.color}">
                                 ${statusBadge.text}
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-2.5 gap-x-4 text-[13px] md:text-[14px] p-3.5 md:p-4 rounded-xl" style="color:var(--ink); background:var(--bg); border:1px solid var(--border)">
-                            <p class="flex items-start gap-2.5"><span class="w-4 mt-0.5">📍</span> <span class="flex-1"><strong style="color:var(--primary-dark)">สถานที่:</strong> ${q.location || '-'}</span></p>
-                            <p class="flex items-start gap-2.5"><span class="w-4 mt-0.5">👕</span> <span class="flex-1"><strong style="color:var(--primary-dark)">การแต่งกาย:</strong> ${q.dress || '-'}</span></p>
-                            <p class="flex items-start gap-2.5"><span class="w-4 mt-0.5">👤</span> <span class="flex-1"><strong style="color:var(--primary-dark)">ผู้รับผิดชอบ:</strong> ${q.resp || '-'}</span></p>
-                            <p class="flex items-start gap-2.5"><span class="w-4 mt-0.5">📞</span> <span class="flex-1"><strong style="color:var(--primary-dark)">ผู้ประสานงาน:</strong> ${q.coord || '-'}</span></p>
-                            <div class="md:col-span-2 pt-2 mt-1 grid grid-cols-1 md:grid-cols-2 gap-y-2.5" style="border-top:1px solid var(--border)">
-                                <p class="flex items-start gap-2.5"><span class="w-4 mt-0.5">🕒</span> <span class="flex-1"><strong style="color:var(--primary-dark)">เวลา:</strong> เริ่ม ${q.startTime || '-'} น. ${q.endTime !== "-" ? `ถึง ${q.endTime} น.` : ""}</span></p>
-                                <p class="flex items-start gap-2.5"><span class="w-4 mt-0.5">📂</span> <span class="flex-1"><strong style="color:var(--primary-dark)">เอกสารแนบ:</strong> ${fileLinkHTML}</span></p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3.5 gap-x-5 text-[15px] md:text-[16px] p-4 md:p-5 rounded-xl" style="color:var(--ink); background:var(--bg); border:1px solid var(--border)">
+                            <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">📍</span> <span class="flex-1"><strong style="color:var(--primary-dark)">สถานที่:</strong> ${q.location || '-'}</span></p>
+                            <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">👕</span> <span class="flex-1"><strong style="color:var(--primary-dark)">การแต่งกาย:</strong> ${q.dress || '-'}</span></p>
+                            <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">👤</span> <span class="flex-1"><strong style="color:var(--primary-dark)">ผู้รับผิดชอบ:</strong> ${q.resp || '-'}</span></p>
+                            <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">📞</span> <span class="flex-1"><strong style="color:var(--primary-dark)">ผู้ประสานงาน:</strong> ${q.coord || '-'}</span></p>
+                            <div class="md:col-span-2 pt-3 mt-1 grid grid-cols-1 md:grid-cols-2 gap-y-3.5" style="border-top:1px solid var(--border)">
+                                <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">🕒</span> <span class="flex-1"><strong style="color:var(--primary-dark)">เวลา:</strong> เริ่ม ${q.startTime || '-'} น. ${q.endTime !== "-" ? `ถึง ${q.endTime} น.` : ""}</span></p>
+                                <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">📂</span> <span class="flex-1"><strong style="color:var(--primary-dark)">เอกสารแนบ:</strong> ${fileLinkHTML}</span></p>
                             </div>
                         </div>
                     </div>
@@ -763,20 +998,23 @@
 
             const activeQueues = queues.filter(q => q.jobStatus !== "เสร็จสิ้น");
             const completedQueues = queues.filter(q => q.jobStatus === "เสร็จสิ้น");
+            const nearestId = findNearestUpcomingId(activeQueues);
 
             const queueList = document.getElementById('queueList');
             if(activeQueues.length === 0) {
                 queueList.innerHTML = '<div class="text-center py-12 rounded-2xl" style="background:var(--bg); border:1px solid var(--border)"><p class="text-lg" style="color:var(--muted)">ไม่มีรายการคิวงานรอดำเนินการ</p></div>';
             } else {
-                queueList.innerHTML = activeQueues.map((q, i) => generateCardHTML(q, i)).join('');
+                queueList.innerHTML = activeQueues.map((q, i) => generateCardHTML(q, i, nearestId)).join('');
             }
 
             const completedQueueList = document.getElementById('completedQueueList');
             if(completedQueues.length === 0) {
                 completedQueueList.innerHTML = '<div class="text-center py-12 rounded-2xl" style="background:var(--bg); border:1px solid var(--border)"><p class="text-lg" style="color:var(--muted)">ยังไม่มีคิวงานที่เสร็จสิ้น</p></div>';
             } else {
-                completedQueueList.innerHTML = completedQueues.map((q, i) => generateCardHTML(q, i)).join('');
+                completedQueueList.innerHTML = completedQueues.map((q, i) => generateCardHTML(q, i, null)).join('');
             }
+
+            renderCalendar();
         }
 
         document.getElementById('loginPassword').addEventListener('keypress', e => { if (e.key === 'Enter') submitLogin(); });
