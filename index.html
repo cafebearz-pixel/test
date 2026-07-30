@@ -175,16 +175,15 @@
             animation: gentleBounce 2.8s ease-in-out infinite;
             border-color: var(--accent) !important;
         }
-        .next-up-ribbon{
-            position:absolute; top:-11px; left:20px; z-index:20;
-            background: var(--accent);
-            color:#fff;
+        .next-up-chip{
+            display:inline-flex; align-items:center; gap:5px;
+            background: var(--accent-tint);
+            color: var(--accent);
             font-size:0.72rem;
-            font-weight:600;
-            padding:4px 12px;
+            font-weight:700;
+            padding:4px 11px;
             border-radius:999px;
-            display:flex; align-items:center; gap:5px;
-            box-shadow: 0 4px 10px -4px rgba(228,149,79,0.6);
+            margin-bottom:10px;
         }
 
         .date-block{
@@ -267,6 +266,63 @@
         .cal-selected .cal-day-num{ color:#fff; }
         .cal-empty{ aspect-ratio: 1 / 1; }
 
+        /* ---------- detail table (queue card) ---------- */
+        .detail-table{ width:100%; border-collapse: collapse; }
+        .detail-table tr:not(:last-child) td{ border-bottom: 1px solid var(--border); }
+        .detail-table td{ padding: 9px 4px; vertical-align: top; }
+        .detail-table td.dt-label{
+            white-space: nowrap;
+            width: 1%;
+            color: var(--muted);
+            font-size: 0.82rem;
+            padding-right: 14px;
+        }
+        .detail-table td.dt-value{ color: var(--ink); font-weight: 500; word-break: break-word; }
+
+        /* ---------- contact cards ---------- */
+        .contact-card{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+            position: relative;
+        }
+        .contact-card:hover{
+            box-shadow: 0 14px 28px -16px rgba(31,90,148,0.25);
+            transform: translateY(-2px);
+            border-color: #C3DBF0;
+        }
+        .contact-photo{
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 16px;
+            object-fit: cover;
+            background: var(--primary-tint);
+        }
+
+        /* ---------- form download cards ---------- */
+        .form-card{
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            transition: box-shadow .2s ease, transform .2s ease, border-color .2s ease;
+            text-align:center;
+            cursor:pointer;
+        }
+        .form-card:hover{
+            box-shadow: 0 14px 28px -16px rgba(31,90,148,0.25);
+            transform: translateY(-2px);
+            border-color: #C3DBF0;
+        }
+        .form-icon{
+            width:52px; height:52px;
+            border-radius:14px;
+            display:flex; align-items:center; justify-content:center;
+            margin: 0 auto 10px;
+            background: var(--primary-tint);
+            color: var(--primary);
+        }
+
         [x-cloak]{ display:none; }
     </style>
 </head>
@@ -283,10 +339,10 @@
         </div>
 
         <div id="navMenu" class="hidden md:flex items-center gap-1 text-sm font-medium p-1 rounded-full" style="background:var(--surface); border:1px solid var(--border)">
-            <a href="#" class="px-4 py-2 rounded-full transition" style="background:var(--primary-tint); color:var(--primary-dark)">หน้าแรก</a>
-            <a href="#" class="px-4 py-2 rounded-full transition hover:bg-[var(--primary-tint)]" style="color:var(--muted)">ปฏิทิน</a>
-            <a href="#" class="px-4 py-2 rounded-full transition hover:bg-[var(--primary-tint)]" style="color:var(--muted)">เบอร์โทร</a>
-            <a href="#" class="px-4 py-2 rounded-full transition hover:bg-[var(--primary-tint)]" style="color:var(--muted)">ฟอร์มต่างๆ</a>
+            <a href="#" onclick="return goToTab(event,'queue')" class="px-4 py-2 rounded-full transition" style="background:var(--primary-tint); color:var(--primary-dark)">หน้าแรก</a>
+            <a href="#" onclick="return goToTab(event,'calendar')" class="px-4 py-2 rounded-full transition hover:bg-[var(--primary-tint)]" style="color:var(--muted)">ปฏิทิน</a>
+            <a href="#" onclick="return goToTab(event,'phone')" class="px-4 py-2 rounded-full transition hover:bg-[var(--primary-tint)]" style="color:var(--muted)">เบอร์โทร</a>
+            <a href="#" onclick="return goToTab(event,'forms')" class="px-4 py-2 rounded-full transition hover:bg-[var(--primary-tint)]" style="color:var(--muted)">ฟอร์มต่างๆ</a>
             <a href="#" class="px-4 py-2 rounded-full transition hover:bg-[var(--primary-tint)]" style="color:var(--muted)">ธนาคารขยะ</a>
             <a href="#" class="px-4 py-2 rounded-full transition hover:bg-[var(--primary-tint)]" style="color:var(--muted)">ติดต่อ</a>
         </div>
@@ -438,10 +494,10 @@
         <!-- เมนูสำหรับมือถือ -->
         <div class="md:hidden overflow-x-auto scrollbar-hide mt-6 mb-2">
             <div class="flex gap-2 w-max pb-1">
-                <a href="#" class="px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap" style="background:var(--primary); color:#fff">หน้าแรก</a>
-                <a href="#" class="px-5 py-2 rounded-full text-sm font-medium border whitespace-nowrap" style="border-color:var(--border); color:var(--muted)">ปฏิทิน</a>
-                <a href="#" class="px-5 py-2 rounded-full text-sm font-medium border whitespace-nowrap" style="border-color:var(--border); color:var(--muted)">เบอร์โทร</a>
-                <a href="#" class="px-5 py-2 rounded-full text-sm font-medium border whitespace-nowrap" style="border-color:var(--border); color:var(--muted)">ฟอร์มต่างๆ</a>
+                <a href="#" onclick="return goToTab(event,'queue')" class="px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap" style="background:var(--primary); color:#fff">หน้าแรก</a>
+                <a href="#" onclick="return goToTab(event,'calendar')" class="px-5 py-2 rounded-full text-sm font-medium border whitespace-nowrap" style="border-color:var(--border); color:var(--muted)">ปฏิทิน</a>
+                <a href="#" onclick="return goToTab(event,'phone')" class="px-5 py-2 rounded-full text-sm font-medium border whitespace-nowrap" style="border-color:var(--border); color:var(--muted)">เบอร์โทร</a>
+                <a href="#" onclick="return goToTab(event,'forms')" class="px-5 py-2 rounded-full text-sm font-medium border whitespace-nowrap" style="border-color:var(--border); color:var(--muted)">ฟอร์มต่างๆ</a>
                 <a href="#" class="px-5 py-2 rounded-full text-sm font-medium border whitespace-nowrap" style="border-color:var(--border); color:var(--muted)">ธนาคารขยะ</a>
                 <a href="#" class="px-5 py-2 rounded-full text-sm font-medium border whitespace-nowrap" style="border-color:var(--border); color:var(--muted)">ติดต่อ</a>
             </div>
@@ -506,15 +562,21 @@
         </div>
 
         <!-- Tabs -->
-        <div class="tab-group flex gap-1 overflow-x-auto scrollbar-hide w-max max-w-full mx-auto mb-4">
-            <button id="tab-btn-queue" onclick="switchTab('queue')" class="tab-btn is-active px-5 md:px-6 py-2.5 text-sm whitespace-nowrap">คิวนายก (รอดำเนินการ)</button>
-            <button id="tab-btn-completed-tab" onclick="switchTab('completed-tab')" class="tab-btn px-5 md:px-6 py-2.5 text-sm whitespace-nowrap">คิวงานเสร็จสิ้น</button>
-            <button id="tab-btn-calendar" onclick="switchTab('calendar')" class="tab-btn px-5 md:px-6 py-2.5 text-sm whitespace-nowrap">ปฏิทิน อบต.</button>
-            <button id="tab-btn-phone" onclick="switchTab('phone')" class="tab-btn px-5 md:px-6 py-2.5 text-sm whitespace-nowrap">เบอร์โทร</button>
+        <div class="flex items-center justify-between gap-2 mb-4">
+            <div class="tab-group flex gap-1 overflow-x-auto scrollbar-hide w-max max-w-full">
+                <button id="tab-btn-queue" onclick="switchTab('queue')" class="tab-btn is-active px-5 md:px-6 py-2.5 text-sm whitespace-nowrap">คิวนายก (รอดำเนินการ)</button>
+                <button id="tab-btn-completed-tab" onclick="switchTab('completed-tab')" class="tab-btn px-5 md:px-6 py-2.5 text-sm whitespace-nowrap">คิวงานเสร็จสิ้น</button>
+                <button id="tab-btn-calendar" onclick="switchTab('calendar')" class="tab-btn px-5 md:px-6 py-2.5 text-sm whitespace-nowrap">ปฏิทิน อบต.</button>
+                <button id="tab-btn-phone" onclick="switchTab('phone')" class="tab-btn px-5 md:px-6 py-2.5 text-sm whitespace-nowrap">เบอร์โทร</button>
+                <button id="tab-btn-forms" onclick="switchTab('forms')" class="tab-btn px-5 md:px-6 py-2.5 text-sm whitespace-nowrap">ฟอร์มต่างๆ</button>
+            </div>
+            <button id="refreshBtn" onclick="manualRefresh()" title="รีเฟรชข้อมูลล่าสุด" class="icon-btn w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style="color:var(--primary)">
+                <svg id="refreshIcon" xmlns="http://www.w3.org/2000/svg" class="h-4.5 w-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </button>
         </div>
 
         <!-- Content Areas -->
-        <div class="panel p-4 md:p-8 min-h-[500px]">
+        <div id="mainPanel" class="panel p-4 md:p-8 min-h-[500px]">
 
             <div id="content-queue" class="tab-content block">
                 <h3 class="text-sm font-semibold mb-6 flex items-center gap-2 pb-3" style="color:var(--muted); border-bottom:1px solid var(--border)">
@@ -561,11 +623,91 @@
                 </div>
             </div>
 
-            <div id="content-phone" class="tab-content hidden flex items-center justify-center h-64">
-                <p class="text-lg" style="color:var(--muted)">📞 กำลังจัดทำสมุดรายนามและเบอร์โทรติดต่อ</p>
+            <div id="content-phone" class="tab-content hidden">
+                <div class="flex items-center justify-between mb-6 pb-3" style="border-bottom:1px solid var(--border)">
+                    <h3 class="text-sm font-semibold flex items-center gap-2" style="color:var(--muted)">
+                        <span class="w-1.5 h-5 inline-block rounded-full" style="background:var(--primary)"></span> สมุดรายนามและเบอร์โทรติดต่อ
+                    </h3>
+                    <button id="addContactBtn" onclick="openContactModal()" class="hidden btn-accent px-4 py-2 rounded-full text-xs md:text-sm font-medium items-center gap-1.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        เพิ่มรายชื่อ
+                    </button>
+                </div>
+                <div id="contactList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5"></div>
+            </div>
+
+            <div id="content-forms" class="tab-content hidden">
+                <div class="mb-6 pb-3" style="border-bottom:1px solid var(--border)">
+                    <h3 class="text-sm font-semibold flex items-center gap-2" style="color:var(--muted)">
+                        <span class="w-1.5 h-5 inline-block rounded-full" style="background:var(--primary)"></span> ฟอร์มและเอกสารดาวน์โหลด
+                    </h3>
+                </div>
+                <div id="formList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-5"></div>
             </div>
         </div>
     </main>
+
+    <!-- Modal เพิ่ม/แก้ไขผู้ติดต่อ -->
+    <div id="contactModal" class="fixed inset-0 bg-[#0F2A44]/45 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-auto overflow-hidden modal-enter">
+            <div class="px-6 py-5 flex justify-between items-center" style="background:var(--primary-tint); border-bottom:1px solid var(--border)">
+                <h3 id="contactModalTitle" class="text-lg font-semibold" style="color:var(--primary-dark)">เพิ่มรายชื่อผู้ติดต่อ</h3>
+                <button onclick="closeModal('contactModal')" class="icon-btn w-9 h-9 rounded-full flex items-center justify-center hover:text-[var(--danger)] hover:border-[var(--danger)]" style="color:var(--muted)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <form id="contactForm" onsubmit="handleSaveContact(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">ชื่อ-นามสกุล</label>
+                        <input type="text" id="cFullName" placeholder="เช่น นายสมชาย ใจดี" class="field w-full p-3 text-sm">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">ชื่อเล่น</label>
+                            <input type="text" id="cNickname" placeholder="เช่น ชาย" class="field w-full p-3 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">เบอร์โทร</label>
+                            <input type="text" id="cPhone" placeholder="08x-xxx-xxxx" class="field w-full p-3 text-sm">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">ตำแหน่ง</label>
+                        <input type="text" id="cPosition" placeholder="เช่น นายกองค์การบริหารส่วนตำบล" class="field w-full p-3 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">ลิงก์รูปภาพ (Google Drive)</label>
+                        <input type="text" id="cPhoto" placeholder="https://drive.google.com/file/d/..." class="field w-full p-3 text-sm">
+                        <p class="text-[11px] mt-1.5" style="color:var(--muted)">แชร์ไฟล์รูปเป็น "ทุกคนที่มีลิงก์" แล้ววางลิงก์จาก Google Drive มาได้เลย ระบบจะแปลงให้แสดงผลอัตโนมัติ</p>
+                    </div>
+                    <button type="submit" class="btn-primary w-full mt-2 py-3.5 rounded-xl font-medium text-base">บันทึกรายชื่อ</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal เพิ่ม/แก้ไขฟอร์มดาวน์โหลด -->
+    <div id="formModal" class="fixed inset-0 bg-[#0F2A44]/45 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-auto overflow-hidden modal-enter">
+            <div class="px-6 py-5 flex justify-between items-center" style="background:var(--primary-tint); border-bottom:1px solid var(--border)">
+                <h3 id="formModalTitle" class="text-lg font-semibold" style="color:var(--primary-dark)">แนบไฟล์ฟอร์ม</h3>
+                <button onclick="closeModal('formModal')" class="icon-btn w-9 h-9 rounded-full flex items-center justify-center hover:text-[var(--danger)] hover:border-[var(--danger)]" style="color:var(--muted)">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <form id="formLinkForm" onsubmit="handleSaveFormLink(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium mb-1.5" style="color:var(--muted)">ลิงก์ไฟล์ (Google Drive)</label>
+                        <input type="text" id="fLinkInput" placeholder="https://drive.google.com/file/d/..." class="field w-full p-3 text-sm">
+                        <p class="text-[11px] mt-1.5" style="color:var(--muted)">วางลิงก์ดาวน์โหลดหรือลิงก์แชร์ไฟล์จาก Google Drive</p>
+                    </div>
+                    <button type="submit" class="btn-primary w-full mt-2 py-3.5 rounded-xl font-medium text-base">บันทึกลิงก์</button>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbx2WLgayblJSdhnA_Ad0Bjeng0tjn4aw7UzngKCctWOHJJYDCruvw1hpsSr4t-bNe8ogQ/exec";
@@ -718,6 +860,182 @@
             box.innerHTML = html;
         }
 
+        // ---------- Google Drive link helper ----------
+        function driveImageUrl(url) {
+            if (!url) return '';
+            const patterns = [/\/file\/d\/([a-zA-Z0-9_-]+)/, /[?&]id=([a-zA-Z0-9_-]+)/];
+            for (const p of patterns) {
+                const m = url.match(p);
+                if (m && m[1]) return `https://lh3.googleusercontent.com/d/${m[1]}=w400`;
+            }
+            return url;
+        }
+        function driveDownloadUrl(url) {
+            if (!url) return '#';
+            const patterns = [/\/file\/d\/([a-zA-Z0-9_-]+)/, /[?&]id=([a-zA-Z0-9_-]+)/];
+            for (const p of patterns) {
+                const m = url.match(p);
+                if (m && m[1]) return `https://drive.google.com/uc?export=download&id=${m[1]}`;
+            }
+            return url;
+        }
+
+        // ---------- contacts (เบอร์โทร) ----------
+        let contacts = JSON.parse(localStorage.getItem('contactsData') || '[]');
+        let editingContactId = null;
+
+        function saveContactsToStorage() { localStorage.setItem('contactsData', JSON.stringify(contacts)); }
+
+        function openContactModal(id) {
+            const form = document.getElementById('contactForm');
+            form.reset();
+            editingContactId = id || null;
+
+            if (id) {
+                const c = contacts.find(x => x.id === id);
+                if (c) {
+                    document.getElementById('contactModalTitle').innerText = "แก้ไขรายชื่อผู้ติดต่อ";
+                    document.getElementById('cFullName').value = c.fullName || '';
+                    document.getElementById('cNickname').value = c.nickname || '';
+                    document.getElementById('cPhone').value = c.phone || '';
+                    document.getElementById('cPosition').value = c.position || '';
+                    document.getElementById('cPhoto').value = c.photoUrl || '';
+                }
+            } else {
+                document.getElementById('contactModalTitle').innerText = "เพิ่มรายชื่อผู้ติดต่อ";
+            }
+            openModal('contactModal');
+        }
+
+        function handleSaveContact(e) {
+            e.preventDefault();
+            const data = {
+                id: editingContactId || Date.now().toString(),
+                fullName: document.getElementById('cFullName').value || '-',
+                nickname: document.getElementById('cNickname').value || '-',
+                phone: document.getElementById('cPhone').value || '-',
+                position: document.getElementById('cPosition').value || '-',
+                photoUrl: document.getElementById('cPhoto').value || ''
+            };
+            if (editingContactId) {
+                const idx = contacts.findIndex(c => c.id === editingContactId);
+                if (idx !== -1) contacts[idx] = data;
+            } else {
+                contacts.push(data);
+            }
+            saveContactsToStorage();
+            closeModal('contactModal');
+            renderContacts();
+        }
+
+        function deleteContact(id) {
+            if (!confirm("ยืนยันการลบรายชื่อนี้?")) return;
+            contacts = contacts.filter(c => c.id !== id);
+            saveContactsToStorage();
+            renderContacts();
+        }
+
+        function renderContacts() {
+            const list = document.getElementById('contactList');
+            if (!list) return;
+
+            if (contacts.length === 0) {
+                list.innerHTML = `<div class="col-span-full text-center py-12 rounded-2xl" style="background:var(--bg); border:1px solid var(--border)"><p style="color:var(--muted)">ยังไม่มีรายชื่อผู้ติดต่อ</p></div>`;
+                return;
+            }
+
+            list.innerHTML = contacts.map(c => {
+                const img = c.photoUrl
+                    ? `<img src="${driveImageUrl(c.photoUrl)}" alt="${c.fullName}" class="contact-photo" onerror="this.onerror=null; this.outerHTML='<div class=&quot;contact-photo flex items-center justify-center text-2xl font-semibold&quot; style=&quot;color:var(--primary)&quot;>${(c.fullName||'-').charAt(0)}</div>'">`
+                    : `<div class="contact-photo flex items-center justify-center text-2xl font-semibold" style="color:var(--primary)">${(c.fullName || '-').charAt(0)}</div>`;
+
+                const adminBtns = isLoggedIn ? `
+                    <div class="absolute top-2 right-2 flex gap-1.5 z-10">
+                        <button onclick="openContactModal('${c.id}')" class="icon-btn w-7 h-7 rounded-lg flex items-center justify-center" style="color:var(--muted)" title="แก้ไข">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </button>
+                        <button onclick="deleteContact('${c.id}')" class="icon-btn w-7 h-7 rounded-lg flex items-center justify-center" style="color:var(--muted)" title="ลบ">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>` : '';
+
+                return `
+                <div class="contact-card p-3 relative">
+                    ${adminBtns}
+                    ${img}
+                    <p class="font-semibold text-sm mt-3 truncate" style="color:var(--ink)">${c.fullName || '-'}</p>
+                    <p class="text-xs truncate" style="color:var(--muted)">${c.nickname && c.nickname !== '-' ? '(' + c.nickname + ') ' : ''}${c.position || '-'}</p>
+                    ${c.phone && c.phone !== '-' ? `<a href="tel:${c.phone}" class="mt-2 flex items-center gap-1.5 text-sm font-medium" style="color:var(--primary)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                        ${c.phone}
+                    </a>` : ''}
+                </div>`;
+            }).join('');
+        }
+
+        // ---------- forms (ฟอร์มต่างๆ) ----------
+        const DEFAULT_FORMS = [
+            { id: 'form-general',  name: 'ใบคำร้องทั่วไป' },
+            { id: 'form-vacation', name: 'ใบลาพักผ่อน' },
+            { id: 'form-personal', name: 'ใบลากิจ' },
+            { id: 'form-sick',     name: 'ใบลาป่วย' },
+            { id: 'form-car',      name: 'ใบขอใช้รถยนต์' },
+            { id: 'form-garbage',  name: 'ใบขอใช้รถขยะ' },
+            { id: 'form-opor',     name: 'ใบสมัคร อปพร.' },
+        ];
+        let formLinks = JSON.parse(localStorage.getItem('formLinksData') || '{}');
+        let editingFormId = null;
+
+        function openFormModal(id) {
+            editingFormId = id;
+            document.getElementById('formLinkForm').reset();
+            const def = DEFAULT_FORMS.find(f => f.id === id);
+            document.getElementById('formModalTitle').innerText = `แนบไฟล์: ${def ? def.name : ''}`;
+            document.getElementById('fLinkInput').value = formLinks[id] || '';
+            openModal('formModal');
+        }
+
+        function handleSaveFormLink(e) {
+            e.preventDefault();
+            const url = document.getElementById('fLinkInput').value.trim();
+            if (url) { formLinks[editingFormId] = url; } else { delete formLinks[editingFormId]; }
+            localStorage.setItem('formLinksData', JSON.stringify(formLinks));
+            closeModal('formModal');
+            renderForms();
+        }
+
+        function openOrEditForm(id) {
+            const url = formLinks[id];
+            if (isLoggedIn) { openFormModal(id); return; }
+            if (url) { window.open(driveDownloadUrl(url), '_blank'); }
+            else { alert('ยังไม่มีไฟล์แนบสำหรับฟอร์มนี้'); }
+        }
+
+        function renderForms() {
+            const list = document.getElementById('formList');
+            if (!list) return;
+
+            list.innerHTML = DEFAULT_FORMS.map(f => {
+                const hasFile = !!formLinks[f.id];
+                const editBadge = isLoggedIn ? `
+                    <button onclick="event.stopPropagation(); openFormModal('${f.id}')" class="icon-btn w-7 h-7 rounded-lg flex items-center justify-center absolute top-2 right-2 z-10" style="color:var(--muted)" title="แนบ/แก้ไขไฟล์">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    </button>` : '';
+
+                return `
+                <div class="form-card p-5 relative" onclick="openOrEditForm('${f.id}')">
+                    ${editBadge}
+                    <div class="form-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    </div>
+                    <p class="text-sm font-medium leading-snug" style="color:var(--ink)">${f.name}</p>
+                    <p class="text-[11px] mt-1.5 flex items-center justify-center gap-1" style="color:${hasFile ? 'var(--success)' : 'var(--muted)'}">
+                        ${hasFile ? '⬇ ดาวน์โหลดไฟล์' : 'ยังไม่มีไฟล์แนบ'}
+                    </p>
+                </div>`;
+            }).join('');
+        }
+
         function loadAnnouncement() {
             const savedText = localStorage.getItem('announcementText');
             if (savedText) document.getElementById('announceText').innerText = savedText;
@@ -744,6 +1062,14 @@
             });
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
             document.getElementById(`content-${tabId}`).classList.add('block');
+        }
+
+        function goToTab(e, tabId) {
+            e.preventDefault();
+            switchTab(tabId);
+            const target = document.getElementById('mainPanel');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return false;
         }
 
         function openModal(modalId) {
@@ -781,12 +1107,14 @@
             }
         }
 
-        async function fetchQueues() {
+        let refreshTimer = null;
+
+        async function fetchQueues(silent = false) {
             const cached = sessionStorage.getItem('queuesData');
-            if (cached) { queues = JSON.parse(cached); renderUI(); }
+            if (!silent && cached) { queues = JSON.parse(cached); renderUI(); }
 
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(API_URL, { cache: 'no-store' });
                 const result = await response.json();
                 if (result.status === "success") {
                     queues = result.data.reverse();
@@ -795,8 +1123,23 @@
                 }
             } catch (error) {
                 console.error("Error:", error);
-                if (!cached) document.getElementById('queueList').innerHTML = '<p class="text-center py-8" style="color:var(--danger)">❌ เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล</p>';
+                if (!silent && !cached) document.getElementById('queueList').innerHTML = '<p class="text-center py-8" style="color:var(--danger)">❌ เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล</p>';
             }
+        }
+
+        function isAnyModalOpen() {
+            return ['loginModal', 'addQueueModal', 'contactModal', 'formModal'].some(id => {
+                const el = document.getElementById(id);
+                return el && !el.classList.contains('hidden');
+            });
+        }
+
+        async function manualRefresh() {
+            const icon = document.getElementById('refreshIcon');
+            icon.style.transition = 'transform .6s ease';
+            icon.style.transform = 'rotate(360deg)';
+            await fetchQueues(true);
+            setTimeout(() => { icon.style.transition = 'none'; icon.style.transform = 'rotate(0deg)'; }, 650);
         }
 
         function editQueue(id) {
@@ -852,16 +1195,34 @@
             closeModal('addQueueModal');
 
             try {
-                await fetch(API_URL, { method: "POST", body: JSON.stringify(queueData) });
+                await fetch(API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(queueData)
+                });
             } catch (error) { console.error(error); }
+
+            setTimeout(() => fetchQueues(true), 1500);
         }
 
-        function deleteQueue(id) {
-            if(confirm("ยืนยันการลบคิวงานนี้? (ลบชั่วคราวบนหน้าจอ)")) {
-                queues = queues.filter(q => q.id !== id);
-                sessionStorage.setItem('queuesData', JSON.stringify(queues));
-                renderUI();
-            }
+        async function deleteQueue(id) {
+            if(!confirm("ยืนยันการลบคิวงานนี้?")) return;
+
+            queues = queues.filter(q => q.id !== id);
+            sessionStorage.setItem('queuesData', JSON.stringify(queues));
+            renderUI();
+
+            try {
+                await fetch(API_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify({ id: id, action: "delete" })
+                });
+            } catch (error) { console.error(error); }
+
+            setTimeout(() => fetchQueues(true), 1500);
         }
 
         function updateBigNumbers() {
@@ -936,8 +1297,8 @@
             const cardStateClass = [statusBadge.isToday ? "today-glow" : "", isNextUp ? "next-up-bounce" : ""].filter(Boolean).join(" ");
             const badgeAnimateClass = statusBadge.isUrgent ? "animate-pop" : "";
 
-            const nextUpRibbon = isNextUp ? `
-                <div class="next-up-ribbon">
+            const nextUpChip = isNextUp ? `
+                <div class="next-up-chip">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 01.894.553l1.382 2.764 3.05.443a1 1 0 01.554 1.706l-2.207 2.152.521 3.037a1 1 0 01-1.451 1.054L10 12.25l-2.743 1.459a1 1 0 01-1.451-1.054l.521-3.037L4.12 7.466a1 1 0 01.554-1.706l3.05-.443L9.106 2.553A1 1 0 0110 2z"/></svg>
                     คิวถัดไป
                 </div>` : '';
@@ -945,7 +1306,6 @@
             return `
             <div class="queue-card ${cardStateClass} p-4 md:p-6 relative w-full">
                 ${actionBtns}
-                ${nextUpRibbon}
 
                 <div class="flex flex-row items-start gap-4 md:gap-6">
                     <div class="date-block w-16 h-20 md:w-20 md:h-24 flex flex-col justify-between items-center flex-shrink-0 overflow-hidden">
@@ -954,6 +1314,7 @@
                     </div>
 
                     <div class="flex-1 min-w-0 pr-8 md:pr-0">
+                        ${nextUpChip}
                         <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-3">
                             <h4 class="font-semibold text-lg md:text-2xl break-words leading-snug md:pr-4" style="color:var(--ink)">${q.title || '-'}</h4>
                             <div class="badge w-max mt-1 md:mt-0 ${badgeAnimateClass} text-white px-4 py-2 rounded-full text-sm md:text-base flex-shrink-0" style="${statusBadge.color}">
@@ -961,15 +1322,17 @@
                             </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-y-3.5 gap-x-5 text-[15px] md:text-[16px] p-4 md:p-5 rounded-xl" style="color:var(--ink); background:var(--bg); border:1px solid var(--border)">
-                            <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">📍</span> <span class="flex-1"><strong style="color:var(--primary-dark)">สถานที่:</strong> ${q.location || '-'}</span></p>
-                            <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">👕</span> <span class="flex-1"><strong style="color:var(--primary-dark)">การแต่งกาย:</strong> ${q.dress || '-'}</span></p>
-                            <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">👤</span> <span class="flex-1"><strong style="color:var(--primary-dark)">ผู้รับผิดชอบ:</strong> ${q.resp || '-'}</span></p>
-                            <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">📞</span> <span class="flex-1"><strong style="color:var(--primary-dark)">ผู้ประสานงาน:</strong> ${q.coord || '-'}</span></p>
-                            <div class="md:col-span-2 pt-3 mt-1 grid grid-cols-1 md:grid-cols-2 gap-y-3.5" style="border-top:1px solid var(--border)">
-                                <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">🕒</span> <span class="flex-1"><strong style="color:var(--primary-dark)">เวลา:</strong> เริ่ม ${q.startTime || '-'} น. ${q.endTime !== "-" ? `ถึง ${q.endTime} น.` : ""}</span></p>
-                                <p class="flex items-start gap-3"><span class="w-5 mt-0.5 text-lg">📂</span> <span class="flex-1"><strong style="color:var(--primary-dark)">เอกสารแนบ:</strong> ${fileLinkHTML}</span></p>
-                            </div>
+                        <div class="p-1 md:p-2 rounded-xl overflow-x-auto" style="background:var(--bg); border:1px solid var(--border)">
+                            <table class="detail-table text-[14px] md:text-[15px]">
+                                <tbody>
+                                    <tr><td class="dt-label">📍 สถานที่</td><td class="dt-value">${q.location || '-'}</td></tr>
+                                    <tr><td class="dt-label">👕 การแต่งกาย</td><td class="dt-value">${q.dress || '-'}</td></tr>
+                                    <tr><td class="dt-label">👤 ผู้รับผิดชอบ</td><td class="dt-value">${q.resp || '-'}</td></tr>
+                                    <tr><td class="dt-label">📞 ผู้ประสานงาน</td><td class="dt-value">${q.coord || '-'}</td></tr>
+                                    <tr><td class="dt-label">🕒 เวลา</td><td class="dt-value">เริ่ม ${q.startTime || '-'} น. ${q.endTime !== "-" ? `ถึง ${q.endTime} น.` : ""}</td></tr>
+                                    <tr><td class="dt-label">📂 เอกสารแนบ</td><td class="dt-value">${fileLinkHTML}</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -979,6 +1342,7 @@
         function renderUI() {
             const authBtn = document.getElementById('authBtn');
             const editAnnounceBtn = document.getElementById('editAnnounceBtn');
+            const addContactBtn = document.getElementById('addContactBtn');
 
             if (isLoggedIn) {
                 authBtn.textContent = "ออกจากระบบ";
@@ -986,12 +1350,16 @@
                 authBtn.style.cssText = "border-color:var(--border); color:var(--ink); background:var(--surface)";
                 editAnnounceBtn.classList.remove('hidden');
                 editAnnounceBtn.classList.add('block');
+                addContactBtn.classList.remove('hidden');
+                addContactBtn.classList.add('flex');
             } else {
                 authBtn.textContent = "เข้าสู่ระบบ";
                 authBtn.className = "btn-primary px-5 md:px-6 py-2.5 rounded-full text-sm font-medium";
                 authBtn.style.cssText = "";
                 editAnnounceBtn.classList.add('hidden');
                 editAnnounceBtn.classList.remove('block');
+                addContactBtn.classList.add('hidden');
+                addContactBtn.classList.remove('flex');
             }
             document.getElementById('adminControls').style.display = isLoggedIn ? 'flex' : 'none';
             updateBigNumbers();
@@ -1015,6 +1383,8 @@
             }
 
             renderCalendar();
+            renderContacts();
+            renderForms();
         }
 
         document.getElementById('loginPassword').addEventListener('keypress', e => { if (e.key === 'Enter') submitLogin(); });
@@ -1023,6 +1393,9 @@
             loadAnnouncement();
             switchTab('queue');
             fetchQueues();
+            refreshTimer = setInterval(() => {
+                if (!isAnyModalOpen()) fetchQueues(true);
+            }, 25000);
         };
     </script>
 </body>
