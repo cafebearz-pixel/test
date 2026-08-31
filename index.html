@@ -151,9 +151,9 @@
             </header>
 
             <nav class="app-nav flex overflow-x-auto no-scrollbar">
-                <button onclick="changePage('dashboard')" id="nav-dashboard" class="nav-btn is-active flex-1 py-3.5 font-semibold text-sm min-w-[92px] tap-effect"><i class="fa-solid fa-house mr-1.5"></i>หน้าหลัก</button>
+                <button onclick="statusFilter='all'; changePage('dashboard')" id="nav-dashboard" class="nav-btn is-active flex-1 py-3.5 font-semibold text-sm min-w-[92px] tap-effect"><i class="fa-solid fa-house mr-1.5"></i>หน้าหลัก</button>
                 <button onclick="changePage('calendar')" id="nav-calendar" class="nav-btn flex-1 py-3.5 font-semibold text-sm min-w-[92px] tap-effect"><i class="fa-solid fa-calendar-days mr-1.5"></i>ปฏิทิน</button>
-                <button onclick="changePage('tasks')" id="nav-tasks" class="nav-btn flex-1 py-3.5 font-semibold text-sm min-w-[92px] tap-effect"><i class="fa-solid fa-list-check mr-1.5"></i>คิวทั้งหมด</button>
+                <button onclick="changePage('forms')" id="nav-forms" class="nav-btn flex-1 py-3.5 font-semibold text-sm min-w-[92px] tap-effect"><i class="fa-solid fa-file-lines mr-1.5"></i>แบบฟอร์ม</button>
                 <button onclick="changePage('contacts')" id="nav-contacts" class="nav-btn flex-1 py-3.5 font-semibold text-sm min-w-[92px] tap-effect"><i class="fa-solid fa-address-book mr-1.5"></i>เบอร์โทร</button>
             </nav>
         </div>
@@ -243,10 +243,15 @@
                 <div id="selectedDateTasks" class="max-w-3xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
 
-            <!-- ============ TASKS (ALL) ============ -->
-            <section id="page-tasks" class="hidden space-y-5">
-                <h2 class="font-bold text-base md:text-lg" style="color:var(--primary-dark)">สถานะคิวงานทั้งหมด</h2>
-                <div id="fullTaskList"></div>
+            <!-- ============ FORMS (แบบฟอร์ม) ============ -->
+            <section id="page-forms" class="hidden space-y-5">
+                <div class="flex items-center justify-between gap-3 flex-wrap">
+                    <h2 class="font-bold text-base md:text-lg" style="color:var(--primary-dark)">แบบฟอร์มดาวน์โหลด</h2>
+                    <button id="admin-add-form" onclick="openFormModal()" class="hidden py-2.5 px-4 rounded-2xl font-semibold text-sm items-center justify-center gap-2 tap-effect" style="background:var(--primary-tint); color:var(--primary-dark); border:1.5px dashed #BFDBF5">
+                        <i class="fa-solid fa-plus"></i> เพิ่มแบบฟอร์ม
+                    </button>
+                </div>
+                <div id="formsList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
 
             <!-- ============ CONTACTS ============ -->
@@ -309,7 +314,18 @@
                     <div id="ownerChips" class="flex flex-wrap gap-2 mt-2"></div>
                 </div>
 
-                <input type="url" id="t-link" placeholder="ลิงก์แนบไฟล์ Google Drive (ถ้ามี)" class="field text-sm">
+                <div>
+                    <label class="text-[11px] font-semibold pl-1" style="color:var(--muted)">ไฟล์เอกสารแนบ (PDF หรือ PNG) — จะถูกอัปโหลดขึ้น Google Drive อัตโนมัติ</label>
+                    <input type="file" id="t-fileInput" accept=".pdf,.png,application/pdf,image/png" class="field text-sm mt-1" onchange="handleTaskFileSelect(this)">
+                    <div id="fileCurrentPreview" class="hidden mt-2 items-center justify-between gap-2 p-3 rounded-xl text-sm" style="background:var(--primary-tint); color:var(--primary-dark)">
+                        <span id="fileCurrentName" class="truncate flex-1"></span>
+                        <a id="fileCurrentLink" href="#" target="_blank" class="icon-btn w-8 h-8 rounded-lg flex items-center justify-center shrink-0"><i class="fa-solid fa-eye text-xs"></i></a>
+                        <button type="button" onclick="removeTaskFile()" class="icon-btn w-8 h-8 rounded-lg flex items-center justify-center shrink-0"><i class="fa-solid fa-trash text-xs"></i></button>
+                    </div>
+                    <div id="fileUploadStatus" class="hidden mt-2 text-xs font-semibold" style="color:var(--primary)"><i class="fa-solid fa-spinner animate-spin mr-1"></i>กำลังอัปโหลดไฟล์ขึ้น Google Drive...</div>
+                    <input type="hidden" id="t-fileUrl">
+                    <input type="hidden" id="t-fileName">
+                </div>
 
                 <div class="pt-2 flex gap-3">
                     <button type="button" id="btnDeleteTask" onclick="deleteTask()" class="hidden px-5 btn-danger-soft rounded-2xl tap-effect"><i class="fa-solid fa-trash"></i></button>
@@ -333,11 +349,42 @@
                 <input type="text" id="c-nickname" placeholder="ชื่อเล่น" class="field">
                 <input type="text" id="c-role" placeholder="ตำแหน่ง" required class="field">
                 <input type="tel" id="c-tel" placeholder="เบอร์โทรศัพท์" required class="field font-semibold">
+                <input type="url" id="c-photo" placeholder="ลิงก์รูปภาพจาก Google Drive (ถ้ามี)" class="field text-sm">
                 <select id="c-group" class="field">
-                    <option value="1">1. ผู้บริหาร</option><option value="2">2. ข้าราชการ</option><option value="3">3. พนักงานจ้าง</option><option value="4">4. พนักงานจ้างเหมา</option><option value="5">5. สมาชิก อบต.</option><option value="6">6. กำนัน</option><option value="7">7. ผู้ใหญ่บ้าน</option><option value="8">8. ผู้ช่วยผู้ใหญ่บ้าน</option>
+                    <option value="1">1. ผู้บริหาร</option><option value="2">2. ข้าราชการ</option><option value="3">3. พนักงานจ้าง</option><option value="4">4. พนักงานจ้างเหมา</option><option value="5">5. สมาชิก อบต.</option><option value="6">6. กำนัน</option><option value="7">7. ผู้ใหญ่บ้าน</option><option value="8">8. ผู้ช่วยผู้ใหญ่บ้าน</option><option value="9">9. เด็กฝึกงาน</option><option value="10">10. หน่วยงานนอก</option><option value="11">11. อื่นๆ</option>
                 </select>
                 <div class="flex gap-3 pt-3">
                     <button type="button" onclick="closeModal('contactModal')" class="flex-1 py-3.5 btn-ghost rounded-2xl font-semibold tap-effect">ยกเลิก</button>
+                    <button type="submit" class="flex-1 py-3.5 btn-primary rounded-2xl font-semibold tap-effect">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ============ MODAL: FORM (แบบฟอร์ม) ============ -->
+    <div id="formModal" class="hidden fixed inset-0 z-[100] bg-[#0F2A44]/50 flex items-center justify-center p-4 backdrop-blur-sm">
+        <div class="bg-white w-full max-w-sm rounded-[1.75rem] shadow-2xl modal-enter">
+            <div class="px-6 py-5 flex justify-between items-center" style="background:var(--primary-tint); border-bottom:1px solid var(--border)">
+                <h2 id="formModalTitle" class="text-lg font-bold" style="color:var(--primary-dark)">เพิ่มแบบฟอร์ม</h2>
+                <button onclick="closeModal('formModal')" class="icon-btn w-9 h-9 rounded-full flex items-center justify-center"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="formForm" class="p-6 space-y-3.5">
+                <input type="hidden" id="f-editId">
+                <input type="text" id="f-name" placeholder="ชื่อแบบฟอร์ม เช่น ใบลาป่วย" required class="field font-semibold">
+                <div>
+                    <label class="text-[11px] font-semibold pl-1" style="color:var(--muted)">ไฟล์แบบฟอร์ม (PDF หรือ PNG)</label>
+                    <input type="file" id="f-fileInput" accept=".pdf,.png,application/pdf,image/png" class="field text-sm mt-1" onchange="handleFormFileSelect(this)">
+                    <div id="formFileCurrentPreview" class="hidden mt-2 items-center justify-between gap-2 p-3 rounded-xl text-sm" style="background:var(--primary-tint); color:var(--primary-dark)">
+                        <span id="formFileCurrentName" class="truncate flex-1"></span>
+                        <a id="formFileCurrentLink" href="#" target="_blank" class="icon-btn w-8 h-8 rounded-lg flex items-center justify-center shrink-0"><i class="fa-solid fa-eye text-xs"></i></a>
+                    </div>
+                    <div id="formFileUploadStatus" class="hidden mt-2 text-xs font-semibold" style="color:var(--primary)"><i class="fa-solid fa-spinner animate-spin mr-1"></i>กำลังอัปโหลดไฟล์ขึ้น Google Drive...</div>
+                    <input type="hidden" id="f-fileUrl">
+                    <input type="hidden" id="f-fileName">
+                </div>
+                <div class="flex gap-3 pt-3">
+                    <button type="button" id="btnDeleteForm" onclick="deleteFormFromModal()" class="hidden px-5 btn-danger-soft rounded-2xl tap-effect"><i class="fa-solid fa-trash"></i></button>
+                    <button type="button" onclick="closeModal('formModal')" class="flex-1 py-3.5 btn-ghost rounded-2xl font-semibold tap-effect">ยกเลิก</button>
                     <button type="submit" class="flex-1 py-3.5 btn-primary rounded-2xl font-semibold tap-effect">บันทึก</button>
                 </div>
             </form>
@@ -390,13 +437,19 @@
         // ---------- static reference data ----------
         const holidays2026 = { "01-01":"วันขึ้นปีใหม่","03-03":"วันมาฆบูชา","04-06":"วันจักรี","04-13":"วันสงกรานต์","04-14":"วันสงกรานต์","04-15":"วันสงกรานต์","05-01":"วันแรงงานแห่งชาติ","05-04":"วันฉัตรมงคล","05-11":"วันพืชมงคลฯ","05-31":"วันวิสาขบูชา","06-01":"ชดเชยวันวิสาขบูชา","06-03":"วันเฉลิมฯ พระราชินี","07-28":"วันเฉลิมฯ ร.10","07-29":"วันอาสาฬหบูชา","07-30":"วันเข้าพรรษา","08-12":"วันแม่แห่งชาติ","10-13":"วันนวมินทรมหาราช","10-23":"วันปิยมหาราช","10-26":"วันออกพรรษา","12-05":"วันพ่อแห่งชาติ","12-07":"ชดเชยวันพ่อแห่งชาติ","12-10":"วันรัฐธรรมนูญ","12-31":"วันสิ้นปี" };
         const OWNER_OPTIONS = ['นายก อบต.','รองนายก อบต.','เลขานุการนายก','ปลัด อบต.','รองปลัด อบต.','สำนักปลัด','กองช่าง','กองคลัง','กองการศึกษาฯ','กองสวัสดิการสังคม','กองสาธารณสุขและสิ่งแวดล้อม','ประธานสภาฯ','รองประธานสภาฯ','สมาชิกสภาฯ','อื่นๆ'];
-        const CONTACT_GROUPS = { "1":"ผู้บริหาร","2":"ข้าราชการ","3":"พนักงานจ้าง","4":"พนักงานจ้างเหมา","5":"สมาชิก อบต.","6":"กำนัน","7":"ผู้ใหญ่บ้าน","8":"ผู้ช่วยผู้ใหญ่บ้าน" };
+        const CONTACT_GROUPS = { "1":"ผู้บริหาร","2":"ข้าราชการ","3":"พนักงานจ้าง","4":"พนักงานจ้างเหมา","5":"สมาชิก อบต.","6":"กำนัน","7":"ผู้ใหญ่บ้าน","8":"ผู้ช่วยผู้ใหญ่บ้าน","9":"เด็กฝึกงาน","10":"หน่วยงานนอก","11":"อื่นๆ" };
         const SHEETS_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbx2WLgayblJSdhnA_Ad0Bjeng0tjn4aw7UzngKCctWOHJJYDCruvw1hpsSr4t-bNe8ogQ/exec';
         const defaultAnnouncement = 'ยินดีต้อนรับเข้าสู่ระบบคิวงาน อบต. ชำผักแพว Online';
+
+        // ---------- Google Drive upload (ดูวิธีตั้งค่าในคำอธิบายท้ายไฟล์) ----------
+        // โฟลเดอร์ Drive ปลายทาง: https://drive.google.com/drive/folders/1ixA9lvhKbsuSnlJzXRXEMZY4yF6-zr0Z
+        const DRIVE_FOLDER_ID = '1ixA9lvhKbsuSnlJzXRXEMZY4yF6-zr0Z';
+        const DRIVE_UPLOAD_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE'; // TODO: แทนที่ด้วย URL ที่ได้จากการ Deploy Apps Script (ดูคำแนะนำด้านล่าง)
 
         // ---------- state ----------
         let tasks = [];
         let contacts = [];
+        let formsList = [];
         let mayorStatus = { text:'อยู่ อบต.', color:'bg-emerald-500' };
         let mayorStatusManual = false;
         let mayorAnnouncement = defaultAnnouncement;
@@ -465,6 +518,40 @@
             if (mm < 10) mm = '0'+mm; if (dd < 10) dd = '0'+dd;
             return getDateNum(d.getFullYear() + '-' + mm + '-' + dd);
         }
+        function driveThumbnail(url) {
+            if (!url) return '';
+            const m = url.match(/[-\w]{25,}/);
+            if (m) return 'https://drive.google.com/thumbnail?id=' + m[0] + '&sz=w200';
+            return url;
+        }
+
+        // ---------- Google Drive upload helper ----------
+        function uploadFileToDrive(file) {
+            return new Promise(function(resolve, reject) {
+                if (!DRIVE_UPLOAD_URL || DRIVE_UPLOAD_URL.indexOf('PASTE_YOUR') > -1) {
+                    reject(new Error('ยังไม่ได้ตั้งค่า Google Apps Script URL สำหรับอัปโหลดไฟล์ กรุณาตั้งค่า DRIVE_UPLOAD_URL ในโค้ดก่อนใช้งาน'));
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = function() {
+                    const base64 = reader.result.split(',')[1];
+                    fetch(DRIVE_UPLOAD_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ fileName: file.name, mimeType: file.type, data: base64 })
+                    }).then(function(res){ return res.json(); })
+                      .then(function(json){
+                          if (json && json.success) resolve(json);
+                          else reject(new Error((json && json.error) || 'อัปโหลดไฟล์ไม่สำเร็จ'));
+                      })
+                      .catch(function(err){ reject(err); });
+                };
+                reader.onerror = function() { reject(new Error('อ่านไฟล์ไม่สำเร็จ')); };
+                reader.readAsDataURL(file);
+            });
+        }
+        function validateUploadFileType(file) {
+            return file.type === 'application/pdf' || file.type === 'image/png';
+        }
 
         // ---------- card renderers ----------
         function countdownBadgeHTML(diff) {
@@ -505,9 +592,28 @@
             if (t.coord) html += '<tr><td class="dt-label">🤝 ประสานงาน</td><td class="dt-value">' + t.coord + '</td></tr>';
             html += '</table></div>';
 
-            if (t.link) html += '<a href="' + t.link + '" target="_blank" class="block mt-3.5 text-center py-2.5 rounded-xl text-xs font-semibold" style="background:var(--primary-tint); color:var(--primary-dark)"><i class="fa-brands fa-google-drive mr-2"></i>เปิดไฟล์เอกสารแนบ</a>';
+            const fileUrl = t.fileUrl || t.link;
+            if (fileUrl) html += '<a href="' + fileUrl + '" target="_blank" class="block mt-3.5 text-center py-2.5 rounded-xl text-xs font-semibold" style="background:var(--primary-tint); color:var(--primary-dark)"><i class="fa-brands fa-google-drive mr-2"></i>เปิดไฟล์เอกสารแนบ' + (t.fileName ? ' (' + t.fileName + ')' : '') + '</a>';
             if (isAdmin) html += '<button onclick="editTask(\'' + t.id + '\')" class="absolute bottom-5 right-5 icon-btn w-9 h-9 rounded-xl flex items-center justify-center"><i class="fa-solid fa-pen text-sm"></i></button>';
             html += '</div>';
+            return html;
+        }
+
+        function formCardHTML(f) {
+            const hasFile = !!f.fileUrl;
+            const isPng = f.fileName && f.fileName.toLowerCase().endsWith('.png');
+            let html = '<div class="card p-5 flex items-center justify-between gap-3">';
+            html += '<div class="flex items-center gap-3 min-w-0">';
+            html += '<div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0" style="background:var(--primary-tint); color:var(--primary-dark)"><i class="fa-solid ' + (isPng ? 'fa-file-image' : 'fa-file-pdf') + ' text-lg"></i></div>';
+            html += '<div class="min-w-0"><p class="font-bold truncate">' + f.name + '</p><p class="text-xs truncate" style="color:var(--muted)">' + (hasFile ? (f.fileName || 'ไฟล์แนบ') : 'ยังไม่มีไฟล์แนบ') + '</p></div>';
+            html += '</div>';
+            html += '<div class="flex items-center gap-2 shrink-0">';
+            if (hasFile) html += '<a href="' + f.fileUrl + '" target="_blank" class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:var(--success-tint); color:var(--success)"><i class="fa-solid fa-download"></i></a>';
+            if (isAdmin) {
+                html += '<button onclick="editForm(\'' + f.id + '\')" class="icon-btn w-9 h-9 rounded-xl flex items-center justify-center"><i class="fa-solid fa-pen text-xs"></i></button>';
+                html += '<button onclick="deleteForm(\'' + f.id + '\')" class="icon-btn w-9 h-9 rounded-xl flex items-center justify-center hover:!text-[var(--danger)]"><i class="fa-solid fa-trash text-xs"></i></button>';
+            }
+            html += '</div></div>';
             return html;
         }
 
@@ -515,6 +621,20 @@
         function renderDashboard() {
             const dash = document.getElementById('dashboardTaskList');
             const tNum = todayNumber();
+
+            if (statusFilter !== 'all') {
+                const filtered = tasks.filter(function(t){ return t.status === statusFilter; })
+                    .sort(function(a,b){ return getDateNum(a.startDate) - getDateNum(b.startDate); });
+                let html = '<div class="flex items-center justify-between mb-3.5 gap-3 flex-wrap">';
+                html += '<h2 class="font-bold text-base flex items-center gap-2" style="color:var(--primary-dark)"><span class="w-1.5 h-5 rounded-full inline-block" style="background:var(--primary)"></span>คิวงานสถานะ: ' + statusFilter + '</h2>';
+                html += '<button onclick="setStatusFilter(\'all\')" class="text-xs font-semibold px-3 py-2 rounded-xl tap-effect" style="background:var(--bg); color:var(--muted); border:1px solid var(--border)"><i class="fa-solid fa-xmark mr-1"></i>ล้างตัวกรอง</button>';
+                html += '</div><div class="grid grid-cols-1 md:grid-cols-2 gap-4">';
+                html += filtered.length ? filtered.map(function(t){ const s=getDateNum(t.startDate), e=t.endDate?getDateNum(t.endDate):s; return taskCardHTML(t, tNum>=s&&tNum<=e); }).join('') : '<div class="col-span-full card p-8 text-center" style="border-style:dashed"><p style="color:var(--muted)">ไม่มีคิวงานในสถานะนี้</p></div>';
+                html += '</div>';
+                dash.innerHTML = html;
+                return;
+            }
+
             const todayTasks = tasks.filter(function(t){ const s=getDateNum(t.startDate); const e=t.endDate?getDateNum(t.endDate):s; return tNum>=s && tNum<=e; });
             const upcoming = tasks.filter(function(t){ return getDateNum(t.startDate) > tNum; })
                 .sort(function(a,b){ return getDateNum(a.startDate) - getDateNum(b.startDate); }).slice(0, 10);
@@ -588,34 +708,10 @@
             container.innerHTML = head + body;
         }
 
-        function buildTaskGroup(id, title, dotColor, badgeBg, badgeColor, arr, isOpen) {
-            let html = '<details id="group-' + id + '" class="card mb-4 group" ' + (isOpen ? 'open' : '') + '>';
-            html += '<summary class="font-bold text-base p-4 cursor-pointer list-none flex justify-between items-center [&::-webkit-details-marker]:hidden" style="color:var(--primary-dark)">';
-            html += '<div class="flex items-center gap-2.5"><span class="w-1.5 h-5 rounded-full inline-block" style="background:' + dotColor + '"></span>' + title + ' <span class="text-xs font-semibold px-2.5 py-1 rounded-full" style="background:' + badgeBg + '; color:' + badgeColor + '">' + arr.length + '</span></div>';
-            html += '<i class="fa-solid fa-chevron-down transition-transform group-open:rotate-180 text-sm" style="color:var(--muted)"></i></summary>';
-            html += '<div class="p-4 pt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style="border-top:1px solid var(--border); margin-top:6px; padding-top:16px;">';
-            html += arr.length ? arr.map(function(t){ const s=getDateNum(t.startDate), e=t.endDate?getDateNum(t.endDate):s, tNum=todayNumber(); return taskCardHTML(t, tNum>=s&&tNum<=e); }).join('') : '<p class="text-center py-6 w-full col-span-full" style="color:var(--muted)">ไม่มีคิวงานในสถานะนี้</p>';
-            html += '</div></details>';
-            return html;
-        }
-
-        function renderTasksPage() {
-            const list = document.getElementById('fullTaskList');
-            const active = tasks.filter(function(t){ return t.status==='กำลังดำเนินการ'; }).sort(function(a,b){ return getDateNum(a.startDate)-getDateNum(b.startDate); });
-            const pending = tasks.filter(function(t){ return t.status==='รอดำเนินการ'; }).sort(function(a,b){ return getDateNum(a.startDate)-getDateNum(b.startDate); });
-            const done = tasks.filter(function(t){ return t.status==='เสร็จสิ้น'; }).sort(function(a,b){ return getDateNum(b.startDate)-getDateNum(a.startDate); });
-
-            let html = '';
-            html += buildTaskGroup('active', 'กำลังดำเนินการ', 'var(--primary)', 'var(--primary-tint)', 'var(--primary-dark)', active, statusFilter==='all'||statusFilter==='กำลังดำเนินการ');
-            html += buildTaskGroup('pending', 'รอดำเนินการ', 'var(--warning)', 'var(--warning-tint)', '#8A6A1A', pending, statusFilter==='all'||statusFilter==='รอดำเนินการ');
-            html += buildTaskGroup('done', 'เสร็จสิ้น', 'var(--success)', 'var(--success-tint)', '#2E6B4B', done, statusFilter==='เสร็จสิ้น');
-            list.innerHTML = html;
-
-            if (statusFilter !== 'all') {
-                const map = { 'กำลังดำเนินการ':'group-active', 'รอดำเนินการ':'group-pending', 'เสร็จสิ้น':'group-done' };
-                const target = document.getElementById(map[statusFilter]);
-                if (target) setTimeout(function(){ target.scrollIntoView({ behavior:'smooth', block:'start' }); }, 60);
-            }
+        function renderFormsPage() {
+            const list = document.getElementById('formsList');
+            if (!list) return;
+            list.innerHTML = formsList.length ? formsList.map(formCardHTML).join('') : '<div class="col-span-full card p-8 text-center" style="border-style:dashed"><p style="color:var(--muted)">ยังไม่มีแบบฟอร์ม กดปุ่ม "เพิ่มแบบฟอร์ม" เพื่อเริ่มต้น เช่น ใบลาป่วย ใบลากิจ ใบลาพักร้อน ใบขอใช้รถยนต์ ใบขอ อปพร.</p></div>';
         }
 
         function renderContactsPage(query) {
@@ -632,9 +728,13 @@
 
                 let html = '<div class="space-y-3"><h4 class="text-xs font-bold uppercase tracking-wide pl-3 ml-0.5" style="color:var(--muted); border-left:3px solid var(--border)">' + CONTACT_GROUPS[g] + '</h4>';
                 list.forEach(function(m){
-                    html += '<div class="card p-4 flex items-center justify-between gap-3">';
+                    const avatarHTML = m.photo
+                        ? '<img src="' + driveThumbnail(m.photo) + '" class="w-11 h-11 rounded-2xl object-cover shrink-0" style="border:1px solid var(--border)">'
+                        : '<div class="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0" style="background:var(--primary-tint); color:var(--primary)"><i class="fa-solid fa-user"></i></div>';
+                    html += '<div class="card p-4 flex items-center gap-3">';
+                    html += avatarHTML;
                     html += '<div class="flex-1 min-w-0 cursor-pointer" onclick="window.location=\'tel:' + m.tel + '\'">';
-                    html += '<p class="font-bold leading-tight mb-1 truncate" style="color:var(--primary-dark)"><i class="fa-solid fa-circle-user mr-2" style="color:var(--primary)"></i>' + m.name + '</p>';
+                    html += '<p class="font-bold leading-tight mb-1 truncate" style="color:var(--primary-dark)">' + m.name + '</p>';
                     html += '<p class="text-sm mb-1 truncate" style="color:var(--muted)">' + (m.nickname ? '(' + m.nickname + ') ' : '') + (m.role||'') + '</p>';
                     html += '<p class="text-lg font-bold tracking-wide" style="color:var(--primary-dark)">' + m.tel + '</p></div>';
                     html += '<div class="flex flex-col items-center gap-2 flex-shrink-0">';
@@ -677,7 +777,7 @@
             ['all','รอดำเนินการ','กำลังดำเนินการ','เสร็จสิ้น'].forEach(function(key){
                 const idMap = { 'all':'stat-card-all', 'รอดำเนินการ':'stat-card-pending', 'กำลังดำเนินการ':'stat-card-active', 'เสร็จสิ้น':'stat-card-done' };
                 const el = document.getElementById(idMap[key]);
-                if (el) el.classList.toggle('is-active', currentPage==='tasks' && statusFilter===key);
+                if (el) el.classList.toggle('is-active', currentPage==='dashboard' && statusFilter===key);
             });
         }
 
@@ -686,7 +786,7 @@
             updateStatCards();
             if (currentPage === 'dashboard') renderDashboard();
             else if (currentPage === 'calendar') renderCalendarPage();
-            else if (currentPage === 'tasks') renderTasksPage();
+            else if (currentPage === 'forms') renderFormsPage();
             else if (currentPage === 'contacts') renderContactsPage(document.getElementById('contactSearch') ? document.getElementById('contactSearch').value : '');
             updateAdminUI();
         }
@@ -694,8 +794,8 @@
         // ---------- nav / modal ----------
         function changePage(p) {
             currentPage = p;
-            if (p !== 'tasks') statusFilter = 'all';
-            ['dashboard','calendar','tasks','contacts'].forEach(function(pg){
+            if (p !== 'dashboard') statusFilter = 'all';
+            ['dashboard','calendar','forms','contacts'].forEach(function(pg){
                 document.getElementById('page-'+pg).classList.add('hidden');
                 document.getElementById('nav-'+pg).classList.remove('is-active');
             });
@@ -706,7 +806,7 @@
         }
         function setStatusFilter(key) {
             statusFilter = key;
-            changePage('tasks');
+            changePage('dashboard');
         }
         function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
         function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
@@ -725,6 +825,7 @@
         function updateAdminUI() {
             const fab = document.getElementById('fabAdd'); if (fab) { fab.classList.toggle('hidden', !(isAdmin && currentPage==='dashboard')); fab.classList.toggle('flex', isAdmin && currentPage==='dashboard'); }
             const addC = document.getElementById('admin-add-contact'); if (addC) { addC.classList.toggle('hidden', !(isAdmin && currentPage==='contacts')); addC.classList.toggle('flex', isAdmin && currentPage==='contacts'); }
+            const addF = document.getElementById('admin-add-form'); if (addF) { addF.classList.toggle('hidden', !(isAdmin && currentPage==='forms')); addF.classList.toggle('flex', isAdmin && currentPage==='forms'); }
             const st = document.getElementById('admin-status-btn'); if (st) { st.classList.toggle('hidden', !isAdmin); st.classList.toggle('flex', isAdmin); }
             const an = document.getElementById('admin-announcement-btn'); if (an) { an.classList.toggle('hidden', !isAdmin); an.classList.toggle('flex', isAdmin); }
             const icon = document.getElementById('adminIcon'); if (icon) icon.className = isAdmin ? 'fa-solid fa-user-check text-base' : 'fa-solid fa-user-shield text-base';
@@ -760,6 +861,35 @@
             if (i > -1) selectedOwners.splice(i,1); else selectedOwners.push(o);
             renderOwnerChips();
         }
+        function showFileCurrentPreview(name, url) {
+            document.getElementById('fileCurrentName').innerHTML = '<i class="fa-solid fa-file-lines mr-2"></i>' + name;
+            document.getElementById('fileCurrentLink').href = url;
+            document.getElementById('fileCurrentPreview').classList.remove('hidden');
+            document.getElementById('fileCurrentPreview').classList.add('flex');
+        }
+        function removeTaskFile() {
+            document.getElementById('t-fileUrl').value = '';
+            document.getElementById('t-fileName').value = '';
+            document.getElementById('fileCurrentPreview').classList.add('hidden');
+            document.getElementById('fileCurrentPreview').classList.remove('flex');
+        }
+        async function handleTaskFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (!validateUploadFileType(file)) { alert('รองรับเฉพาะไฟล์ PDF หรือ PNG เท่านั้น'); input.value=''; return; }
+            document.getElementById('fileUploadStatus').classList.remove('hidden');
+            try {
+                const result = await uploadFileToDrive(file);
+                document.getElementById('t-fileUrl').value = result.url;
+                document.getElementById('t-fileName').value = file.name;
+                showFileCurrentPreview(file.name, result.url);
+            } catch (err) {
+                alert('อัปโหลดไฟล์ไม่สำเร็จ: ' + err.message);
+            } finally {
+                document.getElementById('fileUploadStatus').classList.add('hidden');
+                input.value = '';
+            }
+        }
         function openTaskModal() {
             document.getElementById('taskForm').reset();
             document.getElementById('taskEditId').value = '';
@@ -768,6 +898,7 @@
             selectedOwners = [];
             renderOwnerChips();
             pickStatus('รอดำเนินการ');
+            removeTaskFile();
             openModal('taskModal');
         }
         function editTask(id) {
@@ -775,12 +906,20 @@
             if (!t) return;
             document.getElementById('taskEditId').value = t.id;
             document.getElementById('taskModalTitle').innerText = 'แก้ไขคิวงาน';
-            ['title','detail','startDate','startTime','endDate','endTime','loc','dress','coord','link'].forEach(function(k){
+            ['title','detail','startDate','startTime','endDate','endTime','loc','dress','coord'].forEach(function(k){
                 const el = document.getElementById('t-' + k); if (el) el.value = t[k] || '';
             });
             pickStatus(t.status || 'รอดำเนินการ');
             selectedOwners = Array.isArray(t.owner) ? t.owner.slice() : (t.owner ? [t.owner] : []);
             renderOwnerChips();
+            const fileUrl = t.fileUrl || t.link;
+            if (fileUrl) {
+                document.getElementById('t-fileUrl').value = fileUrl;
+                document.getElementById('t-fileName').value = t.fileName || '';
+                showFileCurrentPreview(t.fileName || 'ไฟล์แนบ', fileUrl);
+            } else {
+                removeTaskFile();
+            }
             document.getElementById('btnDeleteTask').classList.remove('hidden');
             openModal('taskModal');
         }
@@ -792,7 +931,7 @@
 
             const id = document.getElementById('taskEditId').value || Date.now().toString();
             const data = { id: id, owner: selectedOwners.slice() };
-            ['title','detail','startDate','startTime','endDate','endTime','status','loc','dress','coord','link'].forEach(function(k){
+            ['title','detail','startDate','startTime','endDate','endTime','status','loc','dress','coord','fileUrl','fileName'].forEach(function(k){
                 const el = document.getElementById('t-' + k); if (el) data[k] = el.value;
             });
 
@@ -824,7 +963,7 @@
             if (!c) return;
             document.getElementById('contactEditId').value = c.id;
             document.getElementById('contactModalTitle').innerText = 'แก้ไขรายชื่อผู้ติดต่อ';
-            ['name','nickname','role','tel','group'].forEach(function(k){
+            ['name','nickname','role','tel','group','photo'].forEach(function(k){
                 const el = document.getElementById('c-' + k); if (el) el.value = c[k] || '';
             });
             openModal('contactModal');
@@ -833,7 +972,7 @@
             e.preventDefault();
             const id = document.getElementById('contactEditId').value || Date.now().toString();
             const data = { id: id };
-            ['name','nickname','role','tel','group'].forEach(function(k){
+            ['name','nickname','role','tel','group','photo'].forEach(function(k){
                 const el = document.getElementById('c-' + k); if (el) data[k] = el.value;
             });
             const idx = contacts.findIndex(function(x){ return x.id === id; });
@@ -845,6 +984,84 @@
             if (!confirm('ยืนยันการลบรายชื่อนี้?')) return;
             contacts = contacts.filter(function(x){ return x.id !== id; });
             saveToCloud(tasks, contacts, mayorStatus, mayorStatusManual);
+        }
+
+        // ---------- form (แบบฟอร์ม) management ----------
+        async function handleFormFileSelect(input) {
+            const file = input.files[0];
+            if (!file) return;
+            if (!validateUploadFileType(file)) { alert('รองรับเฉพาะไฟล์ PDF หรือ PNG เท่านั้น'); input.value=''; return; }
+            document.getElementById('formFileUploadStatus').classList.remove('hidden');
+            try {
+                const result = await uploadFileToDrive(file);
+                document.getElementById('f-fileUrl').value = result.url;
+                document.getElementById('f-fileName').value = file.name;
+                document.getElementById('formFileCurrentName').innerText = file.name;
+                document.getElementById('formFileCurrentLink').href = result.url;
+                document.getElementById('formFileCurrentPreview').classList.remove('hidden');
+                document.getElementById('formFileCurrentPreview').classList.add('flex');
+            } catch (err) {
+                alert('อัปโหลดไฟล์ไม่สำเร็จ: ' + err.message);
+            } finally {
+                document.getElementById('formFileUploadStatus').classList.add('hidden');
+                input.value = '';
+            }
+        }
+        function openFormModal() {
+            document.getElementById('formForm').reset();
+            document.getElementById('f-editId').value = '';
+            document.getElementById('f-fileUrl').value = '';
+            document.getElementById('f-fileName').value = '';
+            document.getElementById('formFileCurrentPreview').classList.add('hidden');
+            document.getElementById('formFileCurrentPreview').classList.remove('flex');
+            document.getElementById('formModalTitle').innerText = 'เพิ่มแบบฟอร์ม';
+            document.getElementById('btnDeleteForm').classList.add('hidden');
+            openModal('formModal');
+        }
+        function editForm(id) {
+            const f = formsList.find(function(x){ return x.id == id; });
+            if (!f) return;
+            document.getElementById('formForm').reset();
+            document.getElementById('f-editId').value = f.id;
+            document.getElementById('f-name').value = f.name || '';
+            document.getElementById('f-fileUrl').value = f.fileUrl || '';
+            document.getElementById('f-fileName').value = f.fileName || '';
+            if (f.fileUrl) {
+                document.getElementById('formFileCurrentName').innerText = f.fileName || 'ไฟล์แนบ';
+                document.getElementById('formFileCurrentLink').href = f.fileUrl;
+                document.getElementById('formFileCurrentPreview').classList.remove('hidden');
+                document.getElementById('formFileCurrentPreview').classList.add('flex');
+            } else {
+                document.getElementById('formFileCurrentPreview').classList.add('hidden');
+                document.getElementById('formFileCurrentPreview').classList.remove('flex');
+            }
+            document.getElementById('formModalTitle').innerText = 'แก้ไขแบบฟอร์ม';
+            document.getElementById('btnDeleteForm').classList.remove('hidden');
+            openModal('formModal');
+        }
+        document.getElementById('formForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = document.getElementById('f-editId').value || Date.now().toString();
+            const data = {
+                id: id,
+                name: document.getElementById('f-name').value,
+                fileUrl: document.getElementById('f-fileUrl').value,
+                fileName: document.getElementById('f-fileName').value
+            };
+            const idx = formsList.findIndex(function(x){ return x.id === id; });
+            if (idx > -1) formsList[idx] = data; else formsList.push(data);
+            db.ref('data/').update({ forms: formsList });
+            closeModal('formModal');
+        });
+        function deleteFormFromModal() {
+            const id = document.getElementById('f-editId').value;
+            closeModal('formModal');
+            deleteForm(id);
+        }
+        function deleteForm(id) {
+            if (!confirm('ยืนยันการลบแบบฟอร์มนี้?')) return;
+            formsList = formsList.filter(function(x){ return x.id !== id; });
+            db.ref('data/').update({ forms: formsList });
         }
 
         // ---------- announcement & status ----------
@@ -879,6 +1096,7 @@
             const data = snapshot.val() || {};
             tasks = Array.isArray(data.tasks) ? data.tasks : (data.tasks ? Object.values(data.tasks) : []);
             contacts = Array.isArray(data.contacts) ? data.contacts : (data.contacts ? Object.values(data.contacts) : []);
+            formsList = Array.isArray(data.forms) ? data.forms : (data.forms ? Object.values(data.forms) : []);
             mayorStatusManual = !!data.mayorStatusManual;
             mayorStatus = data.mayorStatus || getAutoMayorStatus();
             mayorAnnouncement = data.mayorAnnouncement || defaultAnnouncement;
