@@ -440,8 +440,8 @@
         const SHEETS_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbx2WLgayblJSdhnA_Ad0Bjeng0tjn4aw7UzngKCctWOHJJYDCruvw1hpsSr4t-bNe8ogQ/exec';
         const defaultAnnouncement = 'ยินดีต้อนรับเข้าสู่ระบบคิวงาน อบต. ชำผักแพว Online';
 
-        // ⚠️ นำ URL จาก Apps Script ที่ลงท้ายด้วย /exec (เวอร์ชัน 6 ที่กด Deploy ล่าสุด) มาวางในนี้
-        const DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbyAacohDWKG2RJhkBPTFuljszcnJPtfiBQvleSevzPFJumy9ZFDE3LPbPq3UA1HuQwXxg/exec';
+        // URL Web App เวอร์ชัน 7 ล่าสุด
+        const DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbyOPdP-42ZBcHWGfnYdT4ylDWuzk8PGPsiZB76pJPGhBFHp1KsnhiQKejZztJginZje4Q/exec';
 
         // ---------- state ----------
         let tasks = [];
@@ -522,45 +522,45 @@
             return url;
         }
 
-        // ---------- Google Drive upload helper (หลบ CORS และจับคู่คีย์ตรงกับ Apps Script) ----------
+        // ---------- Google Drive upload helper (ส่งผ่าน FormData หลบ CORS) ----------
         function uploadFileToDrive(file) {
             return new Promise(function(resolve, reject) {
                 if (!DRIVE_UPLOAD_URL || DRIVE_UPLOAD_URL.indexOf('AKfyc') === -1) {
-                    reject(new Error('URL สำหรับอัปโหลดไฟล์ยังไม่ถูกต้อง (ต้องเป็น URL /exec)'));
+                    reject(new Error('URL สำหรับอัปโหลดไฟล์ยังไม่ถูกต้อง'));
                     return;
                 }
                 const reader = new FileReader();
                 reader.onload = function() {
                     const base64 = reader.result.split(',')[1];
-                    const payload = {
-                        fileName: file.name,
-                        mimeType: file.type || "application/octet-stream",
-                        base64: base64
-                    };
+                    
+                    const formData = new FormData();
+                    formData.append('fileName', file.name);
+                    formData.append('mimeType', file.type || 'application/octet-stream');
+                    formData.append('base64', base64);
 
                     fetch(DRIVE_UPLOAD_URL, {
                         method: 'POST',
-                        body: JSON.stringify(payload),
-                        headers: {
-                            'Content-Type': 'text/plain;charset=utf-8'
-                        }
+                        body: formData
                     })
-                    .then(function(res){ return res.json(); })
-                    .then(function(json){
+                    .then(function(res) {
+                        return res.json();
+                    })
+                    .then(function(json) {
                         if (json && (json.status === 'success' || json.url)) {
                             resolve(json);
                         } else {
                             reject(new Error((json && json.message) || 'อัปโหลดไฟล์ไม่สำเร็จ'));
                         }
                     })
-                    .catch(function(err){
-                        reject(new Error(err.message || 'การเชื่อมต่อถูกปฏิเสธ (Failed to fetch)'));
+                    .catch(function(err) {
+                        reject(new Error('เชื่อมต่อ Google Drive ไม่สำเร็จ (' + err.message + ')'));
                     });
                 };
                 reader.onerror = function() { reject(new Error('อ่านไฟล์ไม่สำเร็จ')); };
                 reader.readAsDataURL(file);
             });
         }
+
         function validateUploadFileType(file) {
             return file.type === 'application/pdf' || file.type === 'image/png' || file.type.indexOf('image/') > -1;
         }
