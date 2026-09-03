@@ -440,7 +440,7 @@
         const SHEETS_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbx2WLgayblJSdhnA_Ad0Bjeng0tjn4aw7UzngKCctWOHJJYDCruvw1hpsSr4t-bNe8ogQ/exec';
         const defaultAnnouncement = 'ยินดีต้อนรับเข้าสู่ระบบคิวงาน อบต. ชำผักแพว Online';
 
-        // URL Web App เวอร์ชัน 7 ล่าสุด
+        // URL Web App เวอร์ชัน 7
         const DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbyOPdP-42ZBcHWGfnYdT4ylDWuzk8PGPsiZB76pJPGhBFHp1KsnhiQKejZztJginZje4Q/exec';
 
         // ---------- state ----------
@@ -522,7 +522,7 @@
             return url;
         }
 
-        // ---------- Google Drive upload helper (ส่งผ่าน FormData หลบ CORS) ----------
+        // ---------- Google Drive upload helper ----------
         function uploadFileToDrive(file) {
             return new Promise(function(resolve, reject) {
                 if (!DRIVE_UPLOAD_URL || DRIVE_UPLOAD_URL.indexOf('AKfyc') === -1) {
