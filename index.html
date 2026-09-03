@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ตารางคิวงานองค์การบริหารส่วนตำบลชำผักแพว</title>
+    <title>ระบบคิวงานอบต.</title>
 
     <meta name="apple-mobile-web-app-title" content="CPP Q">
     <meta name="application-name" content="CPP Q">
@@ -142,7 +142,7 @@
                     <img src="https://drive.google.com/thumbnail?id=1pgip9WQ97-gztB2sYoGyTWRt7tlVtmnY&sz=w200" class="w-10 h-10 md:w-12 md:h-12 object-contain shrink-0 rounded-xl bg-white/10 p-1">
                     <div class="flex flex-col min-w-0">
                         <span class="font-bold text-[15px] min-[375px]:text-base sm:text-lg leading-tight truncate">องค์การบริหารส่วนตำบลชำผักแพว</span>
-                        <span class="text-[11px] sm:text-xs font-medium opacity-75 leading-tight mt-0.5">ระบบคิวงาน อบต. Online</span>
+                        <span class="text-[11px] sm:text-xs font-medium opacity-75 leading-tight mt-0.5">ระบบคิวงานอบต.</span>
                     </div>
                 </div>
                 <button onclick="handleAdminToggle()" class="w-10 h-10 md:w-11 md:h-11 rounded-full bg-white/10 flex items-center justify-center tap-effect border border-white/20 shrink-0 ml-2">
@@ -197,6 +197,7 @@
                     </div>
                 </div>
 
+                <!-- กล่องประกาศจากแอดมิน -->
                 <div class="announce-card rounded-[1.75rem] p-5 md:p-6 text-white">
                     <div class="relative z-10 flex items-center justify-between gap-3 mb-3">
                         <div class="flex items-center gap-3">
@@ -212,6 +213,49 @@
                     <div class="relative z-10 bg-white/10 rounded-xl px-4 py-3 border border-white/15 announce-marquee-wrap">
                         <div id="announcementText" class="announce-marquee-text text-sm md:text-base font-medium">ยินดีต้อนรับเข้าสู่ระบบคิวงาน อบต. ชำผักแพว Online</div>
                     </div>
+                </div>
+
+                <!-- ช่องทางการติดต่อ อบต. (SVG Icons) ใต้ประกาศ -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <a href="https://www.facebook.com/xbt.cha.phak.ph.w/" target="_blank" class="card p-3.5 flex items-center gap-3 tap-effect hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 rounded-xl bg-[#1877F2]/10 text-[#1877F2] flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs text-[var(--muted)]">Facebook</p>
+                            <p class="text-xs sm:text-sm font-bold truncate" style="color:var(--primary-dark)">อบต.ชำผักแพว</p>
+                        </div>
+                    </a>
+
+                    <a href="https://lin.ee/zXdZrlY" target="_blank" class="card p-3.5 flex items-center gap-3 tap-effect hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 rounded-xl bg-[#06C755]/10 text-[#06C755] flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M24 10.304c0-5.369-5.383-9.738-12-9.738-6.616 0-12 4.369-12 9.738 0 4.814 4.269 8.846 10.035 9.608.391.084.922.258 1.057.592.122.303.079.778.039 1.085l-.171 1.027c-.053.303-.242 1.186 1.039.645 1.281-.54 6.911-4.069 9.43-6.965 1.761-1.996 2.671-3.992 2.671-5.992z"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs text-[var(--muted)]">LINE Official</p>
+                            <p class="text-xs sm:text-sm font-bold truncate" style="color:var(--primary-dark)">ติดต่อผ่านไลน์</p>
+                        </div>
+                    </a>
+
+                    <a href="tel:036714081" class="card p-3.5 flex items-center gap-3 tap-effect hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-600 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-3.8-6.6-6.6l2.2-2.2c.3-.3.4-.7.2-1-.4-1.1-.6-2.3-.6-3.5 0-.6-.4-1-1-1H4c-.6 0-1 .4-1 1 0 9.4 7.6 17 17 17 .6 0 1-.4 1-1v-3.5c0-.6-.4-1-1-1zM19 12h2c0-4.97-4.03-9-9-9v2c3.87 0 7 3.13 7 7zm-4 0h2c0-2.76-2.24-5-5-5v2c1.66 0 3 1.34 3 3z"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs text-[var(--muted)]">เบอร์โทรศัพท์</p>
+                            <p class="text-xs sm:text-sm font-bold truncate" style="color:var(--primary-dark)">036-714081</p>
+                        </div>
+                    </a>
+
+                    <a href="https://www.chumpakpaew.go.th/index.php" target="_blank" class="card p-3.5 flex items-center gap-3 tap-effect hover:shadow-md transition-shadow">
+                        <div class="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-600 flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs text-[var(--muted)]">เว็บไซต์ อบต.</p>
+                            <p class="text-xs sm:text-sm font-bold truncate" style="color:var(--primary-dark)">chumpakpaew.go.th</p>
+                        </div>
+                    </a>
                 </div>
 
                 <div id="dashboardTaskList">
@@ -438,7 +482,7 @@
         const OWNER_OPTIONS = ['นายก อบต.','รองนายก อบต.','เลขานุการนายก','ปลัด อบต.','รองปลัด อบต.','สำนักปลัด','กองช่าง','กองคลัง','กองการศึกษาฯ','กองสวัสดิการสังคม','กองสาธารณสุขและสิ่งแวดล้อม','ประธานสภาฯ','รองประธานสภาฯ','สมาชิกสภาฯ','อื่นๆ'];
         const CONTACT_GROUPS = { "1":"ผู้บริหาร","2":"ข้าราชการ","3":"พนักงานจ้าง","4":"พนักงานจ้างเหมา","5":"สมาชิก อบต.","6":"กำนัน","7":"ผู้ใหญ่บ้าน","8":"ผู้ช่วยผู้ใหญ่บ้าน","9":"เด็กฝึกงาน","10":"หน่วยงานนอก","11":"อื่นๆ" };
         const SHEETS_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbx2WLgayblJSdhnA_Ad0Bjeng0tjn4aw7UzngKCctWOHJJYDCruvw1hpsSr4t-bNe8ogQ/exec';
-        const defaultAnnouncement = 'องค์การบริหารส่วนตำบลชำผักแพว';
+        const defaultAnnouncement = 'ยินดีต้อนรับเข้าสู่ระบบคิวงาน อบต. ชำผักแพว Online';
 
         // URL Web App เวอร์ชัน 7
         const DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbyOPdP-42ZBcHWGfnYdT4ylDWuzk8PGPsiZB76pJPGhBFHp1KsnhiQKejZztJginZje4Q/exec';
@@ -579,10 +623,19 @@
             return 'status-pending';
         }
 
+        // ฟังก์ชันฟอร์แมตเวลาเริ่มต้นและสิ้นสุด
+        function formatTaskTime(startTime, endTime) {
+            if (!startTime && !endTime) return 'ไม่ระบุเวลา';
+            if (startTime && endTime) return startTime + ' - ' + endTime + ' น.';
+            if (startTime) return startTime + ' น.';
+            return 'ถึง ' + endTime + ' น.';
+        }
+
         function taskCardHTML(t, isTodayTask) {
             const diff = getDiffDays(t.startDate, t.endDate);
             const countdown = countdownBadgeHTML(diff);
             const statusClass = statusClassOf(t.status);
+            const timeDisplay = formatTaskTime(t.startTime, t.endTime);
             const owners = Array.isArray(t.owner) ? t.owner : (t.owner ? [t.owner] : []);
             const ownerHTML = owners.length
                 ? owners.map(function(o){ return '<span class="inline-block px-2.5 py-1 rounded-lg text-xs font-semibold mr-1 mb-1" style="background:var(--primary-tint); color:var(--primary-dark)">' + o + '</span>'; }).join('')
@@ -590,7 +643,7 @@
 
             let html = '<div class="card p-5 relative tap-effect ' + (isTodayTask ? 'today-card' : '') + '">';
             html += '<div class="flex justify-between items-start gap-3 mb-3">';
-            html += '<div class="flex flex-wrap items-center gap-2"><span class="px-3 py-1.5 rounded-xl text-xs font-semibold" style="background:var(--primary-tint); color:var(--primary-dark)"><i class="fa-regular fa-clock mr-1"></i>' + (t.startTime || 'ไม่ระบุเวลา') + '</span>' + countdown + '</div>';
+            html += '<div class="flex flex-wrap items-center gap-2"><span class="px-3 py-1.5 rounded-xl text-xs font-semibold" style="background:var(--primary-tint); color:var(--primary-dark)"><i class="fa-regular fa-clock mr-1"></i>' + timeDisplay + '</span>' + countdown + '</div>';
             html += '<span class="status-badge ' + statusClass + '">' + (t.status || '-') + '</span>';
             html += '</div>';
             html += '<h4 class="font-bold text-lg leading-snug mb-2">' + (t.title || '-') + '</h4>';
@@ -598,6 +651,7 @@
 
             html += '<div class="rounded-xl overflow-x-auto p-1" style="background:var(--bg); border:1px solid var(--border)"><table class="detail-table">';
             html += '<tr><td class="dt-label">📅 วันที่</td><td class="dt-value">' + formatDateRangeThai(t.startDate, t.endDate) + '</td></tr>';
+            html += '<tr><td class="dt-label">⏰ เวลา</td><td class="dt-value">' + timeDisplay + '</td></tr>';
             html += '<tr><td class="dt-label">📍 สถานที่</td><td class="dt-value">' + (t.loc || '-') + '</td></tr>';
             html += '<tr><td class="dt-label">👕 การแต่งกาย</td><td class="dt-value">' + (t.dress || '-') + '</td></tr>';
             html += '<tr><td class="dt-label">👥 ผู้รับผิดชอบ</td><td class="dt-value">' + ownerHTML + '</td></tr>';
