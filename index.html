@@ -61,7 +61,7 @@
         .stat-card:hover{ transform:translateY(-2px); box-shadow:0 12px 26px -14px rgba(31,90,148,0.22); }
         .stat-card.is-active{ border-color:var(--bar-color,var(--primary)); box-shadow:0 0 0 2px var(--bar-color,var(--primary)) inset, 0 12px 26px -14px rgba(31,90,148,0.25); }
 
-        /* ---------- presence dot (signature element) ---------- */
+        /* ---------- presence dot ---------- */
         @keyframes presencePulse{
             0%{ box-shadow:0 0 0 0 var(--pulse-color,rgba(79,169,124,.55)); }
             70%{ box-shadow:0 0 0 10px rgba(0,0,0,0); }
@@ -105,7 +105,7 @@
         .cal-selected{ background:var(--primary) !important; }
         .cal-selected .cal-day-num{ color:#fff; }
 
-        /* ---------- chips (owner picker) ---------- */
+        /* ---------- chips ---------- */
         .chip{ border:1px solid var(--border); background:var(--surface); color:var(--muted); font-size:.82rem; padding:8px 14px; border-radius:999px; cursor:pointer; transition:all .15s ease; }
         .chip.is-selected{ background:var(--primary); border-color:var(--primary); color:#fff; font-weight:600; }
 
@@ -162,7 +162,6 @@
 
             <!-- ============ DASHBOARD ============ -->
             <section id="page-dashboard" class="space-y-6">
-
                 <div class="card p-5 flex items-center justify-between relative">
                     <div class="flex items-center gap-4">
                         <div class="relative">
@@ -441,10 +440,8 @@
         const SHEETS_BACKUP_URL = 'https://script.google.com/macros/s/AKfycbx2WLgayblJSdhnA_Ad0Bjeng0tjn4aw7UzngKCctWOHJJYDCruvw1hpsSr4t-bNe8ogQ/exec';
         const defaultAnnouncement = 'ยินดีต้อนรับเข้าสู่ระบบคิวงาน อบต. ชำผักแพว Online';
 
-        // ---------- Google Drive upload (ดูวิธีตั้งค่าในคำอธิบายท้ายไฟล์) ----------
-        // โฟลเดอร์ Drive ปลายทาง: https://drive.google.com/drive/folders/1ixA9lvhKbsuSnlJzXRXEMZY4yF6-zr0Z
-        const DRIVE_FOLDER_ID = '1ixA9lvhKbsuSnlJzXRXEMZY4yF6-zr0Z';
-        const DRIVE_UPLOAD_URL = 'https://script.google.com/macros/library/d/1IcJV3_2aLiHAzNrouleGAgzNiga0_jIbAeNaNjUYLoK8JBxug4HnYr_Z/5'; // TODO: แทนที่ด้วย URL ที่ได้จากการ Deploy Apps Script (ดูคำแนะนำด้านล่าง)
+        // ⚠️ นำ URL จาก Apps Script ที่ลงท้ายด้วย /exec (เวอร์ชัน 6 ที่กด Deploy ล่าสุด) มาวางในนี้
+        const DRIVE_UPLOAD_URL = 'https://script.google.com/macros/s/AKfycbyAacohDWKG2RJhkBPTFuljszcnJPtfiBQvleSevzPFJumy9ZFDE3LPbPq3UA1HuQwXxg/exec';
 
         // ---------- state ----------
         let tasks = [];
@@ -525,32 +522,47 @@
             return url;
         }
 
-        // ---------- Google Drive upload helper ----------
+        // ---------- Google Drive upload helper (หลบ CORS และจับคู่คีย์ตรงกับ Apps Script) ----------
         function uploadFileToDrive(file) {
             return new Promise(function(resolve, reject) {
-                if (!DRIVE_UPLOAD_URL || DRIVE_UPLOAD_URL.indexOf('PASTE_YOUR') > -1) {
-                    reject(new Error('ยังไม่ได้ตั้งค่า Google Apps Script URL สำหรับอัปโหลดไฟล์ กรุณาตั้งค่า DRIVE_UPLOAD_URL ในโค้ดก่อนใช้งาน'));
+                if (!DRIVE_UPLOAD_URL || DRIVE_UPLOAD_URL.indexOf('AKfyc') === -1) {
+                    reject(new Error('URL สำหรับอัปโหลดไฟล์ยังไม่ถูกต้อง (ต้องเป็น URL /exec)'));
                     return;
                 }
                 const reader = new FileReader();
                 reader.onload = function() {
                     const base64 = reader.result.split(',')[1];
+                    const payload = {
+                        fileName: file.name,
+                        mimeType: file.type || "application/octet-stream",
+                        base64: base64
+                    };
+
                     fetch(DRIVE_UPLOAD_URL, {
                         method: 'POST',
-                        body: JSON.stringify({ fileName: file.name, mimeType: file.type, data: base64 })
-                    }).then(function(res){ return res.json(); })
-                      .then(function(json){
-                          if (json && json.success) resolve(json);
-                          else reject(new Error((json && json.error) || 'อัปโหลดไฟล์ไม่สำเร็จ'));
-                      })
-                      .catch(function(err){ reject(err); });
+                        body: JSON.stringify(payload),
+                        headers: {
+                            'Content-Type': 'text/plain;charset=utf-8'
+                        }
+                    })
+                    .then(function(res){ return res.json(); })
+                    .then(function(json){
+                        if (json && (json.status === 'success' || json.url)) {
+                            resolve(json);
+                        } else {
+                            reject(new Error((json && json.message) || 'อัปโหลดไฟล์ไม่สำเร็จ'));
+                        }
+                    })
+                    .catch(function(err){
+                        reject(new Error(err.message || 'การเชื่อมต่อถูกปฏิเสธ (Failed to fetch)'));
+                    });
                 };
                 reader.onerror = function() { reject(new Error('อ่านไฟล์ไม่สำเร็จ')); };
                 reader.readAsDataURL(file);
             });
         }
         function validateUploadFileType(file) {
-            return file.type === 'application/pdf' || file.type === 'image/png';
+            return file.type === 'application/pdf' || file.type === 'image/png' || file.type.indexOf('image/') > -1;
         }
 
         // ---------- card renderers ----------
@@ -711,7 +723,7 @@
         function renderFormsPage() {
             const list = document.getElementById('formsList');
             if (!list) return;
-            list.innerHTML = formsList.length ? formsList.map(formCardHTML).join('') : '<div class="col-span-full card p-8 text-center" style="border-style:dashed"><p style="color:var(--muted)">ยังไม่มีแบบฟอร์ม กดปุ่ม "เพิ่มแบบฟอร์ม" เพื่อเริ่มต้น เช่น ใบลาป่วย ใบลากิจ ใบลาพักร้อน ใบขอใช้รถยนต์ ใบขอ อปพร.</p></div>';
+            list.innerHTML = formsList.length ? formsList.map(formCardHTML).join('') : '<div class="col-span-full card p-8 text-center" style="border-style:dashed"><p style="color:var(--muted)">ยังไม่มีแบบฟอร์ม กดปุ่ม "เพิ่มแบบฟอร์ม" เพื่อเริ่มต้น</p></div>';
         }
 
         function renderContactsPage(query) {
