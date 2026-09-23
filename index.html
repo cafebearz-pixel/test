@@ -3,234 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบบริหารจัดการคิวงาน อบต.ชำผักแพว</title>
+    <title>คิวงานซ่อมบำรุงและบรรเทาสาธารณภัย - อบต.ชำผักแพว</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Prompt', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        body.dark-mode {
-            background-color: #0f172a;
-            color: #f1f5f9;
-        }
+        body { font-family: 'Prompt', sans-serif; background-color: #f8fafc; color: #1e293b; transition: all 0.3s; }
+        body.dark-mode { background-color: #0f172a; color: #f1f5f9; }
         .dark-mode .bg-white { background-color: #1e293b !important; border-color: #334155 !important; }
         .dark-mode .text-gray-800 { color: #f1f5f9 !important; }
         .dark-mode .text-gray-500, .dark-mode .text-gray-600 { color: #94a3b8 !important; }
+        .dark-mode input, .dark-mode select, .dark-mode textarea { background-color: #0f172a; color: white; border-color: #334155; }
         
-        .timeline-line {
-            position: absolute;
-            top: 50%;
-            left: 20px;
-            right: 20px;
-            height: 4px;
-            background-color: #e2e8f0;
-            z-index: 0;
-            transform: translateY(-50%);
-        }
-        .dark-mode .timeline-line { background-color: #334155; }
-        
-        .timeline-step {
-            position: relative;
-            z-index: 1;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .timeline-step:hover { transform: scale(1.1); }
-        .timeline-icon {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            background-color: white;
-            border: 2px solid #cbd5e1;
-            color: #cbd5e1;
-            margin: 0 auto;
-        }
-        .dark-mode .timeline-icon { background-color: #1e293b; border-color: #475569; color: #475569; }
-        
-        /* Status Colors */
-        .status-wait .timeline-icon { border-color: #f59e0b; color: #f59e0b; background-color: #fef3c7; }
-        .status-action .timeline-icon { border-color: #3b82f6; color: white; background-color: #3b82f6; }
-        .status-done .timeline-icon { border-color: #10b981; color: white; background-color: #10b981; }
-        .status-delay .timeline-icon { border-color: #ef4444; color: white; background-color: #ef4444; }
+        /* Sidebar transition */
+        #sidebar { transition: transform 0.3s ease-in-out; }
+        .sidebar-open { transform: translateX(0); }
+        .sidebar-closed { transform: translateX(-100%); }
+        @media (min-width: 1024px) { .sidebar-closed { transform: translateX(0); } }
+
+        /* Custom Calendar Grid */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+        .cal-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; border: 1px solid #e2e8f0; position: relative; }
+        .dark-mode .cal-day { border-color: #334155; }
+        .cal-day:hover { background-color: #f1f5f9; }
+        .dark-mode .cal-day:hover { background-color: #334155; }
+        .cal-day.active { border: 2px solid #e11d48; background-color: #fff1f2; font-weight: bold; }
+        .dark-mode .cal-day.active { background-color: #4c0519; }
+        .dot-indicator { width: 6px; height: 6px; border-radius: 50%; background-color: #e11d48; position: absolute; bottom: 6px; }
+
+        /* Task Type Grid */
+        .task-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .task-btn { border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 5px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 12px; }
+        .task-btn.selected { background-color: #fee2e2; border-color: #ef4444; color: #b91c1c; font-weight: bold; }
+        .dark-mode .task-btn.selected { background-color: #7f1d1d; color: #fca5a5; }
 
         .hide { display: none !important; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased flex h-screen overflow-hidden">
 
-    <!-- Topbar -->
-    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-red-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow-md">ชพ</div>
-                <div>
-                    <h1 class="font-bold text-lg leading-tight">ศูนย์บริหารงานช่างและป้องกันฯ</h1>
-                    <p class="text-xs text-gray-500">อบต.ชำผักแพว</p>
-                </div>
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar-closed fixed lg:relative z-40 w-64 h-screen bg-gray-900 text-white flex flex-col shadow-2xl">
+        <div class="p-5 flex items-center justify-between border-b border-gray-800">
+            <div class="font-bold text-lg text-white flex items-center gap-2">
+                <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-sm">ชพ</div>
+                เมนูหลัก
             </div>
-            <div class="flex gap-2">
-                <button onclick="toggleTheme()" class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
-                </button>
-                <button id="btnLogin" onclick="showLoginModal()" class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-700 transition">
-                    เข้าสู่ระบบเจ้าหน้าที่
-                </button>
-                <button id="btnLogout" onclick="logout()" class="hide px-4 py-2 bg-red-100 text-red-600 text-sm font-medium rounded-lg hover:bg-red-200 transition">
-                    ออกจากระบบ
-                </button>
-            </div>
+            <button onclick="toggleSidebar()" class="lg:hide text-gray-400 hover:text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
         </div>
-    </header>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
+            <a href="#" onclick="navTo('page-queue')" class="nav-link block px-5 py-3 bg-gray-800 border-l-4 border-red-500 hover:bg-gray-800 transition">📅 คิวงาน / ปฏิทิน</a>
+            <a href="#" onclick="navTo('page-report')" class="nav-link block px-5 py-3 text-gray-400 hover:bg-gray-800 hover:text-white transition">📝 รับแจ้งงาน</a>
+            <a href="#" onclick="navTo('page-performance')" class="nav-link block px-5 py-3 text-gray-400 hover:bg-gray-800 hover:text-white transition">✅ ผลการดำเนินงาน</a>
+            <a href="#" onclick="navTo('page-search')" class="nav-link block px-5 py-3 text-gray-400 hover:bg-gray-800 hover:text-white transition">🔍 ค้นหางานย้อนหลัง</a>
+            <a href="#" onclick="navTo('page-summary')" class="nav-link block px-5 py-3 text-gray-400 hover:bg-gray-800 hover:text-white transition">📊 สรุปรายงาน</a>
+            <a href="#" onclick="navTo('page-contacts')" class="nav-link block px-5 py-3 text-gray-400 hover:bg-gray-800 hover:text-white transition">📞 เบอร์ติดต่อ</a>
+        </nav>
+    </aside>
 
-    <main class="max-w-7xl mx-auto px-4 py-6">
-        
-        <!-- Big Numbers Dashboard -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="p-3 bg-orange-100 text-orange-600 rounded-xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 z-30">
+            <div class="px-4 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-3 w-3/4">
+                    <button onclick="toggleSidebar()" class="lg:hide p-2 rounded-md hover:bg-gray-100 text-gray-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg></button>
+                    <div class="min-w-0">
+                        <h1 class="font-bold text-sm md:text-lg text-red-700 leading-tight truncate">คิวงานซ่อมบำรุงและบรรเทาสาธารณภัย</h1>
+                        <p class="text-[10px] md:text-xs text-gray-500 truncate">องค์การบริหารส่วนตำบลชำผักแพว</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-500">รอดำเนินการ</p>
-                    <h3 class="text-2xl font-bold text-gray-800" id="count-wait">0</h3>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="p-3 bg-blue-100 text-blue-600 rounded-xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">ลงพื้นที่</p>
-                    <h3 class="text-2xl font-bold text-gray-800" id="count-action">0</h3>
+                <div class="flex items-center gap-1">
+                    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-gray-100 text-gray-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg></button>
+                    <button id="btn-login" onclick="promptLogin()" class="p-2 rounded-full hover:bg-gray-100 text-gray-600" title="เข้าสู่ระบบเจ้าหน้าที่"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg></button>
+                    <button id="btn-logout" onclick="logout()" class="hide p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg></button>
                 </div>
             </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="p-3 bg-green-100 text-green-600 rounded-xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">เสร็จสิ้นแล้ว</p>
-                    <h3 class="text-2xl font-bold text-gray-800" id="count-done">0</h3>
-                </div>
-            </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-4">
-                <div class="p-3 bg-red-100 text-red-600 rounded-xl">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">เลื่อนงาน/ติดขัด</p>
-                    <h3 class="text-2xl font-bold text-gray-800" id="count-delay">0</h3>
-                </div>
-            </div>
-        </div>
+        </header>
 
-        <!-- Navigation Tabs -->
-        <div class="flex overflow-x-auto gap-2 mb-6 border-b border-gray-200 pb-2">
-            <button onclick="switchTab('tab-current')" id="btn-tab-current" class="px-5 py-2 font-medium rounded-full bg-red-50 text-red-600 border border-red-100 whitespace-nowrap">คิวงานปัจจุบัน</button>
-            <button onclick="switchTab('tab-history')" id="btn-tab-history" class="px-5 py-2 font-medium rounded-full text-gray-500 hover:bg-gray-100 whitespace-nowrap">ประวัติย้อนหลัง</button>
-            <button onclick="switchTab('tab-contact')" id="btn-tab-contact" class="px-5 py-2 font-medium rounded-full text-gray-500 hover:bg-gray-100 whitespace-nowrap">เบอร์ติดต่อ อบต.</button>
-        </div>
-
-        <!-- Tab 1: Current Jobs -->
-        <div id="tab-current">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold">รายการคิวงานที่กำลังดำเนินการ</h2>
-                <button id="btnAddJob" onclick="showAddModal()" class="hide bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium shadow-md flex items-center gap-2 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    ลงคิวงานใหม่
-                </button>
+        <!-- Dynamic Pages Container -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-20 relative">
+            <div id="loading" class="absolute inset-0 bg-white/80 dark-mode-surface z-50 flex flex-col items-center justify-center">
+                <svg class="animate-spin h-10 w-10 text-red-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span class="text-gray-500">กำลังเชื่อมต่อข้อมูล...</span>
             </div>
-            <div id="loading-indicator" class="text-center py-10 text-gray-400">
-                <svg class="animate-spin h-8 w-8 mx-auto mb-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                กำลังเชื่อมต่อข้อมูลแบบเรียลไทม์...
-            </div>
-            <div id="job-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Job Cards will be injected here -->
-            </div>
-        </div>
 
-        <!-- Tab 2: History -->
-        <div id="tab-history" class="hide">
-            <h2 class="text-xl font-bold mb-4">ประวัติงานที่เสร็จสิ้น / เลื่อนงาน</h2>
-            <div id="history-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- History Cards will be injected here -->
-            </div>
-        </div>
-
-        <!-- Tab 3: Contacts -->
-        <div id="tab-contact" class="hide">
-            <h2 class="text-xl font-bold mb-4">เบอร์โทรศัพท์ติดต่อ อบต.ชำผักแพว</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-lg text-orange-600 mb-2">🛠️ กองช่าง</h3>
-                    <p class="text-gray-600 mb-1">หัวหน้ากองช่าง: 08X-XXX-XXXX</p>
-                    <p class="text-gray-600">สายด่วนซ่อมบำรุง: 036-XXX-XXX</p>
-                </div>
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h3 class="font-bold text-lg text-red-600 mb-2">🚒 งานป้องกันและบรรเทาสาธารณภัย</h3>
-                    <p class="text-gray-600 mb-1">หัวหน้างานป้องกันฯ: 08X-XXX-XXXX</p>
-                    <p class="text-gray-600">แจ้งเหตุฉุกเฉิน 24 ชม.: 036-XXX-XXX</p>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- Modals -->
-    
-    <!-- Admin Login Modal -->
-    <div id="modal-login" class="hide fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative dark-mode-surface">
-            <button onclick="closeModal('modal-login')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <h3 class="text-xl font-bold mb-2">ยืนยันตัวตนเจ้าหน้าที่</h3>
-            <p class="text-sm text-gray-500 mb-4">กรุณากรอกรหัส PIN เพื่อรับสิทธิ์จัดการคิวงาน</p>
-            <input type="password" id="pin-input" class="w-full text-center text-2xl tracking-widest bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-red-500 focus:border-red-500 block p-3 mb-4" placeholder="••••" maxlength="4">
-            <button onclick="verifyPin()" class="w-full text-white bg-gray-800 hover:bg-gray-900 font-medium rounded-lg text-sm px-5 py-3 text-center transition">เข้าสู่ระบบ</button>
-        </div>
-    </div>
-
-    <!-- Add Job Modal -->
-    <div id="modal-add" class="hide fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl relative dark-mode-surface max-h-[90vh] overflow-y-auto">
-            <button onclick="closeModal('modal-add')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <h3 class="text-xl font-bold mb-4">ลงคิวงานใหม่</h3>
-            <div class="space-y-4">
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-900">ชื่อภารกิจ (เลือกหรือพิมพ์เอง)</label>
-                    <input list="task-list" id="input-task" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5" placeholder="เช่น ซ่อมไฟสาธารณะ, ตัดกิ่งไม้">
-                    <datalist id="task-list">
-                        <option value="ซ่อมไฟฟ้าสาธารณะ">
-                        <option value="ตัดกิ่งไม้พาดสายไฟ">
-                        <option value="แจกจ่ายน้ำอุปโภคบริโภค">
-                        <option value="ซ่อมแซมถนนลูกรัง">
-                        <option value="จับสัตว์เลื้อยคลาน/มีพิษ">
-                        <option value="ระงับเหตุเพลิงไหม้">
-                    </datalist>
-                </div>
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-900">กองที่รับผิดชอบ</label>
-                    <select id="input-dept" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
-                        <option value="กองช่าง">กองช่าง</option>
-                        <option value="งานป้องกันฯ">งานป้องกันและบรรเทาสาธารณภัย</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-900">หมู่บ้าน (สถานที่)</label>
-                    <select id="input-village" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
-                        <option value="" disabled selected>-- เลือกหมู่บ้าน --</option>
+            <!-- Page: Queue & Calendar -->
+            <div id="page-queue" class="page-section">
+                <!-- Village Filter -->
+                <div class="mb-4 bg-white p-3 rounded-xl shadow-sm border border-gray-200">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">🔍 กรองดูตามหมู่บ้าน</label>
+                    <select id="filter-village" onchange="renderQueue()" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-2.5">
+                        <option value="all">-- แสดงทุกหมู่บ้าน --</option>
                         <option value="หมู่ที่ 1 บ้านดง">หมู่ที่ 1 บ้านดง</option>
                         <option value="หมู่ที่ 2 บ้านโคกกรุง">หมู่ที่ 2 บ้านโคกกรุง</option>
                         <option value="หมู่ที่ 3 บ้านชำผักแพว">หมู่ที่ 3 บ้านชำผักแพว</option>
@@ -243,296 +106,557 @@
                         <option value="หมู่ที่ 10 บ้านธารน้ำตก">หมู่ที่ 10 บ้านธารน้ำตก</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block mb-2 text-sm font-medium text-gray-900">ชื่อผู้ร้องขอ</label>
-                    <input type="text" id="input-requester" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5" placeholder="ไม่บังคับระบุ">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-900">วันที่ร้อง</label>
-                        <input type="date" id="input-req-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
+
+                <!-- Calendar View -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <button onclick="changeMonth(-1)" class="p-1 hover:bg-gray-100 rounded">&lt;</button>
+                        <h3 id="cal-month-year" class="font-bold text-lg"></h3>
+                        <button onclick="changeMonth(1)" class="p-1 hover:bg-gray-100 rounded">&gt;</button>
                     </div>
-                    <div>
-                        <label class="block mb-2 text-sm font-medium text-gray-900">วันที่ดำเนินการ</label>
-                        <input type="date" id="input-act-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
+                    <div class="grid grid-cols-7 text-center text-xs text-gray-500 font-medium mb-2">
+                        <div>อา.</div><div>จ.</div><div>อ.</div><div>พ.</div><div>พฤ.</div><div>ศ.</div><div>ส.</div>
                     </div>
+                    <div id="cal-days" class="cal-grid"></div>
                 </div>
-                <button onclick="submitNewJob()" class="w-full mt-4 text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-3 text-center transition">บันทึกคิวงาน</button>
+
+                <!-- Selected Date Info -->
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold" id="queue-title">คิวงานทั้งหมด</h2>
+                </div>
+                <div id="queue-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
-        </div>
+
+            <!-- Page: Report Issue (Form) -->
+            <div id="page-report" class="page-section hide">
+                <div class="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-gray-200 max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-bold text-red-600 mb-6 border-b pb-2" id="form-title">📝 แบบฟอร์มแจ้งงาน/ลงคิวงาน</h2>
+                    <form id="job-form" onsubmit="submitJob(event)">
+                        <input type="hidden" id="f-id">
+                        
+                        <!-- Task Type (Icons) -->
+                        <div class="mb-5">
+                            <label class="block mb-2 text-sm font-medium">ประเภทงาน <span class="text-red-500">*</span></label>
+                            <input type="hidden" id="f-type" required>
+                            <div class="task-type-grid" id="type-grid">
+                                <div class="task-btn" onclick="selectType(this, 'ตัดกิ่งไม้')">🌳<br>ตัดกิ่งไม้</div>
+                                <div class="task-btn" onclick="selectType(this, 'ซ่อมไฟรายทาง')">💡<br>ซ่อมไฟรายทาง</div>
+                                <div class="task-btn" onclick="selectType(this, 'ซ่อมถนน')">🛣️<br>ซ่อมถนน</div>
+                                <div class="task-btn" onclick="selectType(this, 'ประปา/ท่อ')">🚰<br>ประปา/ท่อ</div>
+                                <div class="task-btn" onclick="selectType(this, 'งานก่อสร้าง')">🏗️<br>งานก่อสร้าง</div>
+                                <div class="task-btn" onclick="selectType(this, 'ตัดหญ้า/ภูมิทัศน์')">✂️<br>ตัดหญ้า</div>
+                                <div class="task-btn" onclick="selectType(this, 'ป้องกัน/สาธารณภัย')">🚒<br>สาธารณภัย</div>
+                                <div class="task-btn" onclick="selectType(this, 'จับสัตว์มีพิษ')">🐍<br>จับสัตว์มีพิษ</div>
+                                <div class="task-btn" onclick="selectType(this, 'อื่นๆ')">📝<br>อื่นๆ</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block mb-1 text-sm font-medium">วันที่ร้องขอ <span class="text-red-500">*</span></label>
+                                <input type="date" id="f-req-date" required class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5">
+                            </div>
+                            <div>
+                                <label class="block mb-1 text-sm font-medium">หมู่ที่ <span class="text-red-500">*</span></label>
+                                <select id="f-village" required class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5">
+                                    <option value="">-- เลือกหมู่ที่ --</option>
+                                    <option value="หมู่ที่ 1 บ้านดง">หมู่ที่ 1 บ้านดง</option>
+                                    <option value="หมู่ที่ 2 บ้านโคกกรุง">หมู่ที่ 2 บ้านโคกกรุง</option>
+                                    <option value="หมู่ที่ 3 บ้านชำผักแพว">หมู่ที่ 3 บ้านชำผักแพว</option>
+                                    <option value="หมู่ที่ 4 บ้านดอนจาน">หมู่ที่ 4 บ้านดอนจาน</option>
+                                    <option value="หมู่ที่ 5 บ้านป่าไผ่">หมู่ที่ 5 บ้านป่าไผ่</option>
+                                    <option value="หมู่ที่ 6 บ้านมะขามป้อมใหม่">หมู่ที่ 6 บ้านมะขามป้อมใหม่</option>
+                                    <option value="หมู่ที่ 7 บ้านรังแร้ง">หมู่ที่ 7 บ้านรังแร้ง</option>
+                                    <option value="หมู่ที่ 8 บ้านมะขามป้อมเก่า">หมู่ที่ 8 บ้านมะขามป้อมเก่า</option>
+                                    <option value="หมู่ที่ 9 บ้านวังแพ">หมู่ที่ 9 บ้านวังแพ</option>
+                                    <option value="หมู่ที่ 10 บ้านธารน้ำตก">หมู่ที่ 10 บ้านธารน้ำตก</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block mb-1 text-sm font-medium">รายละเอียดปัญหา <span class="text-red-500">*</span></label>
+                            <textarea id="f-details" rows="3" required class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5"></textarea>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block mb-1 text-sm font-medium">พิกัดสถานที่ / จุดสังเกต</label>
+                                <input type="text" id="f-location" class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5">
+                            </div>
+                            <div>
+                                <label class="block mb-1 text-sm font-medium">ความเร่งด่วน</label>
+                                <select id="f-urgency" class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5">
+                                    <option value="ปกติ">ปกติ</option>
+                                    <option value="ด่วน">ด่วน</option>
+                                    <option value="ด่วนมาก">ด่วนมาก 🔴</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label class="block mb-1 text-sm font-medium">ชื่อผู้ร้อง / เบอร์โทร</label>
+                                <input type="text" id="f-requester" class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5">
+                            </div>
+                            <!-- Admin Only Fields -->
+                            <div class="admin-only hide">
+                                <label class="block mb-1 text-sm font-medium text-red-600">กองที่รับผิดชอบ (เจ้าหน้าที่ระบุ)</label>
+                                <select id="f-dept" class="bg-gray-50 border border-red-300 text-sm rounded-lg w-full p-2.5">
+                                    <option value="">-- ยังไม่ระบุ --</option>
+                                    <option value="กองช่าง">กองช่าง</option>
+                                    <option value="งานป้องกันฯ">งานป้องกันฯ</option>
+                                </select>
+                            </div>
+                            <div class="admin-only hide">
+                                <label class="block mb-1 text-sm font-medium text-red-600">วันที่จะดำเนินการ (เจ้าหน้าที่ระบุ)</label>
+                                <input type="date" id="f-act-date" class="bg-gray-50 border border-red-300 text-sm rounded-lg w-full p-2.5">
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btn-submit-form" class="w-full text-white bg-red-600 hover:bg-red-700 font-bold rounded-lg text-lg px-5 py-3 transition shadow-lg">ส่งข้อมูลแจ้งงาน</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Page: Performance (Done Tasks) -->
+            <div id="page-performance" class="page-section hide">
+                <h2 class="text-xl font-bold mb-4">✅ ผลการดำเนินงาน (เสร็จสิ้น)</h2>
+                <div id="perf-container" class="space-y-6"></div>
+            </div>
+
+            <!-- Page: Search -->
+            <div id="page-search" class="page-section hide">
+                <h2 class="text-xl font-bold mb-4">🔍 ค้นหางานย้อนหลัง</h2>
+                <input type="text" id="search-input" onkeyup="performSearch()" placeholder="พิมพ์ชื่อผู้ร้อง, ประเภทงาน, หรือรายละเอียด..." class="mb-4 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 shadow-sm">
+                <div id="search-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            </div>
+
+            <!-- Page: Summary -->
+            <div id="page-summary" class="page-section hide">
+                <h2 class="text-xl font-bold mb-4">📊 สรุปรายงานประจำเดือน</h2>
+                <div class="flex gap-2 mb-6">
+                    <input type="month" id="sum-month" onchange="generateSummary()" class="bg-white border border-gray-300 p-2 rounded-lg">
+                    <select id="sum-dept" onchange="generateSummary()" class="bg-white border border-gray-300 p-2 rounded-lg">
+                        <option value="all">ทุกกอง</option>
+                        <option value="กองช่าง">กองช่าง</option>
+                        <option value="งานป้องกันฯ">งานป้องกันฯ</option>
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="sum-stats"></div>
+                <div class="bg-white p-4 rounded-xl shadow border border-gray-200">
+                    <h3 class="font-bold mb-3 border-b pb-2">แยกตามประเภทงาน</h3>
+                    <ul id="sum-types" class="space-y-2"></ul>
+                </div>
+            </div>
+
+            <!-- Page: Contacts -->
+            <div id="page-contacts" class="page-section hide">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">📞 เบอร์ติดต่อ อบต.ชำผักแพว</h2>
+                    <button onclick="editContacts()" class="admin-only hide text-sm bg-gray-800 text-white px-3 py-1.5 rounded-lg">แก้ไขเบอร์โทร</button>
+                </div>
+                <div id="contact-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                
+                <!-- Edit Contacts Form (Hidden by default) -->
+                <div id="contact-editor" class="hide mt-6 bg-white p-4 rounded-xl border border-gray-200 shadow">
+                    <h3 class="font-bold mb-3">แก้ไขข้อมูลติดต่อ</h3>
+                    <div id="contact-fields" class="space-y-4 mb-4"></div>
+                    <button onclick="saveContacts()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium w-full">บันทึกข้อมูลติดต่อ</button>
+                </div>
+            </div>
+
+        </main>
     </div>
 
-    <!-- Reason Modal -->
-    <div id="modal-reason" class="hide fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl relative dark-mode-surface">
-            <button onclick="closeModal('modal-reason')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <h3 class="text-xl font-bold text-red-600 mb-2">ระบุสาเหตุที่เลื่อนงาน</h3>
-            <input type="hidden" id="delay-job-id">
-            <select id="delay-reason-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 mb-4">
-                <option value="สภาพอากาศไม่อำนวย (ฝนตก/พายุ)">สภาพอากาศไม่อำนวย (ฝนตก/พายุ)</option>
-                <option value="ยานพาหนะ/เครื่องจักรขัดข้อง">ยานพาหนะ/เครื่องจักรขัดข้อง</option>
-                <option value="รอวัสดุอุปกรณ์/อะไหล่">รอวัสดุอุปกรณ์/อะไหล่</option>
-                <option value="ติดภารกิจด่วนฉุกเฉิน">ติดภารกิจด่วนฉุกเฉิน</option>
-                <option value="อื่นๆ (พิมพ์ระบุเองด้านล่าง)">อื่นๆ (พิมพ์ระบุเอง)</option>
-            </select>
-            <input type="text" id="delay-reason-custom" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5 mb-4 hide" placeholder="ระบุสาเหตุ...">
-            <button onclick="confirmDelay()" class="w-full text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-3 text-center transition">บันทึกสถานะเลื่อนงาน</button>
-        </div>
-    </div>
-
+    <!-- Script Logic -->
     <script>
-        // --- การตั้งค่าหลัก ---
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwpmwRdjj3NWSxrzAoPbXJpUxrPZniEMHb8Q35TQ-99ODkCTwS9Y847fmnm6Yot-ww/exec';
-        let isAdmin = false;
+        
         let allJobs = [];
+        let allContacts = [];
+        let isAdmin = false;
+        let currentDate = new Date();
+        let selectedDateStr = null;
 
-        // --- ระบบสลับหน้าต่าง (Tabs) ---
-        function switchTab(tabId) {
-            document.getElementById('tab-current').classList.add('hide');
-            document.getElementById('tab-history').classList.add('hide');
-            document.getElementById('tab-contact').classList.add('hide');
-            
-            document.getElementById('btn-tab-current').className = "px-5 py-2 font-medium rounded-full text-gray-500 hover:bg-gray-100 whitespace-nowrap";
-            document.getElementById('btn-tab-history').className = "px-5 py-2 font-medium rounded-full text-gray-500 hover:bg-gray-100 whitespace-nowrap";
-            document.getElementById('btn-tab-contact').className = "px-5 py-2 font-medium rounded-full text-gray-500 hover:bg-gray-100 whitespace-nowrap";
+        // UI Initialization
+        document.getElementById('f-req-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('sum-month').value = new Date().toISOString().slice(0,7);
 
-            document.getElementById(tabId).classList.remove('hide');
-            document.getElementById('btn-' + tabId).className = "px-5 py-2 font-medium rounded-full bg-red-50 text-red-600 border border-red-100 whitespace-nowrap";
+        function toggleSidebar() {
+            const sb = document.getElementById('sidebar');
+            sb.classList.toggle('sidebar-closed');
+            sb.classList.toggle('sidebar-open');
         }
 
-        // --- ระบบ Login ---
-        function showLoginModal() { document.getElementById('modal-login').classList.remove('hide'); }
-        function closeModal(id) { document.getElementById(id).classList.add('hide'); }
-        function verifyPin() {
-            if (document.getElementById('pin-input').value === '0000') {
-                isAdmin = true;
-                closeModal('modal-login');
-                document.getElementById('btnLogin').classList.add('hide');
-                document.getElementById('btnLogout').classList.remove('hide');
-                document.getElementById('btnAddJob').classList.remove('hide');
-                renderJobs(); // รีเฟรชหน้าจอเพื่อปลดล็อคปุ่มกด
-                alert('เข้าสู่ระบบเจ้าหน้าที่สำเร็จ');
-            } else {
-                alert('รหัสไม่ถูกต้อง');
+        function navTo(pageId) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.add('hide'));
+            document.getElementById(pageId).classList.remove('hide');
+            
+            document.querySelectorAll('.nav-link').forEach(el => {
+                el.classList.remove('bg-gray-800', 'border-l-4', 'border-red-500', 'text-white');
+                el.classList.add('text-gray-400');
+            });
+            event.currentTarget.classList.add('bg-gray-800', 'border-l-4', 'border-red-500', 'text-white');
+            event.currentTarget.classList.remove('text-gray-400');
+            
+            if(window.innerWidth < 1024) toggleSidebar();
+            if(pageId === 'page-queue') { selectedDateStr = null; renderCalendar(); renderQueue(); }
+            if(pageId === 'page-performance') renderPerformance();
+            if(pageId === 'page-summary') generateSummary();
+            
+            // If going to report form, clear it
+            if(pageId === 'page-report') {
+                document.getElementById('job-form').reset();
+                document.getElementById('f-id').value = "";
+                document.getElementById('f-type').value = "";
+                document.querySelectorAll('.task-btn').forEach(b => b.classList.remove('selected'));
+                document.getElementById('form-title').innerText = "📝 แบบฟอร์มแจ้งงาน/ลงคิวงาน";
+                document.getElementById('f-req-date').value = new Date().toISOString().split('T')[0];
             }
         }
+
+        function toggleTheme() { document.body.classList.toggle('dark-mode'); }
+
+        function promptLogin() {
+            const pin = prompt("กรุณากรอกรหัส PIN เจ้าหน้าที่:");
+            if (pin === "0000") {
+                isAdmin = true;
+                document.getElementById('btn-login').classList.add('hide');
+                document.getElementById('btn-logout').classList.remove('hide');
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hide'));
+                renderQueue(); // Refresh view
+                alert("เข้าสู่ระบบเรียบร้อย");
+            } else if (pin) {
+                alert("รหัสไม่ถูกต้อง");
+            }
+        }
+
         function logout() {
             isAdmin = false;
-            document.getElementById('btnLogin').classList.remove('hide');
-            document.getElementById('btnLogout').classList.add('hide');
-            document.getElementById('btnAddJob').classList.add('hide');
-            renderJobs();
+            document.getElementById('btn-login').classList.remove('hide');
+            document.getElementById('btn-logout').classList.add('hide');
+            document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hide'));
+            renderQueue();
         }
 
-        // --- โหมดกลางคืน (Dark Mode) ---
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-        }
-
-        // --- ดึงข้อมูลจาก Google Sheets (Long Polling) ---
-        async function fetchJobQueue() {
+        // Data Fetching
+        async function fetchData() {
             try {
-                const response = await fetch(WEB_APP_URL);
-                allJobs = await response.json();
-                document.getElementById('loading-indicator').classList.add('hide');
-                updateDashboardNumbers();
-                renderJobs();
+                const res = await fetch(WEB_APP_URL);
+                const data = await res.json();
+                allJobs = data.jobs;
+                allContacts = data.contacts;
+                document.getElementById('loading').classList.add('hide');
+                renderCalendar();
+                renderQueue();
+                renderContacts();
             } catch (error) {
-                console.error('Error fetching:', error);
+                console.error(error);
+                document.getElementById('loading').innerHTML = '<div class="text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
             }
         }
 
-        function updateDashboardNumbers() {
-            let w = 0, a = 0, d = 0, l = 0;
-            allJobs.forEach(job => {
-                if (job.status === 'รอดำเนินการ') w++;
-                else if (job.status === 'ลงพื้นที่') a++;
-                else if (job.status === 'เสร็จสิ้นแล้ว') d++;
-                else if (job.status === 'เลื่อนงาน') l++;
-            });
-            document.getElementById('count-wait').innerText = w;
-            document.getElementById('count-action').innerText = a;
-            document.getElementById('count-done').innerText = d;
-            document.getElementById('count-delay').innerText = l;
+        // Calendar Logic
+        function changeMonth(offset) {
+            currentDate.setMonth(currentDate.getMonth() + offset);
+            renderCalendar();
         }
 
-        // --- สร้าง Card งาน HTML ---
-        function buildJobCardHTML(job) {
-            let deptColor = job.department === 'กองช่าง' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700';
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const today = new Date();
             
-            // ประเมินสถานะเพื่อใส่สีให้ไอคอน SVG Timeline
-            let wClass = job.status === 'รอดำเนินการ' ? 'status-wait' : '';
-            let aClass = job.status === 'ลงพื้นที่' ? 'status-action' : '';
-            let dClass = job.status === 'เสร็จสิ้นแล้ว' ? 'status-done' : '';
-            let delClass = job.status === 'เลื่อนงาน' ? 'status-delay' : '';
+            const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+            document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year + 543}`;
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const calGrid = document.getElementById('cal-days');
+            calGrid.innerHTML = '';
+            
+            // Empty slots
+            for (let i = 0; i < firstDay; i++) {
+                calGrid.innerHTML += `<div></div>`;
+            }
+            
+            // Days
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+                
+                // Check if this date has action_date in allJobs
+                const hasTask = allJobs.some(j => j.action_date && j.action_date.startsWith(dateStr) && j.status !== 'เสร็จสิ้นแล้ว');
+                const dotHtml = hasTask ? `<div class="dot-indicator"></div>` : '';
+                
+                let activeClass = (selectedDateStr === dateStr) ? 'active' : '';
+                
+                calGrid.innerHTML += `<div class="cal-day ${activeClass}" onclick="selectDate('${dateStr}')"><span>${i}</span>${dotHtml}</div>`;
+            }
+        }
 
-            // ถ้าเป็นแอดมิน ให้คลิกไอคอนได้
-            let clickW = isAdmin ? `onclick="updateStatus('${job.id}', 'รอดำเนินการ')"` : '';
-            let clickA = isAdmin ? `onclick="updateStatus('${job.id}', 'ลงพื้นที่')"` : '';
-            let clickD = isAdmin ? `onclick="updateStatus('${job.id}', 'เสร็จสิ้นแล้ว')"` : '';
-            let clickDel = isAdmin ? `onclick="promptDelay('${job.id}')"` : '';
+        function selectDate(dateStr) {
+            selectedDateStr = (selectedDateStr === dateStr) ? null : dateStr; // Toggle
+            renderCalendar();
+            renderQueue();
+        }
 
-            let delayReasonBox = '';
-            if (job.status === 'เลื่อนงาน' && job.reason) {
-                delayReasonBox = `<div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700"><b>สาเหตุ:</b> ${job.reason}</div>`;
+        // Task Type Selection
+        function selectType(el, typeStr) {
+            document.querySelectorAll('.task-btn').forEach(b => b.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('f-type').value = typeStr;
+        }
+
+        // Card Builder
+        function buildCard(job) {
+            let statusColor = 'bg-gray-100 text-gray-700';
+            if(job.status === 'รับแจ้ง' || job.status === 'รอดำเนินการ') statusColor = 'bg-yellow-100 text-yellow-700';
+            if(job.status === 'ลงพื้นที่') statusColor = 'bg-blue-100 text-blue-700';
+            if(job.status === 'เสร็จสิ้นแล้ว') statusColor = 'bg-green-100 text-green-700';
+            if(job.status === 'เลื่อนงาน') statusColor = 'bg-red-100 text-red-700';
+
+            let adminButtons = '';
+            if (isAdmin) {
+                adminButtons = `
+                <div class="mt-4 pt-3 border-t border-gray-100 flex flex-wrap gap-2">
+                    <button onclick="editJob('${job.id}')" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-xs font-medium">✏️ แก้ไข</button>
+                    ${job.status !== 'เสร็จสิ้นแล้ว' ? `<button onclick="updateStatus('${job.id}', 'ลงพื้นที่')" class="px-3 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded text-xs font-medium">🚚 ลงพื้นที่</button>
+                    <button onclick="updateStatus('${job.id}', 'เสร็จสิ้นแล้ว')" class="px-3 py-1 bg-green-50 hover:bg-green-100 text-green-700 rounded text-xs font-medium">✅ เสร็จสิ้น</button>` : ''}
+                </div>`;
             }
 
             return `
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 hover:shadow-md transition dark-mode-surface relative">
-                <div class="flex justify-between items-start mb-3">
-                    <span class="px-2.5 py-1 rounded-md text-xs font-bold ${deptColor}">${job.department || 'ไม่ระบุกอง'}</span>
-                    <span class="text-xs text-gray-400">ID: ${job.id}</span>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 dark-mode-surface">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold ${statusColor}">${job.status}</span>
+                    <span class="text-[10px] text-gray-400 font-mono">${job.id}</span>
                 </div>
-                <h3 class="text-lg font-bold mb-1">${job.task_name || 'งานไม่ได้ระบุชื่อ'}</h3>
-                
-                <div class="text-sm text-gray-600 mb-4 space-y-1">
-                    <p>📍 ${job.village || 'ไม่ได้ระบุสถานที่'}</p>
-                    <p>👤 ผู้ร้อง: ${job.requester || '-'}</p>
-                    <p>📅 ดำเนินการ: ${job.action_date ? new Date(job.action_date).toLocaleDateString('th-TH') : '-'}</p>
+                <h3 class="font-bold text-lg leading-tight mb-1">${job.task_type}</h3>
+                <p class="text-xs text-red-600 font-medium mb-3">${job.urgency !== 'ปกติ' ? '🚨 ความเร่งด่วน: ' + job.urgency : ''}</p>
+                <div class="text-xs text-gray-600 space-y-1 mb-2">
+                    <p>📍 ${job.village} ${job.location ? `(${job.location})` : ''}</p>
+                    <p>📝 ${job.problem_details}</p>
+                    <p>👤 ผู้แจ้ง: ${job.requester || '-'}</p>
+                    <p>🗓️ วันลงพื้นที่: <b>${job.action_date ? new Date(job.action_date).toLocaleDateString('th-TH') : 'ยังไม่ระบุ'}</b></p>
+                    <p>🏢 กอง: ${job.department || 'รอมอบหมาย'}</p>
                 </div>
-
-                <!-- SVG Timeline -->
-                <div class="relative pt-2 pb-2 mb-2">
-                    <div class="timeline-line"></div>
-                    <div class="flex justify-between relative z-10">
-                        <div class="text-center timeline-step ${wClass}" ${clickW} title="รอดำเนินการ">
-                            <div class="timeline-icon shadow-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg></div>
-                            <div class="text-[10px] mt-1 text-gray-500 font-medium">รอคิว</div>
-                        </div>
-                        <div class="text-center timeline-step ${aClass}" ${clickA} title="ลงพื้นที่">
-                            <div class="timeline-icon shadow-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg></div>
-                            <div class="text-[10px] mt-1 text-gray-500 font-medium">ลงพื้นที่</div>
-                        </div>
-                        <div class="text-center timeline-step ${dClass}" ${clickD} title="เสร็จสิ้นแล้ว">
-                            <div class="timeline-icon shadow-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg></div>
-                            <div class="text-[10px] mt-1 text-gray-500 font-medium">เสร็จสิ้น</div>
-                        </div>
-                        <div class="text-center timeline-step ${delClass}" ${clickDel} title="เลื่อนงาน">
-                            <div class="timeline-icon shadow-sm"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>
-                            <div class="text-[10px] mt-1 text-gray-500 font-medium">เลื่อน</div>
-                        </div>
-                    </div>
-                </div>
-                ${delayReasonBox}
-            </div>
-            `;
+                ${adminButtons}
+            </div>`;
         }
 
-        function renderJobs() {
-            const currentContainer = document.getElementById('job-container');
-            const historyContainer = document.getElementById('history-container');
-            currentContainer.innerHTML = '';
-            historyContainer.innerHTML = '';
+        // Render Queue
+        function renderQueue() {
+            const container = document.getElementById('queue-container');
+            const vFilter = document.getElementById('filter-village').value;
+            const title = document.getElementById('queue-title');
+            
+            let filtered = allJobs.filter(j => j.status !== 'เสร็จสิ้นแล้ว');
+            
+            if (vFilter !== 'all') filtered = filtered.filter(j => j.village === vFilter);
+            if (selectedDateStr) {
+                filtered = filtered.filter(j => j.action_date && j.action_date.startsWith(selectedDateStr));
+                title.innerText = `คิวงานวันที่ ${new Date(selectedDateStr).toLocaleDateString('th-TH')}`;
+            } else {
+                title.innerText = "คิวงานทั้งหมดที่รอดำเนินการ";
+            }
 
-            let hasCurrent = false;
-            let hasHistory = false;
+            container.innerHTML = filtered.length ? filtered.map(buildCard).join('') : '<p class="col-span-full text-gray-400 text-center py-6">ไม่มีคิวงานในเงื่อนไขที่เลือก</p>';
+        }
 
-            // เอาข้อมูลใหม่ล่าสุดขึ้นก่อน
-            const reversedJobs = [...allJobs].reverse();
+        // Action: Submit Form (Add/Edit)
+        async function submitJob(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-submit-form');
+            btn.innerText = "กำลังบันทึก..."; btn.disabled = true;
 
-            reversedJobs.forEach(job => {
-                if (job.status === 'เสร็จสิ้นแล้ว' || job.status === 'เลื่อนงาน') {
-                    historyContainer.innerHTML += buildJobCardHTML(job);
-                    hasHistory = true;
-                } else {
-                    currentContainer.innerHTML += buildJobCardHTML(job);
-                    hasCurrent = true;
+            const id = document.getElementById('f-id').value;
+            const payload = {
+                action: id ? 'edit' : 'add',
+                id: id,
+                task_type: document.getElementById('f-type').value,
+                request_date: document.getElementById('f-req-date').value,
+                village: document.getElementById('f-village').value,
+                problem_details: document.getElementById('f-details').value,
+                location: document.getElementById('f-location').value,
+                urgency: document.getElementById('f-urgency').value,
+                requester: document.getElementById('f-requester').value,
+                department: document.getElementById('f-dept').value,
+                action_date: document.getElementById('f-act-date').value
+            };
+
+            await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+            alert("บันทึกข้อมูลสำเร็จ!");
+            btn.innerText = "ส่งข้อมูลแจ้งงาน"; btn.disabled = false;
+            
+            await fetchData();
+            navTo('page-queue');
+        }
+
+        // Action: Edit Clicked
+        function editJob(id) {
+            const job = allJobs.find(j => j.id === id);
+            if(!job) return;
+            
+            navTo('page-report');
+            document.getElementById('form-title').innerText = "✏️ แก้ไขข้อมูลคิวงาน";
+            document.getElementById('f-id').value = job.id;
+            
+            // Select Type Icon
+            document.querySelectorAll('.task-btn').forEach(b => {
+                b.classList.remove('selected');
+                if(b.innerText.includes(job.task_type)) {
+                    b.classList.add('selected');
+                    document.getElementById('f-type').value = job.task_type;
                 }
             });
 
-            if (!hasCurrent) currentContainer.innerHTML = '<div class="col-span-full text-center text-gray-400 py-8">ไม่มีคิวงานที่กำลังดำเนินการ</div>';
-            if (!hasHistory) historyContainer.innerHTML = '<div class="col-span-full text-center text-gray-400 py-8">ไม่มีประวัติงาน</div>';
-        }
-
-        // --- การอัปเดตสถานะ ---
-        async function updateStatus(jobId, newStatus, reason = "") {
-            if(!isAdmin) return;
+            document.getElementById('f-req-date').value = job.request_date ? new Date(job.request_date).toISOString().split('T')[0] : '';
+            document.getElementById('f-village').value = job.village;
+            document.getElementById('f-details').value = job.problem_details;
+            document.getElementById('f-location').value = job.location;
+            document.getElementById('f-urgency').value = job.urgency;
+            document.getElementById('f-requester').value = job.requester;
             
-            // Optimistic UI update locally first
-            const jobIndex = allJobs.findIndex(j => j.id === jobId);
-            if(jobIndex > -1) {
-                allJobs[jobIndex].status = newStatus;
-                allJobs[jobIndex].reason = reason;
-                updateDashboardNumbers();
-                renderJobs();
+            if (isAdmin) {
+                document.getElementById('f-dept').value = job.department;
+                document.getElementById('f-act-date').value = job.action_date ? new Date(job.action_date).toISOString().split('T')[0] : '';
             }
-
-            // Post to sheet
-            const payload = { action: 'update', id: jobId, status: newStatus, reason: reason };
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            }).then(() => fetchJobQueue()); // re-sync
         }
 
-        function promptDelay(jobId) {
-            document.getElementById('delay-job-id').value = jobId;
-            document.getElementById('modal-reason').classList.remove('hide');
-        }
-
-        document.getElementById('delay-reason-select').addEventListener('change', function() {
-            if(this.value.includes('อื่นๆ')) {
-                document.getElementById('delay-reason-custom').classList.remove('hide');
-            } else {
-                document.getElementById('delay-reason-custom').classList.add('hide');
-            }
-        });
-
-        function confirmDelay() {
-            const jobId = document.getElementById('delay-job-id').value;
-            let reason = document.getElementById('delay-reason-select').value;
-            if(reason.includes('อื่นๆ')) reason = document.getElementById('delay-reason-custom').value || 'ไม่ได้ระบุเหตุผล';
-            
-            updateStatus(jobId, 'เลื่อนงาน', reason);
-            closeModal('modal-reason');
-        }
-
-        // --- การเพิ่มงานใหม่ ---
-        function showAddModal() { document.getElementById('modal-add').classList.remove('hide'); }
-        
-        async function submitNewJob() {
-            const btn = event.target;
-            btn.innerText = "กำลังบันทึก...";
-            btn.disabled = true;
-
-            const payload = {
-                action: 'add',
-                task_name: document.getElementById('input-task').value || 'ไม่ระบุชื่อภารกิจ',
-                department: document.getElementById('input-dept').value,
-                village: document.getElementById('input-village').value,
-                requester: document.getElementById('input-requester').value,
-                request_date: document.getElementById('input-req-date').value,
-                action_date: document.getElementById('input-act-date').value
-            };
+        // Action: Update Status (Quick)
+        async function updateStatus(id, newStatus) {
+            const jobIndex = allJobs.findIndex(j => j.id === id);
+            allJobs[jobIndex].status = newStatus;
+            renderQueue(); // Optimistic
 
             await fetch(WEB_APP_URL, {
                 method: 'POST',
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ action: 'update_status', id: id, status: newStatus })
             });
-
-            closeModal('modal-add');
-            
-            // เคลียร์ฟอร์ม
-            document.getElementById('input-task').value = '';
-            document.getElementById('input-village').value = '';
-            document.getElementById('input-requester').value = '';
-            
-            btn.innerText = "บันทึกคิวงาน";
-            btn.disabled = false;
-
-            fetchJobQueue(); // โหลดข้อมูลใหม่
+            fetchData();
         }
 
-        // --- เริ่มต้นการทำงาน ---
-        // ตั้งค่าวันที่ปัจจุบันให้ช่องวันที่โดยอัตโนมัติ
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('input-req-date').value = today;
-        document.getElementById('input-act-date').value = today;
+        // Search & Performance & Summary Logic
+        function performSearch() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const container = document.getElementById('search-container');
+            if(q.length < 2) { container.innerHTML = ''; return; }
+            
+            const results = allJobs.filter(j => 
+                (j.requester && j.requester.toLowerCase().includes(q)) || 
+                (j.task_type && j.task_type.toLowerCase().includes(q)) || 
+                (j.problem_details && j.problem_details.toLowerCase().includes(q))
+            );
+            container.innerHTML = results.map(buildCard).join('');
+        }
 
-        fetchJobQueue();
-        setInterval(fetchJobQueue, 10000); // ดึงข้อมูลทุก 10 วินาทีเพื่อความเรียลไทม์
+        function renderPerformance() {
+            const container = document.getElementById('perf-container');
+            const doneJobs = allJobs.filter(j => j.status === 'เสร็จสิ้นแล้ว');
+            
+            // Group by Month-Year (YYYY-MM)
+            const grouped = {};
+            doneJobs.forEach(job => {
+                if(!job.action_date) return;
+                const d = new Date(job.action_date);
+                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+                if(!grouped[key]) grouped[key] = [];
+                grouped[key].push(job);
+            });
+
+            container.innerHTML = '';
+            Object.keys(grouped).sort().reverse().forEach(monthKey => {
+                const [y, m] = monthKey.split('-');
+                const monthName = new Date(y, m-1).toLocaleString('th-TH', { month: 'long', year: 'numeric' });
+                
+                let html = `<div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-lg mb-3 border-b pb-2 text-red-700">📅 ${monthName} (${grouped[monthKey].length} งาน)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        ${grouped[monthKey].map(j => `
+                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 text-sm">
+                                <b>${j.task_type}</b> -${j.village}<br>
+                                <span class="text-xs text-gray-500">ดำเนินการ: ${new Date(j.action_date).toLocaleDateString('th-TH')} \vert{} กอง: ${j.department}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>`;
+                container.innerHTML += html;
+            });
+            if(!container.innerHTML) container.innerHTML = '<p class="text-gray-500">ไม่มีข้อมูลงานที่เสร็จสิ้น</p>';
+        }
+
+        function generateSummary() {
+            const monthStr = document.getElementById('sum-month').value; // YYYY-MM
+            const dept = document.getElementById('sum-dept').value;
+            
+            let filtered = allJobs.filter(j => j.status === 'เสร็จสิ้นแล้ว' && j.action_date && j.action_date.startsWith(monthStr));
+            if(dept !== 'all') filtered = filtered.filter(j => j.department === dept);
+
+            const total = filtered.length;
+            
+            // Count by type
+            const typeCounts = {};
+            filtered.forEach(j => { typeCounts[j.task_type] = (typeCounts[j.task_type] || 0) + 1; });
+
+            document.getElementById('sum-stats').innerHTML = `
+                <div class="bg-blue-100 p-4 rounded-xl text-center"><p class="text-xs text-blue-700 font-bold">งานทั้งหมด</p><h3 class="text-2xl font-bold text-blue-800">${total}</h3></div>
+            `;
+            
+            const ul = document.getElementById('sum-types');
+            ul.innerHTML = Object.keys(typeCounts).map(k => `
+                <li class="flex justify-between p-2 hover:bg-gray-50 rounded border-b border-gray-100">
+                    <span>${k}</span> <span class="font-bold text-red-600">${typeCounts[k]} งาน</span>
+                </li>
+            `).join('');
+            if(!total) ul.innerHTML = '<p class="text-gray-500 p-2">ไม่มีข้อมูลในเดือนนี้</p>';
+        }
+
+        // Contacts Logic
+        function renderContacts() {
+            const container = document.getElementById('contact-container');
+            container.innerHTML = allContacts.map(c => `
+                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="font-bold text-lg text-red-700 mb-2">${c.dept}</h3>
+                    <p class="text-sm text-gray-600">📱 ${c.phone1}</p>
+                    <p class="text-sm text-gray-600">☎️ ${c.phone2}</p>
+                </div>
+            `).join('');
+        }
+
+        function editContacts() {
+            document.getElementById('contact-editor').classList.remove('hide');
+            const fields = document.getElementById('contact-fields');
+            fields.innerHTML = allContacts.map((c, i) => `
+                <div class="p-3 bg-gray-50 rounded border">
+                    <input type="text" id="c-dept-${i}" value="${c.dept}" class="font-bold bg-transparent border-b border-gray-300 w-full mb-2">
+                    <input type="text" id="c-p1-${i}" value="${c.phone1}" class="text-sm bg-transparent border-b border-gray-300 w-full mb-1" placeholder="เบอร์ 1">
+                    <input type="text" id="c-p2-${i}" value="${c.phone2}" class="text-sm bg-transparent border-b border-gray-300 w-full" placeholder="เบอร์ 2">
+                </div>
+            `).join('');
+        }
+
+        async function saveContacts() {
+            const newContacts = [];
+            for(let i=0; i<allContacts.length; i++) {
+                newContacts.push({
+                    dept: document.getElementById(`c-dept-${i}`).value,
+                    phone1: document.getElementById(`c-p1-${i}`).value,
+                    phone2: document.getElementById(`c-p2-${i}`).value
+                });
+            }
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'update_contacts', contacts: newContacts })
+            });
+            alert('บันทึกเบอร์ติดต่อสำเร็จ');
+            document.getElementById('contact-editor').classList.add('hide');
+            fetchData();
+        }
+
+        // Init
+        fetchData();
+        setInterval(fetchData, 15000); // Auto-refresh every 15s
     </script>
 </body>
 </html>
