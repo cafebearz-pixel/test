@@ -62,7 +62,7 @@
         .cal-day.active { border: 2px solid #ef4444; background-color: #fff1ec; box-shadow: 0 0 0 3px rgba(239,68,68,.12); }
         html.dark .cal-day.active { background-color:#2a1512; }
         .cal-day.is-today-cell { border-color:#f59e0b; }
-        .cal-task-badge { font-size: 9.5px; padding: 2px 5px; margin-bottom: 2px; border-radius: 5px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; font-weight:600; }
+        .cal-task-badge { font-size: 11px; padding: 3px 5px; margin-bottom: 3px; border-radius: 5px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; justify-content: space-between; font-weight:600; }
         .badge-normal { background:#fee2e2; color:#b91c1c; }
         .badge-delay { background:#fef3c7; color:#b45309; }
         .badge-done { background:#dcfce7; color:#15803d; }
@@ -126,7 +126,7 @@
             <a href="#" onclick="navTo('page-summary')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition text-gray-400">📊 สรุปรายงาน</a>
             <a href="#" onclick="navTo('page-contacts')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition text-gray-400">📞 เบอร์ติดต่อ</a>
         </nav>
-        <div class="p-4 text-[10px] text-gray-600 border-t border-white/10">ระบบบริหารคิวงาน • v2</div>
+        <div class="p-4 text-[10px] text-gray-600 border-t border-white/10">ระบบบริหารคิวงาน • v3</div>
     </aside>
 
     <!-- Main Content -->
@@ -159,7 +159,7 @@
         </header>
 
         <!-- Dynamic Pages Container -->
-        <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-20 relative">
+        <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-20 relative custom-scrollbar">
             <div id="loading" class="absolute inset-0 bg-white/80 dark:bg-black/80 z-50 flex flex-col items-center justify-center">
                 <svg class="animate-spin h-10 w-10 text-red-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                 <span class="text-gray-400">กำลังเชื่อมต่อข้อมูล...</span>
@@ -291,18 +291,18 @@
                 </div>
             </div>
 
-            <!-- Page: Performance (Done Tasks) -->
+            <!-- Page: Performance (Done Tasks / Filtered) -->
             <div id="page-performance" class="page-section hide">
                 <h2 class="text-xl font-bold mb-4">✅ ผลการดำเนินงาน</h2>
                 <div id="perf-bignumbers" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
-                <div id="perf-container" class="space-y-6"></div>
+                <div id="perf-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mt-6"></div>
             </div>
 
             <!-- Page: Search -->
             <div id="page-search" class="page-section hide">
                 <h2 class="text-xl font-bold mb-4">🔍 ค้นหางานย้อนหลัง</h2>
-                <input type="text" id="search-input" onkeyup="performSearch()" placeholder="พิมพ์ชื่อผู้ร้อง, ประเภทงาน, หรือรายละเอียด..." class="input-field mb-4 text-sm rounded-lg w-full p-3 shadow-sm">
-                <div id="search-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <input type="text" id="search-input" onkeyup="performSearch()" placeholder="พิมพ์ชื่อผู้ร้อง, ประเภทงาน, สถานที่ หรือรายละเอียด..." class="input-field mb-6 text-sm rounded-lg w-full p-3 shadow-sm border-2 border-red-500/30 focus:border-red-500 outline-none transition">
+                <div id="search-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
             <!-- Page: Summary -->
@@ -346,12 +346,12 @@
                 </div>
                 <div id="contact-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
 
-                <div id="contact-editor" class="hide mt-6 surface p-4 rounded-2xl">
-                    <h3 class="font-bold mb-3">แก้ไขข้อมูลติดต่อ</h3>
-                    <div id="contact-fields" class="space-y-4 mb-4"></div>
+                <div id="contact-editor" class="hide mt-6 surface p-5 rounded-2xl">
+                    <h3 class="font-bold mb-4 text-red-600 dark:text-red-400">✏️ แก้ไขข้อมูลติดต่อ</h3>
+                    <div id="contact-fields" class="space-y-4 mb-6"></div>
                     <div class="flex gap-2">
-                        <button onclick="saveContacts()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium flex-1">บันทึกข้อมูลติดต่อ</button>
-                        <button onclick="document.getElementById('contact-editor').classList.add('hide')" class="bg-gray-200 dark:bg-white/10 px-4 py-2 rounded-lg font-medium">ยกเลิก</button>
+                        <button onclick="saveContacts()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium flex-1 shadow transition">บันทึกข้อมูลติดต่อทั้งหมด</button>
+                        <button onclick="document.getElementById('contact-editor').classList.add('hide')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20 px-6 py-2.5 rounded-lg font-medium transition">ยกเลิก</button>
                     </div>
                 </div>
             </div>
@@ -375,7 +375,7 @@
                     <input type="date" id="pp-new-date" required class="input-field text-sm rounded-lg w-full p-2.5">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg py-2.5">ยืนยันการเลื่อน</button>
+                    <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg py-2.5 shadow">ยืนยันการเลื่อน</button>
                     <button type="button" onclick="closePostponeModal()" class="bg-gray-200 dark:bg-white/10 px-4 rounded-lg font-medium">ยกเลิก</button>
                 </div>
             </form>
@@ -430,6 +430,14 @@
         let isAdmin = false;
         let currentDate = new Date();
         let selectedDateStr = null;
+        let activePerfFilter = 'เสร็จสิ้นแล้ว'; // ค่าเริ่มต้นหน้าผลดำเนินงาน
+
+        // ไอคอนประเภทงาน (Mapping)
+        const taskIconsMap = {
+            'ตัดกิ่งไม้': '🌳', 'ซ่อมไฟรายทาง': '💡', 'ซ่อมถนน': '🛣️',
+            'ประปา/ท่อ': '🚰', 'งานก่อสร้าง': '🏗️', 'ตัดหญ้า/ภูมิทัศน์': '✂️',
+            'ป้องกัน/สาธารณภัย': '🚒', 'จับสัตว์มีพิษ': '🐍', 'อื่นๆ': '📝'
+        };
 
         // ---------- Theme ----------
         function initTheme() {
@@ -476,8 +484,14 @@
             if(window.innerWidth < 1024) document.getElementById('sidebar').classList.add('sidebar-hidden');
 
             if(pageId === 'page-queue') { selectedDateStr = null; renderCalendar(); renderQueue(); }
-            if(pageId === 'page-performance') renderPerformance();
+            if(pageId === 'page-performance') { activePerfFilter = 'เสร็จสิ้นแล้ว'; renderPerformance(); }
             if(pageId === 'page-summary') generateSummary();
+            
+            // Search Page: แสดงข้อมูลทั้งหมดก่อนพิมพ์
+            if(pageId === 'page-search') {
+                document.getElementById('search-input').value = '';
+                performSearch();
+            }
 
             if(pageId === 'page-report' && !isEdit) {
                 document.getElementById('job-form').reset();
@@ -511,6 +525,7 @@
             document.getElementById('btn-logout').classList.add('hide');
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hide'));
             renderQueue();
+            renderPerformance();
             renderContacts();
         }
 
@@ -523,19 +538,23 @@
                     if(j.status === 'ลงพื้นที่') j.status = 'กำลังดำเนินการ';
                     return j;
                 });
+                
+                // Contacts Data Mapping
                 allContacts = (data.contacts || []).map(c => ({
-                    id: c.id || (c.dept + '-' + Math.random().toString(36).slice(2,7)),
-                    fullname: c.fullname || c.dept || '',
+                    id: c.id || ('c-' + Math.random().toString(36).slice(2,7)),
+                    fullname: c.fullname || c.name || c.dept || '', 
                     nickname: c.nickname || '',
                     position: c.position || '',
                     dept: c.dept || '',
-                    phone: c.phone || c.phone1 || '',
-                    phone2: c.phone2 || ''
+                    phone: c.phone || c.phone1 || c.tel || ''
                 }));
+                
                 document.getElementById('loading').classList.add('hide');
                 renderCalendar();
                 renderQueue();
+                renderPerformance();
                 renderContacts();
+                if(!document.getElementById('page-search').classList.contains('hide')) performSearch();
             } catch (error) {
                 console.error(error);
                 document.getElementById('loading').innerHTML = '<div class="text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล</div>';
@@ -570,8 +589,10 @@
                 let tasksHtml = '';
                 dayJobs.forEach(j => {
                     let shortVillage = j.village.replace('หมู่ที่ ', 'ม.');
+                    let icon = taskIconsMap[j.task_type] || '📌';
                     let cls = j.status === 'เลื่อน' ? 'badge-delay' : (j.status === 'เสร็จสิ้นแล้ว' ? 'badge-done' : 'badge-normal');
-                    tasksHtml += `<span class="cal-task-badge ${cls}" title="${j.task_type} ${j.village}">${j.task_type} ${shortVillage}</span>`;
+                    // ปรับการแสดงผล: แสดงแค่ "ม.x + ไอคอน" ตามที่ร้องขอ
+                    tasksHtml += `<span class="cal-task-badge ${cls}" title="${j.task_type} (${j.village})"><span>${shortVillage}</span> <span>${icon}</span></span>`;
                 });
 
                 let activeClass = (selectedDateStr === dateStr) ? 'active' : '';
@@ -606,7 +627,8 @@
             truck: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>`,
             check: `<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>`,
             pause: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
-            phone: `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`
+            phone: `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`,
+            trash: `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`
         };
 
         function buildCard(job) {
@@ -628,7 +650,7 @@
 
                 if(job.status === 'เสร็จสิ้นแล้ว') {
                     timeBadge = `<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-lg text-xs font-bold shadow-sm">✅ เสร็จสิ้นวันนี้</span>`;
-                    isToday = true;
+                    if(diffDays === 0) isToday = true;
                 } else if(diffDays === 0) {
                     timeBadge = `<span class="px-2 py-1 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-300 rounded-lg text-xs font-bold shadow-sm">🚨 คิววันนี้</span>`;
                     isToday = true;
@@ -668,7 +690,7 @@
             }
 
             return `
-            <div class="surface rounded-2xl p-5 relative transition-all duration-300 ${isToday ? 'animate-float' : 'hover:shadow-md'}">
+            <div class="surface rounded-2xl p-5 relative transition-all duration-300 ${isToday && job.status !== 'เสร็จสิ้นแล้ว' ? 'animate-float' : 'hover:shadow-md'}">
                 ${adminButtons}
                 <div class="flex items-center gap-2 mb-4 pr-16 flex-wrap">
                     ${timeBadge}
@@ -718,7 +740,6 @@
             const title = document.getElementById('queue-title');
             const tStr = todayStr();
 
-            // Jobs not yet done, OR done today (stays visible until next day)
             let filtered = allJobs.filter(j => j.status !== 'เสร็จสิ้นแล้ว' || (j.action_date && j.action_date.startsWith(tStr)));
 
             if (vFilter !== 'all') filtered = filtered.filter(j => j.village === vFilter);
@@ -792,7 +813,10 @@
             const jobIndex = allJobs.findIndex(j => j.id === id);
             allJobs[jobIndex].status = newStatus;
             if (newStatus !== 'เลื่อน') allJobs[jobIndex].delay_reason = '';
+            
+            // รีเฟรชทั้ง 2 หน้าที่มี Card เพื่อความเนียน
             renderQueue();
+            renderPerformance();
             renderCalendar();
 
             await fetch(WEB_APP_URL, {
@@ -828,6 +852,7 @@
             }
             closePostponeModal();
             renderQueue();
+            renderPerformance();
             renderCalendar();
 
             await fetch(WEB_APP_URL, {
@@ -838,6 +863,11 @@
         }
 
         // ---------- Performance ----------
+        function setPerfFilter(status) {
+            activePerfFilter = status;
+            renderPerformance();
+        }
+
         function renderPerformance() {
             const counts = { 'รับเรื่อง':0, 'กำลังดำเนินการ':0, 'เสร็จสิ้นแล้ว':0, 'เลื่อน':0 };
             allJobs.forEach(j => { if(counts.hasOwnProperty(j.status)) counts[j.status]++; });
@@ -850,7 +880,7 @@
             ];
 
             document.getElementById('perf-bignumbers').innerHTML = cards.map(c => `
-                <div class="stat-card surface">
+                <div class="stat-card surface cursor-pointer hover:scale-[1.03] transition transform ${activePerfFilter === c.label ? 'ring-2 ring-red-500' : ''}" onclick="setPerfFilter('${c.label}')">
                     <div class="absolute -right-3 -top-3 w-20 h-20 rounded-full bg-gradient-to-br ${c.color} opacity-10"></div>
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${c.color} text-white flex items-center justify-center mb-3 shadow">${c.icon}</div>
                     <div class="text-3xl font-extrabold">${c.val}</div>
@@ -859,41 +889,30 @@
             `).join('');
 
             const container = document.getElementById('perf-container');
-            const doneJobs = allJobs.filter(j => j.status === 'เสร็จสิ้นแล้ว');
+            const filteredJobs = allJobs.filter(j => j.status === activePerfFilter);
 
-            const grouped = {};
-            doneJobs.forEach(job => {
-                if(!job.action_date) return;
-                const d = new Date(job.action_date);
-                const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-                if(!grouped[key]) grouped[key] = [];
-                grouped[key].push(job);
-            });
+            if (filteredJobs.length > 0) {
+                container.innerHTML = filteredJobs.map(buildCard).join('');
+            } else {
+                container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10 surface rounded-2xl border-dashed">ไม่มีคิวงานสถานะ: <b>${activePerfFilter}</b></div>`;
+            }
+        }
 
-            container.innerHTML = '';
-            Object.keys(grouped).sort().reverse().forEach(monthKey => {
-                const [y, m] = monthKey.split('-');
-                const monthName = new Date(y, m-1).toLocaleString('th-TH', { month: 'long', year: 'numeric' });
-
-                container.innerHTML += `<div class="surface p-5 rounded-2xl">
-                    <h3 class="font-bold text-lg mb-4 border-b border-black/5 dark:border-white/10 pb-2 text-green-600 dark:text-green-400 flex justify-between">
-                        <span>📅 ${monthName}</span> <span class="text-sm bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">${grouped[monthKey].length} งาน</span>
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        ${grouped[monthKey].map(j => `
-                            <div class="p-3 surface-alt rounded-xl text-sm flex gap-3">
-                                <div class="text-2xl mt-1">✅</div>
-                                <div>
-                                    <b class="text-base">${j.task_type}</b><br>
-                                    <span class="text-gray-400">${j.village}</span><br>
-                                    <span class="text-xs text-gray-400">ดำเนินการ: ${new Date(j.action_date).toLocaleDateString('th-TH')} | กอง: ${j.department}</span>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>`;
-            });
-            if(!container.innerHTML) container.innerHTML = '<p class="text-gray-400 text-center py-10">ไม่มีข้อมูลงานที่เสร็จสิ้น</p>';
+        // ---------- Search ----------
+        function performSearch() {
+            const q = document.getElementById('search-input').value.toLowerCase();
+            const container = document.getElementById('search-container');
+            
+            let results = allJobs;
+            if(q !== '') {
+                results = allJobs.filter(j =>
+                    (j.requester && j.requester.toLowerCase().includes(q)) ||
+                    (j.task_type && j.task_type.toLowerCase().includes(q)) ||
+                    (j.problem_details && j.problem_details.toLowerCase().includes(q)) ||
+                    (j.village && j.village.toLowerCase().includes(q))
+                );
+            }
+            container.innerHTML = results.length ? results.map(buildCard).join('') : '<div class="col-span-full text-center text-gray-400 py-10 surface rounded-2xl">ไม่พบข้อมูลที่ค้นหา</div>';
         }
 
         // ---------- Summary + export ----------
@@ -967,19 +986,6 @@
             pdf.save(`summary_${monthStr}_${deptLabel}.pdf`);
         }
 
-        function performSearch() {
-            const q = document.getElementById('search-input').value.toLowerCase();
-            const container = document.getElementById('search-container');
-            if(q.length < 2) { container.innerHTML = ''; return; }
-
-            const results = allJobs.filter(j =>
-                (j.requester && j.requester.toLowerCase().includes(q)) ||
-                (j.task_type && j.task_type.toLowerCase().includes(q)) ||
-                (j.problem_details && j.problem_details.toLowerCase().includes(q))
-            );
-            container.innerHTML = results.map(buildCard).join('');
-        }
-
         // ---------- Contacts ----------
         function renderContacts() {
             const container = document.getElementById('contact-container');
@@ -995,10 +1001,11 @@
                     </div>
                     <div class="flex items-center justify-between mt-2 p-3 surface-alt rounded-xl">
                         <span class="text-sm font-semibold">${c.phone || '-'}</span>
-                        ${c.phone ? `<a href="tel:${c.phone}" class="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow">${icons.phone} โทร</a>` : ''}
+                        ${c.phone ? `<a href="tel:${c.phone}" class="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow transition">${icons.phone} โทร</a>` : ''}
                     </div>
                 </div>
             `).join('');
+            if(!allContacts.length) container.innerHTML = '<div class="col-span-full text-center text-gray-400">ยังไม่มีเบอร์ติดต่อ</div>';
         }
 
         function openContactAddModal() {
@@ -1039,14 +1046,25 @@
             document.getElementById('contact-editor').classList.remove('hide');
             const fields = document.getElementById('contact-fields');
             fields.innerHTML = allContacts.map((c, i) => `
-                <div class="p-4 surface-alt rounded-xl grid grid-cols-2 gap-2">
-                    <input type="text" id="c-fullname-${i}" value="${c.fullname || ''}" placeholder="ชื่อจริง" class="input-field font-bold col-span-2 p-2 rounded-lg text-sm">
-                    <input type="text" id="c-nickname-${i}" value="${c.nickname || ''}" placeholder="ชื่อเล่น" class="input-field p-2 rounded-lg text-sm">
-                    <input type="text" id="c-position-${i}" value="${c.position || ''}" placeholder="ตำแหน่ง" class="input-field p-2 rounded-lg text-sm">
-                    <input type="text" id="c-dept-${i}" value="${c.dept || ''}" placeholder="กอง" class="input-field p-2 rounded-lg text-sm">
-                    <input type="text" id="c-phone-${i}" value="${c.phone || ''}" placeholder="เบอร์โทร" class="input-field p-2 rounded-lg text-sm">
+                <div class="p-4 surface-alt rounded-xl flex flex-col gap-2 relative">
+                    <button onclick="removeContact(${i})" class="absolute top-2 right-2 text-red-500 hover:text-red-700 bg-red-100 p-1.5 rounded-lg transition" title="ลบข้อมูล">${icons.trash}</button>
+                    <div class="grid grid-cols-2 gap-2 mt-4 md:mt-0 pr-8 md:pr-10">
+                        <input type="text" id="c-fullname-${i}" value="${c.fullname || ''}" placeholder="ชื่อจริง/ชื่อหน่วยงาน" class="input-field font-bold col-span-2 md:col-span-1 p-2 rounded-lg text-sm">
+                        <input type="text" id="c-nickname-${i}" value="${c.nickname || ''}" placeholder="ชื่อเล่น" class="input-field p-2 rounded-lg text-sm">
+                        <input type="text" id="c-position-${i}" value="${c.position || ''}" placeholder="ตำแหน่ง" class="input-field p-2 rounded-lg text-sm">
+                        <input type="text" id="c-dept-${i}" value="${c.dept || ''}" placeholder="กอง" class="input-field p-2 rounded-lg text-sm">
+                        <input type="text" id="c-phone-${i}" value="${c.phone || ''}" placeholder="เบอร์โทร" class="input-field col-span-2 p-2 rounded-lg text-sm font-semibold text-blue-600 dark:text-blue-400">
+                    </div>
                 </div>
             `).join('');
+            if(!allContacts.length) fields.innerHTML = '<div class="text-sm text-gray-400 text-center">ไม่มีเบอร์โทรศัพท์ให้แก้ไข</div>';
+        }
+
+        function removeContact(index) {
+            if(confirm('คุณแน่ใจหรือไม่ว่าต้องการลบเบอร์ติดต่อนิ้?')) {
+                allContacts.splice(index, 1);
+                editContacts(); // รีเรนเดอร์หน้าแก้ไข
+            }
         }
 
         async function saveContacts() {
@@ -1061,6 +1079,9 @@
                     phone: document.getElementById(`c-phone-${i}`).value
                 });
             }
+            allContacts = newContacts; // อัปเดตในเครื่อง
+            renderContacts();
+
             await fetch(WEB_APP_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'update_contacts', contacts: newContacts })
