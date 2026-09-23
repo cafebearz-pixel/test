@@ -5,89 +5,153 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>คิวงานซ่อมบำรุงและบรรเทาสาธารณภัย - อบต.ชำผักแพว</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Export libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body { font-family: 'Prompt', sans-serif; background-color: #f4f6f9; color: #1e293b; overflow: hidden; }
-        
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f7f4f0;
+            color: #1c1410;
+            overflow: hidden;
+            transition: background-color .35s ease, color .35s ease;
+        }
+        html.dark body { background-color: #0a0908; color: #f2ece5; }
+
         /* Sidebar transition */
         #sidebar { transition: margin-left 0.3s ease-in-out; }
-        .sidebar-hidden { margin-left: -16rem; }
-        
+        .sidebar-hidden { margin-left: -17rem; }
+
+        /* Cards / surfaces */
+        .surface {
+            background: #ffffff;
+            border: 1px solid #ece5dc;
+            box-shadow: 0 2px 10px -4px rgba(28,20,16,0.06);
+            transition: background-color .3s ease, border-color .3s ease;
+        }
+        html.dark .surface {
+            background: #17130f;
+            border-color: #2b2319;
+            box-shadow: 0 4px 18px -6px rgba(0,0,0,0.55);
+        }
+        .surface-alt {
+            background: #fbf8f4;
+            border: 1px solid #f0e9df;
+        }
+        html.dark .surface-alt {
+            background: #1d1712;
+            border-color: #322920;
+        }
+
         /* Custom Calendar Grid */
-        .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
-        .cal-day { min-height: 100px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start; padding: 4px; border: 1px solid #e2e8f0; background: white; cursor: pointer; transition: background 0.2s; }
-        .cal-day:hover { background-color: #f8fafc; }
-        .cal-day.active { border: 2px solid #ef4444; background-color: #fff1f2; }
-        .cal-task-badge { font-size: 10px; padding: 2px 4px; margin-bottom: 2px; border-radius: 4px; background: #fee2e2; color: #b91c1c; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-        
-        /* Custom Scrollbar */
+        .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; }
+        .cal-day {
+            min-height: 96px; display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+            padding: 5px; border-radius: 10px; border: 1px solid #ece5dc; background: #fff; cursor: pointer;
+            transition: all 0.15s;
+        }
+        html.dark .cal-day { background:#161210; border-color:#2b2319; }
+        .cal-day:hover { background-color: #fef3ec; transform: translateY(-1px); }
+        html.dark .cal-day:hover { background-color:#241b14; }
+        .cal-day.active { border: 2px solid #ef4444; background-color: #fff1ec; box-shadow: 0 0 0 3px rgba(239,68,68,.12); }
+        html.dark .cal-day.active { background-color:#2a1512; }
+        .cal-day.is-today-cell { border-color:#f59e0b; }
+        .cal-task-badge { font-size: 9.5px; padding: 2px 5px; margin-bottom: 2px; border-radius: 5px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; font-weight:600; }
+        .badge-normal { background:#fee2e2; color:#b91c1c; }
+        .badge-delay { background:#fef3c7; color:#b45309; }
+        .badge-done { background:#dcfce7; color:#15803d; }
+        html.dark .badge-normal { background:#3a1414; color:#f87171; }
+        html.dark .badge-delay { background:#3a2c0c; color:#fbbf24; }
+        html.dark .badge-done { background:#0e2e1c; color:#4ade80; }
+
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d6ccc0; border-radius: 4px; }
+        html.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #3a3028; }
 
         /* Task Type Grid */
         .task-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-        .task-btn { border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 5px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 12px; background: white; }
-        .task-btn.selected { background-color: #fee2e2; border-color: #ef4444; color: #b91c1c; font-weight: bold; }
+        .task-btn { border: 1px solid #e2d9cc; border-radius: 10px; padding: 10px 5px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 12px; background: #fff; font-weight:500; }
+        html.dark .task-btn { background:#161210; border-color:#2b2319; color:#e7ded2; }
+        .task-btn.selected { background: linear-gradient(135deg,#fee2e2,#ffedd5); border-color: #ef4444; color: #b91c1c; font-weight: bold; box-shadow: 0 2px 8px -2px rgba(239,68,68,.35); }
+        html.dark .task-btn.selected { background: linear-gradient(135deg,#3a1414,#3a2408); color:#fca5a5; }
 
-        /* Floating Animation for Today's Queue */
-        @keyframes floatSlow {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-        .animate-float { animation: floatSlow 3s ease-in-out infinite; box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.2); border-color: #fca5a5; }
+        @keyframes floatSlow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+        .animate-float { animation: floatSlow 3s ease-in-out infinite; box-shadow: 0 12px 20px -6px rgba(239, 68, 68, 0.25); border-color: #fca5a5 !important; }
 
-        /* Timeline Styles */
-        .timeline-line-bg { position: absolute; top: 16px; left: 10%; right: 10%; height: 4px; background-color: #e2e8f0; z-index: 0; }
-        .timeline-line-fill { position: absolute; top: 16px; left: 10%; height: 4px; background-color: #ef4444; z-index: 1; transition: width 0.3s; }
-        .timeline-node { position: relative; z-index: 10; display: flex; flex-direction: column; items-center; cursor: pointer; width: 25%; align-items: center; }
-        .timeline-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: white; border: 2px solid #e2e8f0; color: #94a3b8; transition: all 0.3s; }
-        
+        .timeline-line-bg { position: absolute; top: 16px; left: 10%; right: 10%; height: 4px; background-color: #ece5dc; z-index: 0; border-radius:4px; }
+        html.dark .timeline-line-bg { background-color:#2b2319; }
+        .timeline-line-fill { position: absolute; top: 16px; left: 10%; height: 4px; background-color: #ef4444; z-index: 1; transition: width 0.3s; border-radius:4px; }
+        .timeline-node { position: relative; z-index: 10; display: flex; flex-direction: column; align-items:center; cursor: pointer; width: 25%; }
+        .timeline-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background-color: #fff; border: 2px solid #ece5dc; color: #a89f92; transition: all 0.3s; }
+        html.dark .timeline-icon { background-color:#161210; border-color:#2b2319; color:#71685c; }
         .node-active .timeline-icon { background-color: #ef4444; border-color: #ef4444; color: white; }
-        .node-done .timeline-icon { background-color: #64748b; border-color: #64748b; color: white; }
+        .node-done .timeline-icon { background-color: #57534e; border-color: #57534e; color: white; }
         .node-delay .timeline-icon { background-color: #f59e0b; border-color: #f59e0b; color: white; }
-        
+
         .hide { display: none !important; }
+
+        .premium-gradient { background: linear-gradient(135deg,#dc2626 0%, #ea580c 50%, #f59e0b 100%); }
+        .btn-primary { background: linear-gradient(135deg,#dc2626,#ea580c); color:#fff; box-shadow: 0 6px 16px -4px rgba(220,38,38,.45); }
+        .btn-primary:hover { filter: brightness(1.07); }
+        .modal-backdrop { background: rgba(10,8,6,.55); backdrop-filter: blur(2px); }
+        .input-field { background:#fff; border:1px solid #e2d9cc; color:#1c1410; }
+        html.dark .input-field { background:#161210; border-color:#332921; color:#f2ece5; }
+        .stat-card { border-radius: 18px; padding: 20px; position:relative; overflow:hidden; }
     </style>
 </head>
 <body class="flex h-screen">
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-[#111827] text-gray-300 flex flex-col shadow-2xl z-40 relative flex-shrink-0">
-        <div class="p-5 flex items-center justify-between border-b border-gray-800">
+    <aside id="sidebar" class="w-64 md:w-[17rem] bg-[#111015] text-gray-300 flex flex-col shadow-2xl z-40 relative flex-shrink-0">
+        <div class="p-5 flex items-center justify-between border-b border-white/10">
             <div class="font-bold text-lg text-white flex items-center gap-3">
-                <div class="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center text-sm font-bold text-white shadow-lg">ชพ</div>
-                เมนูหลัก
+                <div class="w-9 h-9 premium-gradient rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-lg">ชพ</div>
+                <div>
+                    <div class="leading-tight">เมนูหลัก</div>
+                    <div class="text-[10px] text-gray-500 font-normal">อบต.ชำผักแพว</div>
+                </div>
             </div>
         </div>
-        <nav class="flex-1 overflow-y-auto py-4 space-y-1">
-            <a href="#" onclick="navTo('page-queue')" class="nav-link block px-5 py-3 bg-[#1f2937] border-l-4 border-red-500 text-white transition">📅 คิวงาน / ปฏิทิน</a>
-            <a href="#" onclick="navTo('page-report')" class="nav-link block px-5 py-3 hover:bg-[#1f2937] hover:text-white transition">📝 รับแจ้งงาน</a>
-            <a href="#" onclick="navTo('page-performance')" class="nav-link block px-5 py-3 hover:bg-[#1f2937] hover:text-white transition">✅ ผลการดำเนินงาน</a>
-            <a href="#" onclick="navTo('page-search')" class="nav-link block px-5 py-3 hover:bg-[#1f2937] hover:text-white transition">🔍 ค้นหางานย้อนหลัง</a>
-            <a href="#" onclick="navTo('page-summary')" class="nav-link block px-5 py-3 hover:bg-[#1f2937] hover:text-white transition">📊 สรุปรายงาน</a>
-            <a href="#" onclick="navTo('page-contacts')" class="nav-link block px-5 py-3 hover:bg-[#1f2937] hover:text-white transition">📞 เบอร์ติดต่อ</a>
+        <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-2">
+            <a href="#" onclick="navTo('page-queue')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 border-l-4 border-red-500 text-white transition">📅 คิวงาน / ปฏิทิน</a>
+            <a href="#" onclick="navTo('page-report')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition text-gray-400">📝 รับแจ้งงาน</a>
+            <a href="#" onclick="navTo('page-performance')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition text-gray-400">✅ ผลการดำเนินงาน</a>
+            <a href="#" onclick="navTo('page-search')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition text-gray-400">🔍 ค้นหางานย้อนหลัง</a>
+            <a href="#" onclick="navTo('page-summary')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition text-gray-400">📊 สรุปรายงาน</a>
+            <a href="#" onclick="navTo('page-contacts')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition text-gray-400">📞 เบอร์ติดต่อ</a>
         </nav>
+        <div class="p-4 text-[10px] text-gray-600 border-t border-white/10">ระบบบริหารคิวงาน • v2</div>
     </aside>
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col h-screen overflow-hidden bg-[#f4f6f9]">
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
         <!-- Header -->
-        <header class="bg-white shadow-sm border-b border-gray-200 z-30">
+        <header class="surface z-30">
             <div class="px-4 h-16 flex items-center justify-between">
                 <div class="flex items-center gap-3 w-3/4">
-                    <button onclick="toggleSidebar()" class="p-2 rounded-md hover:bg-gray-100 text-gray-600">
+                    <button onclick="toggleSidebar()" class="p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-300">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
                     <div class="min-w-0">
-                        <h1 class="font-bold text-sm md:text-lg text-red-700 leading-tight truncate">คิวงานซ่อมบำรุงและบรรเทาสาธารณภัย</h1>
-                        <p class="text-[10px] md:text-xs text-gray-500 truncate">องค์การบริหารส่วนตำบลชำผักแพว</p>
+                        <h1 class="font-bold text-sm md:text-lg text-red-600 dark:text-red-400 leading-tight truncate">คิวงานซ่อมบำรุงและบรรเทาสาธารณภัย</h1>
+                        <p class="text-[10px] md:text-xs text-gray-400 truncate">องค์การบริหารส่วนตำบลชำผักแพว</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-1">
-                    <button id="btn-login" onclick="promptLogin()" class="p-2 rounded-full hover:bg-gray-100 text-gray-600" title="เข้าสู่ระบบเจ้าหน้าที่">
+                    <button onclick="toggleTheme()" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-300" title="สลับโหมดกลางวัน/กลางคืน">
+                        <svg id="icon-sun" class="w-5 h-5 hide" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        <svg id="icon-moon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                    </button>
+                    <button id="btn-login" onclick="promptLogin()" class="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-300" title="เข้าสู่ระบบเจ้าหน้าที่">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                     </button>
-                    <button id="btn-logout" onclick="logout()" class="hide p-2 rounded-full bg-red-100 hover:bg-red-200 text-red-600">
+                    <button id="btn-logout" onclick="logout()" class="hide p-2 rounded-full bg-red-100 hover:bg-red-200 dark:bg-red-900/40 dark:hover:bg-red-900/60 text-red-600 dark:text-red-300">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
                     </button>
                 </div>
@@ -96,31 +160,29 @@
 
         <!-- Dynamic Pages Container -->
         <main class="flex-1 overflow-y-auto p-4 md:p-6 pb-20 relative">
-            <div id="loading" class="absolute inset-0 bg-white/80 z-50 flex flex-col items-center justify-center">
+            <div id="loading" class="absolute inset-0 bg-white/80 dark:bg-black/80 z-50 flex flex-col items-center justify-center">
                 <svg class="animate-spin h-10 w-10 text-red-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                <span class="text-gray-500">กำลังเชื่อมต่อข้อมูล...</span>
+                <span class="text-gray-400">กำลังเชื่อมต่อข้อมูล...</span>
             </div>
 
             <!-- Page: Queue & Calendar -->
             <div id="page-queue" class="page-section">
-                <!-- Calendar View -->
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div class="surface p-4 rounded-2xl mb-6">
                     <div class="flex justify-between items-center mb-4">
-                        <button onclick="changeMonth(-1)" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600 font-bold">&lt; เดือนก่อนหน้า</button>
-                        <h3 id="cal-month-year" class="font-bold text-lg text-red-700"></h3>
-                        <button onclick="changeMonth(1)" class="p-2 hover:bg-gray-100 rounded-lg text-gray-600 font-bold">เดือนถัดไป &gt;</button>
+                        <button onclick="changeMonth(-1)" class="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg text-gray-500 dark:text-gray-300 font-bold">&lt; ก่อนหน้า</button>
+                        <h3 id="cal-month-year" class="font-bold text-lg text-red-600 dark:text-red-400"></h3>
+                        <button onclick="changeMonth(1)" class="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg text-gray-500 dark:text-gray-300 font-bold">ถัดไป &gt;</button>
                     </div>
-                    <div class="grid grid-cols-7 text-center text-xs text-gray-500 font-medium mb-2">
+                    <div class="grid grid-cols-7 text-center text-xs text-gray-400 font-medium mb-2">
                         <div>อา.</div><div>จ.</div><div>อ.</div><div>พ.</div><div>พฤ.</div><div>ศ.</div><div>ส.</div>
                     </div>
                     <div id="cal-days" class="cal-grid"></div>
                 </div>
 
-                <!-- Queue Filter & Header -->
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
                     <h2 class="text-xl font-bold" id="queue-title">คิวงานทั้งหมดที่รอดำเนินการ</h2>
                     <div class="flex items-center gap-2 w-full md:w-auto">
-                        <select id="filter-village" onchange="renderQueue()" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-2.5 w-full md:w-48 shadow-sm">
+                        <select id="filter-village" onchange="renderQueue()" class="input-field text-sm rounded-lg p-2.5 w-full md:w-48 shadow-sm">
                             <option value="all">-- เลือกหมู่ที่ต้องการดู --</option>
                             <option value="หมู่ที่ 1 บ้านดง">หมู่ที่ 1 บ้านดง</option>
                             <option value="หมู่ที่ 2 บ้านโคกกรุง">หมู่ที่ 2 บ้านโคกกรุง</option>
@@ -133,26 +195,24 @@
                             <option value="หมู่ที่ 9 บ้านวังแพ">หมู่ที่ 9 บ้านวังแพ</option>
                             <option value="หมู่ที่ 10 บ้านธารน้ำตก">หมู่ที่ 10 บ้านธารน้ำตก</option>
                         </select>
-                        <button onclick="navTo('page-report', true)" class="admin-only hide whitespace-nowrap bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold shadow-md transition flex items-center gap-1">
+                        <button onclick="navTo('page-report', true)" class="admin-only hide whitespace-nowrap btn-primary px-4 py-2.5 rounded-lg text-sm font-bold transition flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> เพิ่มคิวงาน
                         </button>
                     </div>
                 </div>
 
-                <!-- Queue Cards Container -->
                 <div id="queue-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
             </div>
 
             <!-- Page: Report Issue (User Form) -->
             <div id="page-report" class="page-section hide">
-                <div class="bg-white p-5 md:p-8 rounded-2xl shadow-sm border border-gray-200 max-w-3xl mx-auto">
-                    <h2 class="text-2xl font-bold text-red-600 mb-2" id="form-title">📝 แบบฟอร์มรับแจ้งงาน</h2>
-                    <p class="text-gray-500 text-sm mb-6 pb-4 border-b">สำหรับประชาชนและสมาชิกสภาแจ้งเรื่องให้เจ้าหน้าที่ดำเนินการ</p>
-                    
+                <div class="surface p-5 md:p-8 rounded-2xl max-w-3xl mx-auto">
+                    <h2 class="text-2xl font-bold text-red-600 dark:text-red-400 mb-2" id="form-title">📝 แบบฟอร์มรับแจ้งงาน</h2>
+                    <p class="text-gray-400 text-sm mb-6 pb-4 border-b border-black/5 dark:border-white/10">สำหรับประชาชนและสมาชิกสภาแจ้งเรื่องให้เจ้าหน้าที่ดำเนินการ</p>
+
                     <form id="job-form" onsubmit="submitJob(event)">
                         <input type="hidden" id="f-id">
-                        
-                        <!-- Task Type (Icons) -->
+
                         <div class="mb-5">
                             <label class="block mb-2 text-sm font-medium">ประเภทงาน <span class="text-red-500">*</span></label>
                             <input type="hidden" id="f-type" required>
@@ -172,11 +232,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block mb-1 text-sm font-medium">วันที่แจ้งเรื่อง <span class="text-red-500">*</span></label>
-                                <input type="date" id="f-req-date" required class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5">
+                                <input type="date" id="f-req-date" required class="input-field text-sm rounded-lg w-full p-2.5">
                             </div>
                             <div>
                                 <label class="block mb-1 text-sm font-medium">หมู่ที่ <span class="text-red-500">*</span></label>
-                                <select id="f-village" required class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5">
+                                <select id="f-village" required class="input-field text-sm rounded-lg w-full p-2.5">
                                     <option value="">-- เลือกหมู่ที่ --</option>
                                     <option value="หมู่ที่ 1 บ้านดง">หมู่ที่ 1 บ้านดง</option>
                                     <option value="หมู่ที่ 2 บ้านโคกกรุง">หมู่ที่ 2 บ้านโคกกรุง</option>
@@ -194,131 +254,231 @@
 
                         <div class="mb-4">
                             <label class="block mb-1 text-sm font-medium">รายละเอียดปัญหา <span class="text-red-500">*</span></label>
-                            <textarea id="f-details" rows="3" required class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5" placeholder="ระบุสิ่งที่ต้องการให้ดำเนินการ..."></textarea>
+                            <textarea id="f-details" rows="3" required class="input-field text-sm rounded-lg w-full p-2.5" placeholder="ระบุสิ่งที่ต้องการให้ดำเนินการ..."></textarea>
                         </div>
-                        
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block mb-1 text-sm font-medium">พิกัดสถานที่ / จุดสังเกต</label>
-                                <input type="text" id="f-location" class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5" placeholder="เช่น หน้าบ้านผู้ใหญ่บ้าน, ซอย 2">
+                                <input type="text" id="f-location" class="input-field text-sm rounded-lg w-full p-2.5" placeholder="เช่น หน้าบ้านผู้ใหญ่บ้าน, ซอย 2">
                             </div>
                             <div>
                                 <label class="block mb-1 text-sm font-medium">ชื่อผู้แจ้ง <span class="text-red-500">*</span></label>
-                                <input type="text" id="f-requester" required class="bg-gray-50 border border-gray-300 text-sm rounded-lg w-full p-2.5" placeholder="ระบุชื่อและเบอร์โทรติดต่อกลับ">
+                                <input type="text" id="f-requester" required class="input-field text-sm rounded-lg w-full p-2.5" placeholder="ระบุชื่อและเบอร์โทรติดต่อกลับ">
                             </div>
                         </div>
-                        
-                        <!-- ซ่อนช่องของเจ้าหน้าที่ไว้ เมื่อไม่ได้เข้าสู่ระบบ Admin -->
-                        <div class="admin-only hide bg-red-50 p-4 rounded-lg border border-red-200 mb-6 mt-4">
-                            <h4 class="font-bold text-red-700 mb-3 text-sm">ส่วนของเจ้าหน้าที่ (Admin Only)</h4>
+
+                        <div class="admin-only hide surface-alt p-4 rounded-xl border border-red-100 dark:border-red-900/30 mb-6 mt-4">
+                            <h4 class="font-bold text-red-600 dark:text-red-400 mb-3 text-sm">ส่วนของเจ้าหน้าที่ (Admin Only)</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block mb-1 text-xs font-medium text-red-700">กองที่รับผิดชอบ</label>
-                                    <select id="f-dept" class="bg-white border border-red-300 text-sm rounded-lg w-full p-2.5">
+                                    <label class="block mb-1 text-xs font-medium">กองที่รับผิดชอบ</label>
+                                    <select id="f-dept" class="input-field text-sm rounded-lg w-full p-2.5">
                                         <option value="">-- ยังไม่ระบุ --</option>
                                         <option value="กองช่าง">กองช่าง</option>
                                         <option value="งานป้องกันฯ">งานป้องกันฯ</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block mb-1 text-xs font-medium text-red-700">วันที่จะดำเนินการ (ลงคิว)</label>
-                                    <input type="date" id="f-act-date" class="bg-white border border-red-300 text-sm rounded-lg w-full p-2.5">
+                                    <label class="block mb-1 text-xs font-medium">วันที่จะดำเนินการ (ลงคิว)</label>
+                                    <input type="date" id="f-act-date" class="input-field text-sm rounded-lg w-full p-2.5">
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" id="btn-submit-form" class="w-full text-white bg-red-600 hover:bg-red-700 font-bold rounded-lg text-lg px-5 py-3 transition shadow-lg mt-4">ส่งข้อมูลแจ้งงาน</button>
+                        <button type="submit" id="btn-submit-form" class="w-full btn-primary font-bold rounded-lg text-lg px-5 py-3 transition mt-4">ส่งข้อมูลแจ้งงาน</button>
                     </form>
                 </div>
             </div>
 
             <!-- Page: Performance (Done Tasks) -->
             <div id="page-performance" class="page-section hide">
-                <h2 class="text-xl font-bold mb-4">✅ ผลการดำเนินงาน (เสร็จสิ้น)</h2>
+                <h2 class="text-xl font-bold mb-4">✅ ผลการดำเนินงาน</h2>
+                <div id="perf-bignumbers" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"></div>
                 <div id="perf-container" class="space-y-6"></div>
             </div>
 
             <!-- Page: Search -->
             <div id="page-search" class="page-section hide">
                 <h2 class="text-xl font-bold mb-4">🔍 ค้นหางานย้อนหลัง</h2>
-                <input type="text" id="search-input" onkeyup="performSearch()" placeholder="พิมพ์ชื่อผู้ร้อง, ประเภทงาน, หรือรายละเอียด..." class="mb-4 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg w-full p-3 shadow-sm">
+                <input type="text" id="search-input" onkeyup="performSearch()" placeholder="พิมพ์ชื่อผู้ร้อง, ประเภทงาน, หรือรายละเอียด..." class="input-field mb-4 text-sm rounded-lg w-full p-3 shadow-sm">
                 <div id="search-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
 
             <!-- Page: Summary -->
             <div id="page-summary" class="page-section hide">
                 <h2 class="text-xl font-bold mb-4">📊 สรุปรายงานประจำเดือน</h2>
-                <div class="flex gap-2 mb-6">
-                    <input type="month" id="sum-month" onchange="generateSummary()" class="bg-white border border-gray-300 p-2 rounded-lg">
-                    <select id="sum-dept" onchange="generateSummary()" class="bg-white border border-gray-300 p-2 rounded-lg">
+                <div class="flex flex-wrap gap-2 mb-6 items-center">
+                    <input type="month" id="sum-month" onchange="generateSummary()" class="input-field p-2 rounded-lg">
+                    <select id="sum-dept" onchange="generateSummary()" class="input-field p-2 rounded-lg">
                         <option value="all">ทุกกอง</option>
                         <option value="กองช่าง">กองช่าง</option>
                         <option value="งานป้องกันฯ">งานป้องกันฯ</option>
                     </select>
+                    <div class="flex-1"></div>
+                    <button onclick="exportSummaryExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+                        ดาวน์โหลด Excel
+                    </button>
+                    <button onclick="exportSummaryPDF()" class="btn-primary px-4 py-2 rounded-lg text-sm font-bold shadow flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                        ดาวน์โหลด PDF
+                    </button>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="sum-stats"></div>
-                <div class="bg-white p-4 rounded-xl shadow border border-gray-200">
-                    <h3 class="font-bold mb-3 border-b pb-2">แยกตามประเภทงาน</h3>
-                    <ul id="sum-types" class="space-y-2"></ul>
+
+                <div id="summary-report-area">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="sum-stats"></div>
+                    <div class="surface p-4 rounded-2xl">
+                        <h3 class="font-bold mb-3 border-b border-black/5 dark:border-white/10 pb-2" id="sum-report-title">แยกตามประเภทงาน</h3>
+                        <ul id="sum-types" class="space-y-2"></ul>
+                    </div>
                 </div>
             </div>
 
             <!-- Page: Contacts -->
             <div id="page-contacts" class="page-section hide">
-                <div class="flex justify-between items-center mb-4">
+                <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
                     <h2 class="text-xl font-bold">📞 เบอร์ติดต่อ อบต.ชำผักแพว</h2>
-                    <button onclick="editContacts()" class="admin-only hide text-sm bg-gray-800 text-white px-3 py-1.5 rounded-lg">แก้ไขเบอร์โทร</button>
+                    <div class="admin-only hide flex gap-2">
+                        <button onclick="openContactAddModal()" class="btn-primary text-sm px-3 py-1.5 rounded-lg font-bold">+ เพิ่มเบอร์ติดต่อ</button>
+                        <button onclick="editContacts()" class="text-sm bg-gray-800 dark:bg-white/10 text-white px-3 py-1.5 rounded-lg">แก้ไขทั้งหมด</button>
+                    </div>
                 </div>
                 <div id="contact-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                
-                <div id="contact-editor" class="hide mt-6 bg-white p-4 rounded-xl border border-gray-200 shadow">
+
+                <div id="contact-editor" class="hide mt-6 surface p-4 rounded-2xl">
                     <h3 class="font-bold mb-3">แก้ไขข้อมูลติดต่อ</h3>
                     <div id="contact-fields" class="space-y-4 mb-4"></div>
-                    <button onclick="saveContacts()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium w-full">บันทึกข้อมูลติดต่อ</button>
+                    <div class="flex gap-2">
+                        <button onclick="saveContacts()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-medium flex-1">บันทึกข้อมูลติดต่อ</button>
+                        <button onclick="document.getElementById('contact-editor').classList.add('hide')" class="bg-gray-200 dark:bg-white/10 px-4 py-2 rounded-lg font-medium">ยกเลิก</button>
+                    </div>
                 </div>
             </div>
 
         </main>
     </div>
 
+    <!-- Postpone Modal -->
+    <div id="postpone-modal" class="hide fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+        <div class="surface rounded-2xl w-full max-w-md p-6">
+            <h3 class="text-lg font-bold text-amber-600 mb-1 flex items-center gap-2">⏸️ เลื่อนคิวงาน</h3>
+            <p class="text-xs text-gray-400 mb-4">ระบุสาเหตุการเลื่อนและวันที่จะดำเนินการใหม่</p>
+            <form onsubmit="submitPostpone(event)">
+                <input type="hidden" id="pp-job-id">
+                <div class="mb-4">
+                    <label class="block mb-1 text-sm font-medium">สาเหตุที่เลื่อน <span class="text-red-500">*</span></label>
+                    <textarea id="pp-reason" rows="3" required class="input-field text-sm rounded-lg w-full p-2.5" placeholder="เช่น รอวัสดุ, ฝนตก, ทีมงานติดภารกิจอื่น..."></textarea>
+                </div>
+                <div class="mb-5">
+                    <label class="block mb-1 text-sm font-medium">เลื่อนไปวันที่ <span class="text-red-500">*</span></label>
+                    <input type="date" id="pp-new-date" required class="input-field text-sm rounded-lg w-full p-2.5">
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg py-2.5">ยืนยันการเลื่อน</button>
+                    <button type="button" onclick="closePostponeModal()" class="bg-gray-200 dark:bg-white/10 px-4 rounded-lg font-medium">ยกเลิก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Contact Add Modal -->
+    <div id="contact-add-modal" class="hide fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+        <div class="surface rounded-2xl w-full max-w-md p-6">
+            <h3 class="text-lg font-bold text-red-600 dark:text-red-400 mb-4">➕ เพิ่มเบอร์ติดต่อ</h3>
+            <form onsubmit="submitContactAdd(event)">
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <label class="block mb-1 text-xs font-medium">ชื่อจริง <span class="text-red-500">*</span></label>
+                        <input type="text" id="ca-fullname" required class="input-field text-sm rounded-lg w-full p-2.5">
+                    </div>
+                    <div>
+                        <label class="block mb-1 text-xs font-medium">ชื่อเล่น</label>
+                        <input type="text" id="ca-nickname" class="input-field text-sm rounded-lg w-full p-2.5">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="block mb-1 text-xs font-medium">ตำแหน่ง</label>
+                    <input type="text" id="ca-position" class="input-field text-sm rounded-lg w-full p-2.5" placeholder="เช่น หัวหน้ากองช่าง">
+                </div>
+                <div class="mb-3">
+                    <label class="block mb-1 text-xs font-medium">กอง <span class="text-red-500">*</span></label>
+                    <select id="ca-dept" required class="input-field text-sm rounded-lg w-full p-2.5">
+                        <option value="กองช่าง">กองช่าง</option>
+                        <option value="งานป้องกันฯ">งานป้องกันฯ</option>
+                        <option value="สำนักปลัด">สำนักปลัด</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                </div>
+                <div class="mb-5">
+                    <label class="block mb-1 text-xs font-medium">เบอร์โทร <span class="text-red-500">*</span></label>
+                    <input type="tel" id="ca-phone" required class="input-field text-sm rounded-lg w-full p-2.5" placeholder="08X-XXX-XXXX">
+                </div>
+                <div class="flex gap-2">
+                    <button type="submit" class="flex-1 btn-primary font-bold rounded-lg py-2.5">บันทึกเบอร์ติดต่อ</button>
+                    <button type="button" onclick="closeContactAddModal()" class="bg-gray-200 dark:bg-white/10 px-4 rounded-lg font-medium">ยกเลิก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwpmwRdjj3NWSxrzAoPbXJpUxrPZniEMHb8Q35TQ-99ODkCTwS9Y847fmnm6Yot-ww/exec';
-        
+
         let allJobs = [];
         let allContacts = [];
         let isAdmin = false;
         let currentDate = new Date();
         let selectedDateStr = null;
 
-        // UI Init
+        // ---------- Theme ----------
+        function initTheme() {
+            const saved = localStorage.getItem('qapp-theme');
+            const wantDark = saved ? saved === 'dark' : false;
+            setTheme(wantDark);
+        }
+        function setTheme(dark) {
+            document.documentElement.classList.toggle('dark', dark);
+            document.getElementById('icon-sun').classList.toggle('hide', !dark);
+            document.getElementById('icon-moon').classList.toggle('hide', dark);
+            localStorage.setItem('qapp-theme', dark ? 'dark' : 'light');
+        }
+        function toggleTheme() {
+            setTheme(!document.documentElement.classList.contains('dark'));
+        }
+        initTheme();
+
+        function todayStr() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        }
+
         document.getElementById('f-req-date').value = new Date().toISOString().split('T')[0];
         document.getElementById('sum-month').value = new Date().toISOString().slice(0,7);
 
-        // Sidebar logic
         function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            sb.classList.toggle('sidebar-hidden');
+            document.getElementById('sidebar').classList.toggle('sidebar-hidden');
         }
 
         function navTo(pageId, isEdit = false) {
             document.querySelectorAll('.page-section').forEach(el => el.classList.add('hide'));
             document.getElementById(pageId).classList.remove('hide');
-            
+
             document.querySelectorAll('.nav-link').forEach(el => {
-                el.classList.remove('bg-[#1f2937]', 'border-l-4', 'border-red-500', 'text-white');
+                el.classList.remove('bg-white/10', 'border-l-4', 'border-red-500', 'text-white');
                 el.classList.add('text-gray-400');
             });
             if(!isEdit && event && event.currentTarget.classList.contains('nav-link')){
-                event.currentTarget.classList.add('bg-[#1f2937]', 'border-l-4', 'border-red-500', 'text-white');
+                event.currentTarget.classList.add('bg-white/10', 'border-l-4', 'border-red-500', 'text-white');
                 event.currentTarget.classList.remove('text-gray-400');
             }
-            
+
             if(window.innerWidth < 1024) document.getElementById('sidebar').classList.add('sidebar-hidden');
-            
+
             if(pageId === 'page-queue') { selectedDateStr = null; renderCalendar(); renderQueue(); }
             if(pageId === 'page-performance') renderPerformance();
             if(pageId === 'page-summary') generateSummary();
-            
+
             if(pageId === 'page-report' && !isEdit) {
                 document.getElementById('job-form').reset();
                 document.getElementById('f-id').value = "";
@@ -336,7 +496,9 @@
                 document.getElementById('btn-login').classList.add('hide');
                 document.getElementById('btn-logout').classList.remove('hide');
                 document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hide'));
-                renderQueue(); 
+                renderQueue();
+                renderPerformance();
+                renderContacts();
                 alert("เข้าสู่ระบบเรียบร้อย");
             } else if (pin) {
                 alert("รหัสไม่ถูกต้อง");
@@ -349,19 +511,27 @@
             document.getElementById('btn-logout').classList.add('hide');
             document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hide'));
             renderQueue();
+            renderContacts();
         }
 
         async function fetchData() {
             try {
                 const res = await fetch(WEB_APP_URL);
                 const data = await res.json();
-                // Map old status terms to new ones if needed by backend, but we will use the new strings
                 allJobs = data.jobs.map(j => {
                     if(j.status === 'รอดำเนินการ') j.status = 'รับเรื่อง';
                     if(j.status === 'ลงพื้นที่') j.status = 'กำลังดำเนินการ';
                     return j;
                 });
-                allContacts = data.contacts;
+                allContacts = (data.contacts || []).map(c => ({
+                    id: c.id || (c.dept + '-' + Math.random().toString(36).slice(2,7)),
+                    fullname: c.fullname || c.dept || '',
+                    nickname: c.nickname || '',
+                    position: c.position || '',
+                    dept: c.dept || '',
+                    phone: c.phone || c.phone1 || '',
+                    phone2: c.phone2 || ''
+                }));
                 document.getElementById('loading').classList.add('hide');
                 renderCalendar();
                 renderQueue();
@@ -372,7 +542,7 @@
             }
         }
 
-        // Calendar
+        // ---------- Calendar ----------
         function changeMonth(offset) {
             currentDate.setMonth(currentDate.getMonth() + offset);
             renderCalendar();
@@ -381,31 +551,34 @@
         function renderCalendar() {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            
+
             const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
             document.getElementById('cal-month-year').innerText = `${monthNames[month]} ${year + 543}`;
-            
+
             const firstDay = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const calGrid = document.getElementById('cal-days');
             calGrid.innerHTML = '';
-            
+            const tStr = todayStr();
+
             for (let i = 0; i < firstDay; i++) calGrid.innerHTML += `<div></div>`;
-            
+
             for (let i = 1; i <= daysInMonth; i++) {
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                const dayJobs = allJobs.filter(j => j.action_date && j.action_date.startsWith(dateStr) && j.status !== 'เสร็จสิ้นแล้ว');
-                
+                const dayJobs = allJobs.filter(j => j.action_date && j.action_date.startsWith(dateStr) && (j.status !== 'เสร็จสิ้นแล้ว' || dateStr === tStr));
+
                 let tasksHtml = '';
                 dayJobs.forEach(j => {
                     let shortVillage = j.village.replace('หมู่ที่ ', 'ม.');
-                    tasksHtml += `<span class="cal-task-badge" title="${j.task_type} ${j.village}">${j.task_type} ${shortVillage}</span>`;
+                    let cls = j.status === 'เลื่อน' ? 'badge-delay' : (j.status === 'เสร็จสิ้นแล้ว' ? 'badge-done' : 'badge-normal');
+                    tasksHtml += `<span class="cal-task-badge ${cls}" title="${j.task_type} ${j.village}">${j.task_type} ${shortVillage}</span>`;
                 });
-                
+
                 let activeClass = (selectedDateStr === dateStr) ? 'active' : '';
+                let todayClass = (dateStr === tStr) ? 'is-today-cell' : '';
                 calGrid.innerHTML += `
-                    <div class="cal-day ${activeClass} custom-scrollbar overflow-y-auto" onclick="selectDate('${dateStr}')">
-                        <span class="font-bold w-full text-center text-gray-700 mb-1">${i}</span>
+                    <div class="cal-day ${activeClass} ${todayClass} custom-scrollbar overflow-y-auto" onclick="selectDate('${dateStr}')">
+                        <span class="font-bold w-full text-center text-gray-500 dark:text-gray-300 mb-1">${i}</span>
                         ${tasksHtml}
                     </div>`;
             }
@@ -423,7 +596,6 @@
             document.getElementById('f-type').value = typeStr;
         }
 
-        // SVG Icons
         const icons = {
             date: `<svg class="w-4 h-4 text-gray-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`,
             loc: `<svg class="w-4 h-4 text-gray-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
@@ -433,101 +605,107 @@
             box: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>`,
             truck: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path></svg>`,
             check: `<svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>`,
-            pause: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`
+            pause: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+            phone: `<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>`
         };
 
         function buildCard(job) {
             let statusBadge = '';
-            if(job.status === 'รับเรื่อง') statusBadge = 'bg-yellow-100 text-yellow-700';
-            if(job.status === 'กำลังดำเนินการ') statusBadge = 'bg-blue-100 text-blue-700';
-            if(job.status === 'เสร็จสิ้นแล้ว') statusBadge = 'bg-green-100 text-green-700';
-            if(job.status === 'เลื่อน') statusBadge = 'bg-gray-100 text-gray-700';
+            if(job.status === 'รับเรื่อง') statusBadge = 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300';
+            if(job.status === 'กำลังดำเนินการ') statusBadge = 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300';
+            if(job.status === 'เสร็จสิ้นแล้ว') statusBadge = 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300';
+            if(job.status === 'เลื่อน') statusBadge = 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
 
-            // Calculate Date Diff
             let timeBadge = '';
             let isToday = false;
             let displayDateStr = 'รอดำเนินการ';
 
             if(job.action_date) {
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                const actDate = new Date(job.action_date);
-                actDate.setHours(0,0,0,0);
-                const diffTime = actDate - today;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
+                const today = new Date(); today.setHours(0,0,0,0);
+                const actDate = new Date(job.action_date); actDate.setHours(0,0,0,0);
+                const diffDays = Math.ceil((actDate - today) / (1000*60*60*24));
                 displayDateStr = actDate.toLocaleDateString('th-TH', { year: 'numeric', month: 'long', day: 'numeric' });
 
-                if(diffDays === 0) {
-                    timeBadge = `<span class="px-2 py-1 bg-red-100 text-red-600 rounded-lg text-xs font-bold shadow-sm">🚨 คิววันนี้</span>`;
+                if(job.status === 'เสร็จสิ้นแล้ว') {
+                    timeBadge = `<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-lg text-xs font-bold shadow-sm">✅ เสร็จสิ้นวันนี้</span>`;
+                    isToday = true;
+                } else if(diffDays === 0) {
+                    timeBadge = `<span class="px-2 py-1 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-300 rounded-lg text-xs font-bold shadow-sm">🚨 คิววันนี้</span>`;
                     isToday = true;
                 } else if (diffDays > 0) {
-                    timeBadge = `<span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-lg text-xs font-bold shadow-sm">⏳ อีก ${diffDays} วัน</span>`;
+                    timeBadge = `<span class="px-2 py-1 bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 rounded-lg text-xs font-bold shadow-sm">⏳ อีก ${diffDays} วัน</span>`;
                 } else {
-                    timeBadge = `<span class="px-2 py-1 bg-gray-200 text-gray-600 rounded-lg text-xs font-bold shadow-sm">เลยกำหนด ${Math.abs(diffDays)} วัน</span>`;
+                    timeBadge = `<span class="px-2 py-1 bg-gray-200 text-gray-600 dark:bg-white/10 dark:text-gray-300 rounded-lg text-xs font-bold shadow-sm">เลยกำหนด ${Math.abs(diffDays)} วัน</span>`;
                 }
             } else {
-                timeBadge = `<span class="px-2 py-1 bg-gray-100 text-gray-500 rounded-lg text-xs font-bold shadow-sm">ยังไม่ระบุวัน</span>`;
+                timeBadge = `<span class="px-2 py-1 bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-gray-400 rounded-lg text-xs font-bold shadow-sm">ยังไม่ระบุวัน</span>`;
             }
 
-            // Timeline logic
-            const statusArr = ['รับเรื่อง', 'กำลังดำเนินการ', 'เสร็จสิ้นแล้ว', 'เลื่อน'];
             const fillWidths = {'รับเรื่อง':'12%', 'กำลังดำเนินการ':'50%', 'เสร็จสิ้นแล้ว':'88%', 'เลื่อน':'88%'};
             const w = fillWidths[job.status] || '0%';
 
             let adminButtons = '';
             if (isAdmin) {
-                adminButtons = `<button onclick="editJob('${job.id}')" class="absolute top-4 right-4 bg-gray-100 hover:bg-gray-200 text-gray-600 px-3 py-1 rounded text-xs font-bold flex items-center gap-1 transition"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg> แก้ไข</button>`;
+                adminButtons = `<button onclick="editJob('${job.id}')" class="absolute top-4 right-4 bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-gray-500 dark:text-gray-300 px-3 py-1 rounded text-xs font-bold flex items-center gap-1 transition"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg> แก้ไข</button>`;
             }
 
-            // Timeline SVG setup
-            const s1 = (job.status !== 'เลื่อน') ? 'node-active' : 'node-active'; 
+            const s1 = 'node-active';
             const s2 = (job.status === 'กำลังดำเนินการ' || job.status === 'เสร็จสิ้นแล้ว') ? 'node-active' : '';
             const s3 = (job.status === 'เสร็จสิ้นแล้ว') ? 'node-done' : '';
             const s4 = (job.status === 'เลื่อน') ? 'node-delay' : '';
+            const lineFill = (job.status === 'เสร็จสิ้นแล้ว') ? 'bg-gray-500' : (job.status === 'เลื่อน' ? 'bg-amber-500' : 'bg-red-500');
 
-            // Line color logic
-            const lineFill = (job.status === 'เสร็จสิ้นแล้ว') ? 'bg-gray-600' : (job.status === 'เลื่อน' ? 'bg-yellow-500' : 'bg-red-500');
+            const pauseClick = isAdmin ? `onclick="openPostponeModal('${job.id}')"` : '';
+            const otherClicks = isAdmin ? {
+                s1: `onclick="updateStatus('${job.id}', 'รับเรื่อง')"`,
+                s2: `onclick="updateStatus('${job.id}', 'กำลังดำเนินการ')"`,
+                s3: `onclick="updateStatus('${job.id}', 'เสร็จสิ้นแล้ว')"`
+            } : {s1:'',s2:'',s3:''};
+
+            let delayInfo = '';
+            if (job.status === 'เลื่อน' && job.delay_reason) {
+                delayInfo = `<div class="mt-3 p-2.5 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-900/40 text-xs text-amber-800 dark:text-amber-300"><b>เหตุผลที่เลื่อน:</b> ${job.delay_reason}</div>`;
+            }
 
             return `
-            <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-200 relative transition-all duration-300 ${isToday ? 'animate-float border-red-200' : 'hover:shadow-md'}">
+            <div class="surface rounded-2xl p-5 relative transition-all duration-300 ${isToday ? 'animate-float' : 'hover:shadow-md'}">
                 ${adminButtons}
-                <div class="flex items-center gap-2 mb-4 pr-16">
+                <div class="flex items-center gap-2 mb-4 pr-16 flex-wrap">
                     ${timeBadge}
                     <span class="px-2 py-1 rounded-lg text-xs font-bold ${statusBadge} shadow-sm">${job.status}</span>
                 </div>
-                
-                <h3 class="font-bold text-xl leading-tight mb-4 text-gray-800">${job.task_type}</h3>
-                
-                <div class="bg-gray-50 rounded-xl p-4 space-y-3 text-sm text-gray-700 border border-gray-100">
-                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.date}</div><div class="flex-1 border-b border-gray-200 pb-2"><span class="text-gray-400 font-medium block text-xs">วันที่ดำเนินการ</span><span class="font-semibold">${displayDateStr}</span></div></div>
-                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.loc}</div><div class="flex-1 border-b border-gray-200 pb-2"><span class="text-gray-400 font-medium block text-xs">สถานที่</span><span>${job.village} ${job.location ? `(${job.location})` : ''}</span></div></div>
-                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.detail}</div><div class="flex-1 border-b border-gray-200 pb-2"><span class="text-gray-400 font-medium block text-xs">รายละเอียด</span><span>${job.problem_details}</span></div></div>
-                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.user}</div><div class="flex-1 border-b border-gray-200 pb-2"><span class="text-gray-400 font-medium block text-xs">ผู้แจ้ง</span><span>${job.requester || '-'}</span></div></div>
-                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.dept}</div><div class="flex-1"><span class="text-gray-400 font-medium block text-xs">กองที่รับผิดชอบ</span><span class="font-semibold text-red-700">${job.department || '-'}</span></div></div>
-                </div>
 
-                <!-- Status Timeline SVG -->
+                <h3 class="font-bold text-xl leading-tight mb-4">${job.task_type}</h3>
+
+                <div class="surface-alt rounded-xl p-4 space-y-3 text-sm">
+                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.date}</div><div class="flex-1 border-b border-black/5 dark:border-white/10 pb-2"><span class="text-gray-400 font-medium block text-xs">วันที่ดำเนินการ</span><span class="font-semibold">${displayDateStr}</span></div></div>
+                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.loc}</div><div class="flex-1 border-b border-black/5 dark:border-white/10 pb-2"><span class="text-gray-400 font-medium block text-xs">สถานที่</span><span>${job.village} ${job.location ? `(${job.location})` : ''}</span></div></div>
+                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.detail}</div><div class="flex-1 border-b border-black/5 dark:border-white/10 pb-2"><span class="text-gray-400 font-medium block text-xs">รายละเอียด</span><span>${job.problem_details}</span></div></div>
+                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.user}</div><div class="flex-1 border-b border-black/5 dark:border-white/10 pb-2"><span class="text-gray-400 font-medium block text-xs">ผู้แจ้ง</span><span>${job.requester || '-'}</span></div></div>
+                    <div class="flex gap-3 items-start"><div class="w-5 shrink-0">${icons.dept}</div><div class="flex-1"><span class="text-gray-400 font-medium block text-xs">กองที่รับผิดชอบ</span><span class="font-semibold text-red-600 dark:text-red-400">${job.department || '-'}</span></div></div>
+                </div>
+                ${delayInfo}
+
                 <div class="relative w-full mt-6 pt-2 pb-2">
                     <div class="timeline-line-bg"></div>
                     <div class="timeline-line-fill ${lineFill}" style="width: ${w}"></div>
-                    
+
                     <div class="flex justify-between relative z-10 w-full px-2">
-                        <div class="timeline-node ${s1}" ${isAdmin ? `onclick="updateStatus('${job.id}', 'รับเรื่อง')"` : ''}>
+                        <div class="timeline-node ${s1}" ${otherClicks.s1}>
                             <div class="timeline-icon shadow-sm">${icons.box}</div>
-                            <span class="text-[10px] mt-1 font-bold ${s1 ? 'text-gray-800' : 'text-gray-400'}">รับเรื่อง</span>
+                            <span class="text-[10px] mt-1 font-bold ${s1 ? '' : 'text-gray-400'}">รับเรื่อง</span>
                         </div>
-                        <div class="timeline-node ${s2}" ${isAdmin ? `onclick="updateStatus('${job.id}', 'กำลังดำเนินการ')"` : ''}>
+                        <div class="timeline-node ${s2}" ${otherClicks.s2}>
                             <div class="timeline-icon shadow-sm">${icons.truck}</div>
-                            <span class="text-[10px] mt-1 font-bold ${s2 ? 'text-gray-800' : 'text-gray-400'}">ดำเนินการ</span>
+                            <span class="text-[10px] mt-1 font-bold ${s2 ? '' : 'text-gray-400'}">ดำเนินการ</span>
                         </div>
-                        <div class="timeline-node ${s3}" ${isAdmin ? `onclick="updateStatus('${job.id}', 'เสร็จสิ้นแล้ว')"` : ''}>
+                        <div class="timeline-node ${s3}" ${otherClicks.s3}>
                             <div class="timeline-icon shadow-sm">${icons.check}</div>
-                            <span class="text-[10px] mt-1 font-bold ${s3 ? 'text-gray-800' : 'text-gray-400'}">เสร็จสิ้น</span>
+                            <span class="text-[10px] mt-1 font-bold ${s3 ? '' : 'text-gray-400'}">เสร็จสิ้น</span>
                         </div>
-                        <div class="timeline-node ${s4}" ${isAdmin ? `onclick="updateStatus('${job.id}', 'เลื่อน')"` : ''}>
+                        <div class="timeline-node ${s4}" ${pauseClick}>
                             <div class="timeline-icon shadow-sm">${icons.pause}</div>
-                            <span class="text-[10px] mt-1 font-bold ${s4 ? 'text-gray-800' : 'text-gray-400'}">เลื่อน</span>
+                            <span class="text-[10px] mt-1 font-bold ${s4 ? '' : 'text-gray-400'}">เลื่อน</span>
                         </div>
                     </div>
                 </div>
@@ -538,9 +716,11 @@
             const container = document.getElementById('queue-container');
             const vFilter = document.getElementById('filter-village').value;
             const title = document.getElementById('queue-title');
-            
-            let filtered = allJobs.filter(j => j.status !== 'เสร็จสิ้นแล้ว');
-            
+            const tStr = todayStr();
+
+            // Jobs not yet done, OR done today (stays visible until next day)
+            let filtered = allJobs.filter(j => j.status !== 'เสร็จสิ้นแล้ว' || (j.action_date && j.action_date.startsWith(tStr)));
+
             if (vFilter !== 'all') filtered = filtered.filter(j => j.village === vFilter);
             if (selectedDateStr) {
                 filtered = filtered.filter(j => j.action_date && j.action_date.startsWith(selectedDateStr));
@@ -549,7 +729,7 @@
                 title.innerText = "คิวงานทั้งหมดที่รอดำเนินการ";
             }
 
-            container.innerHTML = filtered.length ? filtered.map(buildCard).join('') : '<div class="col-span-full text-center py-10 bg-white rounded-2xl border border-dashed border-gray-300"><p class="text-gray-400 text-lg">ไม่มีคิวงานในเงื่อนไขที่เลือก</p></div>';
+            container.innerHTML = filtered.length ? filtered.map(buildCard).join('') : '<div class="col-span-full text-center py-10 surface rounded-2xl border-dashed"><p class="text-gray-400 text-lg">ไม่มีคิวงานในเงื่อนไขที่เลือก</p></div>';
         }
 
         async function submitJob(e) {
@@ -574,7 +754,7 @@
             await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
             alert("บันทึกข้อมูลสำเร็จ!");
             btn.innerText = "ส่งข้อมูลแจ้งงาน"; btn.disabled = false;
-            
+
             await fetchData();
             navTo('page-queue');
         }
@@ -582,11 +762,11 @@
         function editJob(id) {
             const job = allJobs.find(j => j.id === id);
             if(!job) return;
-            
+
             navTo('page-report', true);
             document.getElementById('form-title').innerText = "✏️ แก้ไขคิวงาน";
             document.getElementById('f-id').value = job.id;
-            
+
             document.querySelectorAll('.task-btn').forEach(b => {
                 b.classList.remove('selected');
                 if(b.innerText.includes(job.task_type)) {
@@ -600,7 +780,7 @@
             document.getElementById('f-details').value = job.problem_details;
             document.getElementById('f-location').value = job.location;
             document.getElementById('f-requester').value = job.requester;
-            
+
             if (isAdmin) {
                 document.getElementById('f-dept').value = job.department || '';
                 document.getElementById('f-act-date').value = job.action_date ? new Date(job.action_date).toISOString().split('T')[0] : '';
@@ -611,19 +791,76 @@
             if(!isAdmin) return;
             const jobIndex = allJobs.findIndex(j => j.id === id);
             allJobs[jobIndex].status = newStatus;
-            renderQueue(); 
+            if (newStatus !== 'เลื่อน') allJobs[jobIndex].delay_reason = '';
+            renderQueue();
+            renderCalendar();
 
             await fetch(WEB_APP_URL, {
                 method: 'POST',
-                body: JSON.stringify({ action: 'update_status', id: id, status: newStatus })
+                body: JSON.stringify({ action: 'update_status', id: id, status: newStatus, delay_reason: '' })
             });
             fetchData();
         }
 
+        // ---------- Postpone (เลื่อน) modal ----------
+        function openPostponeModal(id) {
+            if(!isAdmin) return;
+            document.getElementById('pp-job-id').value = id;
+            document.getElementById('pp-reason').value = '';
+            const job = allJobs.find(j => j.id === id);
+            document.getElementById('pp-new-date').value = job && job.action_date ? new Date(job.action_date).toISOString().split('T')[0] : todayStr();
+            document.getElementById('postpone-modal').classList.remove('hide');
+        }
+        function closePostponeModal() {
+            document.getElementById('postpone-modal').classList.add('hide');
+        }
+        async function submitPostpone(e) {
+            e.preventDefault();
+            const id = document.getElementById('pp-job-id').value;
+            const reason = document.getElementById('pp-reason').value;
+            const newDate = document.getElementById('pp-new-date').value;
+
+            const jobIndex = allJobs.findIndex(j => j.id === id);
+            if (jobIndex > -1) {
+                allJobs[jobIndex].status = 'เลื่อน';
+                allJobs[jobIndex].delay_reason = reason;
+                allJobs[jobIndex].action_date = newDate;
+            }
+            closePostponeModal();
+            renderQueue();
+            renderCalendar();
+
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'update_status', id: id, status: 'เลื่อน', delay_reason: reason, action_date: newDate })
+            });
+            fetchData();
+        }
+
+        // ---------- Performance ----------
         function renderPerformance() {
+            const counts = { 'รับเรื่อง':0, 'กำลังดำเนินการ':0, 'เสร็จสิ้นแล้ว':0, 'เลื่อน':0 };
+            allJobs.forEach(j => { if(counts.hasOwnProperty(j.status)) counts[j.status]++; });
+
+            const cards = [
+                { label: 'รับเรื่อง', val: counts['รับเรื่อง'], color: 'from-yellow-400 to-amber-500', icon: icons.box },
+                { label: 'กำลังดำเนินการ', val: counts['กำลังดำเนินการ'], color: 'from-blue-500 to-indigo-500', icon: icons.truck },
+                { label: 'เสร็จสิ้นแล้ว', val: counts['เสร็จสิ้นแล้ว'], color: 'from-green-500 to-emerald-600', icon: icons.check },
+                { label: 'เลื่อน', val: counts['เลื่อน'], color: 'from-orange-500 to-red-500', icon: icons.pause },
+            ];
+
+            document.getElementById('perf-bignumbers').innerHTML = cards.map(c => `
+                <div class="stat-card surface">
+                    <div class="absolute -right-3 -top-3 w-20 h-20 rounded-full bg-gradient-to-br ${c.color} opacity-10"></div>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br ${c.color} text-white flex items-center justify-center mb-3 shadow">${c.icon}</div>
+                    <div class="text-3xl font-extrabold">${c.val}</div>
+                    <div class="text-xs text-gray-400 font-medium mt-1">${c.label}</div>
+                </div>
+            `).join('');
+
             const container = document.getElementById('perf-container');
             const doneJobs = allJobs.filter(j => j.status === 'เสร็จสิ้นแล้ว');
-            
+
             const grouped = {};
             doneJobs.forEach(job => {
                 if(!job.action_date) return;
@@ -637,84 +874,177 @@
             Object.keys(grouped).sort().reverse().forEach(monthKey => {
                 const [y, m] = monthKey.split('-');
                 const monthName = new Date(y, m-1).toLocaleString('th-TH', { month: 'long', year: 'numeric' });
-                
-                container.innerHTML += `<div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                    <h3 class="font-bold text-lg mb-4 border-b pb-2 text-green-700 flex justify-between">
-                        <span>📅 ${monthName}</span> <span class="text-sm bg-green-100 px-2 py-1 rounded">${grouped[monthKey].length} งาน</span>
+
+                container.innerHTML += `<div class="surface p-5 rounded-2xl">
+                    <h3 class="font-bold text-lg mb-4 border-b border-black/5 dark:border-white/10 pb-2 text-green-600 dark:text-green-400 flex justify-between">
+                        <span>📅 ${monthName}</span> <span class="text-sm bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">${grouped[monthKey].length} งาน</span>
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         ${grouped[monthKey].map(j => `
-                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-sm flex gap-3">
+                            <div class="p-3 surface-alt rounded-xl text-sm flex gap-3">
                                 <div class="text-2xl mt-1">✅</div>
                                 <div>
-                                    <b class="text-gray-800 text-base">${j.task_type}</b><br>
-                                    <span class="text-gray-500">${j.village}</span><br>
-                                    <span class="text-xs text-gray-400">ดำเนินการ: ${new Date(j.action_date).toLocaleDateString('th-TH')} \vert{} กอง: ${j.department}</span>
+                                    <b class="text-base">${j.task_type}</b><br>
+                                    <span class="text-gray-400">${j.village}</span><br>
+                                    <span class="text-xs text-gray-400">ดำเนินการ: ${new Date(j.action_date).toLocaleDateString('th-TH')} | กอง: ${j.department}</span>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                 </div>`;
             });
-            if(!container.innerHTML) container.innerHTML = '<p class="text-gray-500 text-center py-10">ไม่มีข้อมูลงานที่เสร็จสิ้น</p>';
+            if(!container.innerHTML) container.innerHTML = '<p class="text-gray-400 text-center py-10">ไม่มีข้อมูลงานที่เสร็จสิ้น</p>';
+        }
+
+        // ---------- Summary + export ----------
+        function getSummaryFiltered() {
+            const monthStr = document.getElementById('sum-month').value;
+            const dept = document.getElementById('sum-dept').value;
+            let filtered = allJobs.filter(j => j.status === 'เสร็จสิ้นแล้ว' && j.action_date && j.action_date.startsWith(monthStr));
+            if(dept !== 'all') filtered = filtered.filter(j => j.department === dept);
+            return { filtered, monthStr, dept };
         }
 
         function generateSummary() {
-            const monthStr = document.getElementById('sum-month').value; 
-            const dept = document.getElementById('sum-dept').value;
-            
-            let filtered = allJobs.filter(j => j.status === 'เสร็จสิ้นแล้ว' && j.action_date && j.action_date.startsWith(monthStr));
-            if(dept !== 'all') filtered = filtered.filter(j => j.department === dept);
-
+            const { filtered, dept } = getSummaryFiltered();
             const total = filtered.length;
             const typeCounts = {};
             filtered.forEach(j => { typeCounts[j.task_type] = (typeCounts[j.task_type] || 0) + 1; });
 
             document.getElementById('sum-stats').innerHTML = `
-                <div class="bg-blue-50 p-6 rounded-2xl text-center border border-blue-100 shadow-sm"><p class="text-sm text-blue-700 font-bold mb-1">งานทั้งหมด</p><h3 class="text-4xl font-bold text-blue-800">${total}</h3></div>
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-2xl text-center border border-blue-100 dark:border-blue-900/30"><p class="text-sm text-blue-600 dark:text-blue-300 font-bold mb-1">งานทั้งหมด</p><h3 class="text-4xl font-bold text-blue-700 dark:text-blue-300">${total}</h3></div>
             `;
-            
+
+            document.getElementById('sum-report-title').innerText = `แยกตามประเภทงาน ${dept !== 'all' ? '(' + dept + ')' : ''}`;
+
             const ul = document.getElementById('sum-types');
             ul.innerHTML = Object.keys(typeCounts).map(k => `
-                <li class="flex justify-between p-3 hover:bg-gray-50 rounded-lg border-b border-gray-100">
-                    <span class="font-medium text-gray-700">${k}</span> <span class="font-bold text-red-600 bg-red-50 px-2 py-0.5 rounded">${typeCounts[k]} งาน</span>
+                <li class="flex justify-between p-3 hover:bg-black/5 dark:hover:bg-white/5 rounded-lg border-b border-black/5 dark:border-white/10">
+                    <span class="font-medium">${k}</span> <span class="font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-2 py-0.5 rounded">${typeCounts[k]} งาน</span>
                 </li>
             `).join('');
-            if(!total) ul.innerHTML = '<p class="text-gray-500 p-4 text-center">ไม่มีข้อมูลในเดือนนี้</p>';
+            if(!total) ul.innerHTML = '<p class="text-gray-400 p-4 text-center">ไม่มีข้อมูลในเดือนนี้</p>';
+        }
+
+        function exportSummaryExcel() {
+            const { filtered, monthStr, dept } = getSummaryFiltered();
+            const rows = filtered.map((j, i) => ({
+                'ลำดับ': i + 1,
+                'ประเภทงาน': j.task_type,
+                'หมู่ที่': j.village,
+                'รายละเอียด': j.problem_details,
+                'ผู้แจ้ง': j.requester || '-',
+                'กองที่รับผิดชอบ': j.department || '-',
+                'วันที่แจ้ง': j.request_date ? new Date(j.request_date).toLocaleDateString('th-TH') : '-',
+                'วันที่ดำเนินการเสร็จ': j.action_date ? new Date(j.action_date).toLocaleDateString('th-TH') : '-'
+            }));
+            if (!rows.length) { alert('ไม่มีข้อมูลให้ส่งออกในเดือน/กองที่เลือก'); return; }
+            const ws = XLSX.utils.json_to_sheet(rows);
+            ws['!cols'] = [{wch:6},{wch:18},{wch:22},{wch:35},{wch:20},{wch:16},{wch:14},{wch:18}];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'สรุปรายงาน');
+            const deptLabel = dept === 'all' ? 'ทุกกอง' : dept;
+            XLSX.writeFile(wb, `สรุปรายงาน_${monthStr}_${deptLabel}.xlsx`);
+        }
+
+        async function exportSummaryPDF() {
+            const { monthStr, dept } = getSummaryFiltered();
+            const el = document.getElementById('summary-report-area');
+            const canvas = await html2canvas(el, { scale: 2, backgroundColor: document.documentElement.classList.contains('dark') ? '#0a0908' : '#ffffff' });
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const imgWidth = pageWidth - 20;
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+
+            pdf.setFontSize(14);
+            pdf.text('Monthly Summary Report - อบต.ชำผักแพว', 10, 12);
+            pdf.setFontSize(10);
+            pdf.text(`Month: ${monthStr}  |  Department: ${dept === 'all' ? 'All' : dept}`, 10, 18);
+            pdf.addImage(imgData, 'PNG', 10, 24, imgWidth, imgHeight);
+            const deptLabel = dept === 'all' ? 'all' : dept;
+            pdf.save(`summary_${monthStr}_${deptLabel}.pdf`);
         }
 
         function performSearch() {
             const q = document.getElementById('search-input').value.toLowerCase();
             const container = document.getElementById('search-container');
             if(q.length < 2) { container.innerHTML = ''; return; }
-            
-            const results = allJobs.filter(j => 
-                (j.requester && j.requester.toLowerCase().includes(q)) || 
-                (j.task_type && j.task_type.toLowerCase().includes(q)) || 
+
+            const results = allJobs.filter(j =>
+                (j.requester && j.requester.toLowerCase().includes(q)) ||
+                (j.task_type && j.task_type.toLowerCase().includes(q)) ||
                 (j.problem_details && j.problem_details.toLowerCase().includes(q))
             );
             container.innerHTML = results.map(buildCard).join('');
         }
 
+        // ---------- Contacts ----------
         function renderContacts() {
             const container = document.getElementById('contact-container');
             container.innerHTML = allContacts.map(c => `
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                    <h3 class="font-bold text-lg text-red-700 mb-3 flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg> ${c.dept}</h3>
-                    <p class="text-sm text-gray-600 mb-1 font-medium"><span class="text-gray-400">📱 มือถือ:</span> ${c.phone1}</p>
-                    <p class="text-sm text-gray-600 font-medium"><span class="text-gray-400">☎️ สายด่วน:</span> ${c.phone2}</p>
+                <div class="surface p-6 rounded-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-bold text-lg text-red-600 dark:text-red-400 mb-0.5">${c.fullname || c.dept}</h3>
+                            ${c.nickname ? `<div class="text-xs text-gray-400 mb-1">(${c.nickname})</div>` : ''}
+                            ${c.position ? `<div class="text-sm font-medium mb-2">${c.position}</div>` : ''}
+                            <div class="text-xs text-gray-400 mb-2 flex items-center gap-1">${icons.dept} ${c.dept}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between mt-2 p-3 surface-alt rounded-xl">
+                        <span class="text-sm font-semibold">${c.phone || '-'}</span>
+                        ${c.phone ? `<a href="tel:${c.phone}" class="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow">${icons.phone} โทร</a>` : ''}
+                    </div>
                 </div>
             `).join('');
+        }
+
+        function openContactAddModal() {
+            document.getElementById('ca-fullname').value = '';
+            document.getElementById('ca-nickname').value = '';
+            document.getElementById('ca-position').value = '';
+            document.getElementById('ca-dept').value = 'กองช่าง';
+            document.getElementById('ca-phone').value = '';
+            document.getElementById('contact-add-modal').classList.remove('hide');
+        }
+        function closeContactAddModal() {
+            document.getElementById('contact-add-modal').classList.add('hide');
+        }
+        async function submitContactAdd(e) {
+            e.preventDefault();
+            const newContact = {
+                id: 'c-' + Date.now(),
+                fullname: document.getElementById('ca-fullname').value,
+                nickname: document.getElementById('ca-nickname').value,
+                position: document.getElementById('ca-position').value,
+                dept: document.getElementById('ca-dept').value,
+                phone: document.getElementById('ca-phone').value,
+                phone2: ''
+            };
+            allContacts.push(newContact);
+            renderContacts();
+            closeContactAddModal();
+
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'update_contacts', contacts: allContacts })
+            });
+            alert('เพิ่มเบอร์ติดต่อสำเร็จ');
+            fetchData();
         }
 
         function editContacts() {
             document.getElementById('contact-editor').classList.remove('hide');
             const fields = document.getElementById('contact-fields');
             fields.innerHTML = allContacts.map((c, i) => `
-                <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <input type="text" id="c-dept-${i}" value="${c.dept}" class="font-bold bg-white border border-gray-300 w-full mb-2 p-2 rounded-lg">
-                    <input type="text" id="c-p1-${i}" value="${c.phone1}" class="text-sm bg-white border border-gray-300 w-full mb-2 p-2 rounded-lg" placeholder="เบอร์ 1">
-                    <input type="text" id="c-p2-${i}" value="${c.phone2}" class="text-sm bg-white border border-gray-300 w-full p-2 rounded-lg" placeholder="เบอร์ 2">
+                <div class="p-4 surface-alt rounded-xl grid grid-cols-2 gap-2">
+                    <input type="text" id="c-fullname-${i}" value="${c.fullname || ''}" placeholder="ชื่อจริง" class="input-field font-bold col-span-2 p-2 rounded-lg text-sm">
+                    <input type="text" id="c-nickname-${i}" value="${c.nickname || ''}" placeholder="ชื่อเล่น" class="input-field p-2 rounded-lg text-sm">
+                    <input type="text" id="c-position-${i}" value="${c.position || ''}" placeholder="ตำแหน่ง" class="input-field p-2 rounded-lg text-sm">
+                    <input type="text" id="c-dept-${i}" value="${c.dept || ''}" placeholder="กอง" class="input-field p-2 rounded-lg text-sm">
+                    <input type="text" id="c-phone-${i}" value="${c.phone || ''}" placeholder="เบอร์โทร" class="input-field p-2 rounded-lg text-sm">
                 </div>
             `).join('');
         }
@@ -723,9 +1053,12 @@
             const newContacts = [];
             for(let i=0; i<allContacts.length; i++) {
                 newContacts.push({
+                    id: allContacts[i].id,
+                    fullname: document.getElementById(`c-fullname-${i}`).value,
+                    nickname: document.getElementById(`c-nickname-${i}`).value,
+                    position: document.getElementById(`c-position-${i}`).value,
                     dept: document.getElementById(`c-dept-${i}`).value,
-                    phone1: document.getElementById(`c-p1-${i}`).value,
-                    phone2: document.getElementById(`c-p2-${i}`).value
+                    phone: document.getElementById(`c-phone-${i}`).value
                 });
             }
             await fetch(WEB_APP_URL, {
@@ -739,7 +1072,7 @@
 
         // Init
         fetchData();
-        setInterval(fetchData, 15000); 
+        setInterval(fetchData, 15000);
     </script>
 </body>
 </html>
