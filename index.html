@@ -432,16 +432,14 @@
         let isAdmin = false;
         let currentDate = new Date();
         let selectedDateStr = null;
-        let activePerfFilter = 'เสร็จสิ้นแล้ว'; // ค่าเริ่มต้นหน้าผลดำเนินงาน
+        let activePerfFilter = 'เสร็จสิ้นแล้ว';
 
-        // ไอคอนประเภทงาน (Mapping)
         const taskIconsMap = {
             'ตัดกิ่งไม้': '🌳', 'ซ่อมไฟรายทาง': '💡', 'ซ่อมถนน': '🛣️',
             'ประปา/ท่อ': '🚰', 'งานก่อสร้าง': '🏗️', 'ตัดหญ้า/ภูมิทัศน์': '✂️',
             'ป้องกัน/สาธารณภัย': '🚒', 'จับสัตว์มีพิษ': '🐍', 'ฉีดล้างสถานที่': '💧', 'พ่นยุงลาย': '🦟', 'อื่นๆ': '📝'
         };
 
-        // ---------- Theme ----------
         function initTheme() {
             const saved = localStorage.getItem('qapp-theme');
             const wantDark = saved ? saved === 'dark' : false;
@@ -489,7 +487,6 @@
             if(pageId === 'page-performance') { activePerfFilter = 'เสร็จสิ้นแล้ว'; renderPerformance(); }
             if(pageId === 'page-summary') generateSummary();
             
-            // Search Page: แสดงข้อมูลทั้งหมดก่อนพิมพ์
             if(pageId === 'page-search') {
                 document.getElementById('search-input').value = '';
                 performSearch();
@@ -532,7 +529,6 @@
         }
 
         async function fetchData() {
-            // โหลดจาก LocalStorage ก่อนเพื่อให้แสดงผลทันที ไม่ต้องรอหมุนนาน
             const cachedJobs = localStorage.getItem('app_jobs_cache');
             const cachedContacts = localStorage.getItem('app_contacts_cache');
 
@@ -558,7 +554,6 @@
                     return j;
                 });
                 
-                // Contacts Data Mapping (รองรับข้อมูลครบ 6 คอลัมน์ใหม่)
                 allContacts = (data.contacts || []).map(c => ({
                     id: c.id || ('c-' + Math.random().toString(36).slice(2,7)),
                     fullname: c.fullname || c.name || c.dept || '', 
@@ -568,7 +563,6 @@
                     phone: c.phone || c.phone1 || c.tel || ''
                 }));
                 
-                // เซฟลง Cache เพื่อให้รอบหน้าโหลดไวขึ้น
                 localStorage.setItem('app_jobs_cache', JSON.stringify(allJobs));
                 localStorage.setItem('app_contacts_cache', JSON.stringify(allContacts));
 
@@ -580,14 +574,12 @@
                 if(!document.getElementById('page-search').classList.contains('hide')) performSearch();
             } catch (error) {
                 console.error(error);
-                // ถ้ายังไม่มี cache เลยค่อยแจ้งเตือน
                 if (allJobs.length === 0) {
                     document.getElementById('loading').innerHTML = '<div class="text-red-500 font-bold p-4 bg-white rounded-lg shadow">เกิดข้อผิดพลาดในการโหลดข้อมูล โปรดรีเฟรชหน้าเว็บ</div>';
                 }
             }
         }
 
-        // ---------- Calendar ----------
         function changeMonth(offset) {
             currentDate.setMonth(currentDate.getMonth() + offset);
             renderCalendar();
@@ -617,7 +609,6 @@
                     let shortVillage = j.village.replace('หมู่ที่ ', 'ม.');
                     let icon = taskIconsMap[j.task_type] || '📌';
                     let cls = j.status === 'เลื่อน' ? 'badge-delay' : (j.status === 'เสร็จสิ้นแล้ว' ? 'badge-done' : 'badge-normal');
-                    // ปรับการแสดงผล: แสดงแค่ "ม.x + ไอคอน" ตามที่ร้องขอ
                     tasksHtml += `<span class="cal-task-badge ${cls}" title="${j.task_type} (${j.village})"><span>${shortVillage}</span> <span>${icon}</span></span>`;
                 });
 
@@ -840,7 +831,6 @@
             allJobs[jobIndex].status = newStatus;
             if (newStatus !== 'เลื่อน') allJobs[jobIndex].delay_reason = '';
             
-            // รีเฟรชทั้ง 2 หน้าที่มี Card เพื่อความเนียน
             renderQueue();
             renderPerformance();
             renderCalendar();
@@ -852,7 +842,6 @@
             fetchData();
         }
 
-        // ---------- Postpone (เลื่อน) modal ----------
         function openPostponeModal(id) {
             if(!isAdmin) return;
             document.getElementById('pp-job-id').value = id;
@@ -888,7 +877,6 @@
             fetchData();
         }
 
-        // ---------- Performance ----------
         function setPerfFilter(status) {
             activePerfFilter = status;
             renderPerformance();
@@ -924,7 +912,6 @@
             }
         }
 
-        // ---------- Search ----------
         function performSearch() {
             const q = document.getElementById('search-input').value.toLowerCase();
             const container = document.getElementById('search-container');
@@ -941,7 +928,6 @@
             container.innerHTML = results.length ? results.map(buildCard).join('') : '<div class="col-span-full text-center text-gray-400 py-10 surface rounded-2xl">ไม่พบข้อมูลที่ค้นหา</div>';
         }
 
-        // ---------- Summary + export ----------
         function getSummaryFiltered() {
             const monthStr = document.getElementById('sum-month').value;
             const dept = document.getElementById('sum-dept').value;
@@ -1012,7 +998,6 @@
             pdf.save(`summary_${monthStr}_${deptLabel}.pdf`);
         }
 
-        // ---------- Contacts ----------
         function renderContacts() {
             const container = document.getElementById('contact-container');
             container.innerHTML = allContacts.map(c => `
@@ -1089,7 +1074,7 @@
         function removeContact(index) {
             if(confirm('คุณแน่ใจหรือไม่ว่าต้องการลบเบอร์ติดต่อนิ้?')) {
                 allContacts.splice(index, 1);
-                editContacts(); // รีเรนเดอร์หน้าแก้ไข
+                editContacts();
             }
         }
 
@@ -1105,7 +1090,7 @@
                     phone: document.getElementById(`c-phone-${i}`).value
                 });
             }
-            allContacts = newContacts; // อัปเดตในเครื่อง
+            allContacts = newContacts;
             renderContacts();
 
             await fetch(WEB_APP_URL, {
@@ -1117,7 +1102,6 @@
             fetchData();
         }
 
-        // Init
         fetchData();
         setInterval(fetchData, 15000);
     </script>
