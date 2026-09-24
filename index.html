@@ -24,10 +24,6 @@
         }
         html.dark body { background-color: #0a0908; color: #f2ece5; }
 
-        /* Sidebar transition */
-        #sidebar { transition: margin-left 0.3s ease-in-out; }
-        .sidebar-hidden { margin-left: -17rem; }
-
         /* Cards / surfaces */
         .surface {
             background: #ffffff;
@@ -56,13 +52,24 @@
             padding: 5px; border-radius: 10px; border: 1px solid #ece5dc; background: #fff; cursor: pointer;
             transition: all 0.15s;
         }
+        @media (max-width: 768px) {
+            .cal-day { min-height: 70px; padding: 3px; }
+        }
         html.dark .cal-day { background:#161210; border-color:#2b2319; }
         .cal-day:hover { background-color: #fef3ec; transform: translateY(-1px); }
         html.dark .cal-day:hover { background-color:#241b14; }
         .cal-day.active { border: 2px solid #ef4444; background-color: #fff1ec; box-shadow: 0 0 0 3px rgba(239,68,68,.12); }
         html.dark .cal-day.active { background-color:#2a1512; }
         .cal-day.is-today-cell { border-color:#f59e0b; }
-        .cal-task-badge { font-size: 11px; padding: 3px 5px; margin-bottom: 3px; border-radius: 5px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; justify-content: space-between; font-weight:600; }
+        
+        .cal-task-badge { 
+            font-size: 11px; padding: 3px 5px; margin-bottom: 3px; border-radius: 5px; width: 100%; 
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; justify-content: space-between; font-weight:600; 
+        }
+        @media (max-width: 768px) {
+            .cal-task-badge { font-size: 9px; padding: 2px 3px; }
+        }
+
         .badge-normal { background:#fee2e2; color:#b91c1c; }
         .badge-delay { background:#fef3c7; color:#b45309; }
         .badge-done { background:#dcfce7; color:#15803d; }
@@ -107,8 +114,11 @@
 </head>
 <body class="flex h-screen">
 
+    <!-- Sidebar Backdrop (for Mobile Overlay) -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 z-30 hide lg:hide backdrop-blur-sm transition-opacity" onclick="toggleSidebar()"></div>
+
     <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 md:w-[17rem] bg-[#111015] text-gray-300 flex flex-col shadow-2xl z-40 relative flex-shrink-0">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 md:w-[17rem] bg-[#111015] text-gray-300 flex flex-col shadow-2xl transition-transform duration-300 transform -translate-x-full lg:relative lg:translate-x-0 lg:flex-shrink-0">
         <div class="p-5 flex items-center justify-between border-b border-white/10">
             <div class="font-bold text-lg text-white flex items-center gap-3">
                 <div class="w-9 h-9 premium-gradient rounded-xl flex items-center justify-center text-sm font-bold text-white shadow-lg">ชพ</div>
@@ -117,6 +127,10 @@
                     <div class="text-[10px] text-gray-500 font-normal">อบต.ชำผักแพว</div>
                 </div>
             </div>
+            <!-- ปุ่มปิด sidebar บนมือถือ -->
+            <button onclick="toggleSidebar()" class="lg:hide text-gray-400 hover:text-white p-1">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>
         <nav class="flex-1 overflow-y-auto py-4 space-y-1 px-2">
             <a href="#" onclick="navTo('page-queue')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl bg-white/10 border-l-4 border-red-500 text-white transition">📅 คิวงาน / ปฏิทิน</a>
@@ -126,16 +140,16 @@
             <a href="#" onclick="navTo('page-summary')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition text-gray-400">📊 สรุปรายงาน</a>
             <a href="#" onclick="navTo('page-contacts')" class="nav-link flex items-center gap-2 px-4 py-3 rounded-xl hover:bg-white/10 hover:text-white transition text-gray-400">📞 เบอร์ติดต่อ</a>
         </nav>
-        <div class="p-4 text-[10px] text-gray-600 border-t border-white/10">ระบบบริหารคิวงาน • v3.2</div>
+        <div class="p-4 text-[10px] text-gray-600 border-t border-white/10">ระบบบริหารคิวงาน • v4.0</div>
     </aside>
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-screen overflow-hidden">
         <!-- Header -->
-        <header class="surface z-30">
+        <header class="surface z-20 relative">
             <div class="px-4 h-16 flex items-center justify-between">
                 <div class="flex items-center gap-3 w-3/4">
-                    <button onclick="toggleSidebar()" class="p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-300">
+                    <button onclick="toggleSidebar()" class="p-2 rounded-md hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-300 lg:hide">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </button>
                     <div class="min-w-0">
@@ -351,7 +365,7 @@
                         </div>
                         <div class="surface p-4 rounded-2xl lg:col-span-3 overflow-x-auto">
                             <h3 class="font-bold mb-3 border-b border-black/5 dark:border-white/10 pb-2">รายละเอียดงานทั้งหมด</h3>
-                            <table class="w-full text-left border-collapse">
+                            <table class="w-full text-left border-collapse min-w-[700px]">
                                 <thead>
                                     <tr class="bg-gray-50 dark:bg-gray-800 text-xs text-gray-500 dark:text-gray-400">
                                         <th class="p-2 rounded-tl-lg">สถานะ</th>
@@ -375,20 +389,10 @@
                 <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
                     <h2 class="text-xl font-bold">📞 เบอร์ติดต่อ อบต.ชำผักแพว</h2>
                     <div class="admin-only hide flex gap-2">
-                        <button onclick="openContactAddModal()" class="btn-primary text-sm px-3 py-1.5 rounded-lg font-bold">+ เพิ่มเบอร์ติดต่อ</button>
-                        <button onclick="editContacts()" class="text-sm bg-gray-800 dark:bg-white/10 text-white px-3 py-1.5 rounded-lg">แก้ไขทั้งหมด</button>
+                        <button onclick="openContactModal()" class="btn-primary text-sm px-3 py-1.5 rounded-lg font-bold shadow">+ เพิ่มเบอร์ติดต่อ</button>
                     </div>
                 </div>
-                <div id="contact-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-
-                <div id="contact-editor" class="hide mt-6 surface p-5 rounded-2xl">
-                    <h3 class="font-bold mb-4 text-red-600 dark:text-red-400">✏️ แก้ไขข้อมูลติดต่อ</h3>
-                    <div id="contact-fields" class="space-y-4 mb-6"></div>
-                    <div class="flex gap-2">
-                        <button onclick="saveContacts()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-medium flex-1 shadow transition">บันทึกข้อมูลติดต่อทั้งหมด</button>
-                        <button onclick="document.getElementById('contact-editor').classList.add('hide')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-white/10 dark:text-gray-300 dark:hover:bg-white/20 px-6 py-2.5 rounded-lg font-medium transition">ยกเลิก</button>
-                    </div>
-                </div>
+                <div id="contact-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
 
         </main>
@@ -417,14 +421,15 @@
         </div>
     </div>
 
-    <!-- Contact Add Modal -->
-    <div id="contact-add-modal" class="hide fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+    <!-- Contact Edit/Add Modal -->
+    <div id="contact-modal" class="hide fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
         <div class="surface rounded-2xl w-full max-w-md p-6">
-            <h3 class="text-lg font-bold text-red-600 dark:text-red-400 mb-4">➕ เพิ่มเบอร์ติดต่อ</h3>
-            <form onsubmit="submitContactAdd(event)">
+            <h3 id="contact-modal-title" class="text-lg font-bold text-red-600 dark:text-red-400 mb-4">✏️ จัดการเบอร์ติดต่อ</h3>
+            <form onsubmit="submitContact(event)">
+                <input type="hidden" id="ca-id">
                 <div class="grid grid-cols-2 gap-3 mb-3">
                     <div>
-                        <label class="block mb-1 text-xs font-medium">ชื่อจริง <span class="text-red-500">*</span></label>
+                        <label class="block mb-1 text-xs font-medium">ชื่อจริง/หน่วยงาน <span class="text-red-500">*</span></label>
                         <input type="text" id="ca-fullname" required class="input-field text-sm rounded-lg w-full p-2.5">
                     </div>
                     <div>
@@ -447,11 +452,11 @@
                 </div>
                 <div class="mb-5">
                     <label class="block mb-1 text-xs font-medium">เบอร์โทร <span class="text-red-500">*</span></label>
-                    <input type="tel" id="ca-phone" required class="input-field text-sm rounded-lg w-full p-2.5" placeholder="08X-XXX-XXXX">
+                    <input type="tel" id="ca-phone" required class="input-field text-sm rounded-lg w-full p-2.5 font-semibold" placeholder="08X-XXX-XXXX">
                 </div>
                 <div class="flex gap-2">
-                    <button type="submit" class="flex-1 btn-primary font-bold rounded-lg py-2.5">บันทึกเบอร์ติดต่อ</button>
-                    <button type="button" onclick="closeContactAddModal()" class="bg-gray-200 dark:bg-white/10 px-4 rounded-lg font-medium">ยกเลิก</button>
+                    <button type="submit" class="flex-1 btn-primary font-bold rounded-lg py-2.5 shadow">บันทึกข้อมูล</button>
+                    <button type="button" onclick="closeContactModal()" class="bg-gray-200 dark:bg-white/10 hover:bg-gray-300 px-4 rounded-lg font-medium transition">ยกเลิก</button>
                 </div>
             </form>
         </div>
@@ -498,7 +503,10 @@
         document.getElementById('sum-month').value = new Date().toISOString().slice(0,7);
 
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('sidebar-hidden');
+            const sb = document.getElementById('sidebar');
+            const bd = document.getElementById('sidebar-backdrop');
+            sb.classList.toggle('-translate-x-full');
+            bd.classList.toggle('hide');
         }
 
         function navTo(pageId, isEdit = false) {
@@ -514,7 +522,11 @@
                 event.currentTarget.classList.remove('text-gray-400');
             }
 
-            if(window.innerWidth < 1024) document.getElementById('sidebar').classList.add('sidebar-hidden');
+            // Close sidebar on mobile
+            if(window.innerWidth < 1024) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+                document.getElementById('sidebar-backdrop').classList.add('hide');
+            }
 
             if(pageId === 'page-queue') { selectedDateStr = null; renderCalendar(); renderQueue(); }
             if(pageId === 'page-performance') { activePerfFilter = 'เสร็จสิ้นแล้ว'; renderPerformance(); }
@@ -530,7 +542,7 @@
                 document.getElementById('f-id').value = "";
                 document.getElementById('f-type').value = "";
                 document.querySelectorAll('.task-btn').forEach(b => b.classList.remove('selected'));
-                document.querySelectorAll('input[name="assignee"]').forEach(cb => cb.checked = false); // ล้างค่าติ๊ก
+                document.querySelectorAll('input[name="assignee"]').forEach(cb => cb.checked = false);
                 document.getElementById('form-title').innerText = "📝 แบบฟอร์มรับแจ้งงาน";
                 document.getElementById('f-req-date').value = new Date().toISOString().split('T')[0];
             }
@@ -595,7 +607,8 @@
                     nickname: c.nickname || '',
                     position: c.position || '',
                     dept: c.dept || '',
-                    phone: c.phone || c.phone1 || c.tel || ''
+                    // ล้างเครื่องหมาย ' ที่แอบติดมาจากการเซฟ
+                    phone: (c.phone || c.phone1 || c.tel || '').replace(/^'/, '')
                 }));
                 
                 localStorage.setItem('app_jobs_cache', JSON.stringify(allJobs));
@@ -637,7 +650,6 @@
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-                // แสดงข้อมูลคิวงานของวันนั้น ไม่ว่าจะเสร็จสิ้นหรือไม่
                 const dayJobs = allJobs.filter(j => j.action_date && j.action_date.startsWith(dateStr));
 
                 let tasksHtml = '';
@@ -704,7 +716,6 @@
 
                 if(job.status === 'เสร็จสิ้นแล้ว') {
                     timeBadge = `<span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 rounded-lg text-xs font-bold shadow-sm">✅ เสร็จสิ้น</span>`;
-                    if(diffDays === 0) isToday = true;
                 } else if(diffDays === 0) {
                     timeBadge = `<span class="px-2 py-1 bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-300 rounded-lg text-xs font-bold shadow-sm">🚨 คิววันนี้</span>`;
                     isToday = true;
@@ -744,7 +755,7 @@
             }
 
             return `
-            <div class="surface rounded-2xl p-5 relative transition-all duration-300 ${isToday && job.status !== 'เสร็จสิ้นแล้ว' ? 'animate-float' : 'hover:shadow-md'}">
+            <div class="surface rounded-2xl p-5 relative transition-all duration-300 ${isToday && job.status !== 'เสร็จสิ้นแล้ว' ? 'animate-float border-red-300 dark:border-red-900' : 'hover:shadow-md'}">
                 ${adminButtons}
                 <div class="flex items-center gap-2 mb-4 pr-16 flex-wrap">
                     ${timeBadge}
@@ -794,7 +805,6 @@
             const vFilter = document.getElementById('filter-village').value;
             const title = document.getElementById('queue-title');
             
-            // หน้าคิวงาน โชว์ทั้งหมดที่ไม่ใช่ 'เสร็จสิ้นแล้ว' หรือถ้าเราคลิกวันที่จากปฏิทินให้โชว์ของวันนั้นทั้งหมด
             let filtered = [];
             if (selectedDateStr) {
                 filtered = allJobs.filter(j => j.action_date && j.action_date.startsWith(selectedDateStr));
@@ -806,7 +816,7 @@
 
             if (vFilter !== 'all') filtered = filtered.filter(j => j.village === vFilter);
 
-            container.innerHTML = filtered.length ? filtered.map(buildCard).join('') : '<div class="col-span-full text-center py-10 surface rounded-2xl border-dashed"><p class="text-gray-400 text-lg">ไม่มีคิวงานในเงื่อนไขที่เลือก</p></div>';
+            container.innerHTML = filtered.length ? filtered.map(buildCard).join('') : '<div class="col-span-full text-center py-10 surface rounded-2xl border-dashed border-2"><p class="text-gray-400 text-lg">ไม่มีคิวงานในเงื่อนไขที่เลือก</p></div>';
         }
 
         async function submitJob(e) {
@@ -955,7 +965,7 @@
             if (filteredJobs.length > 0) {
                 container.innerHTML = filteredJobs.map(buildCard).join('');
             } else {
-                container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10 surface rounded-2xl border-dashed">ไม่มีคิวงานสถานะ: <b>${activePerfFilter}</b></div>`;
+                container.innerHTML = `<div class="col-span-full text-center text-gray-400 py-10 surface rounded-2xl border-dashed border-2">ไม่มีคิวงานสถานะ: <b>${activePerfFilter}</b></div>`;
             }
         }
 
@@ -973,7 +983,7 @@
                     (j.assignees && j.assignees.toLowerCase().includes(q))
                 );
             }
-            container.innerHTML = results.length ? results.map(buildCard).join('') : '<div class="col-span-full text-center text-gray-400 py-10 surface rounded-2xl">ไม่พบข้อมูลที่ค้นหา</div>';
+            container.innerHTML = results.length ? results.map(buildCard).join('') : '<div class="col-span-full text-center text-gray-400 py-10 surface rounded-2xl border-dashed border-2">ไม่พบข้อมูลที่ค้นหา</div>';
         }
 
         function getSummaryFiltered() {
@@ -1076,11 +1086,17 @@
             pdf.save(`summary_${monthStr}_${deptLabel}.pdf`);
         }
 
+        // ---------- Contacts ----------
         function renderContacts() {
             const container = document.getElementById('contact-container');
             container.innerHTML = allContacts.map(c => `
-                <div class="surface p-6 rounded-2xl">
-                    <div class="flex justify-between items-start">
+                <div class="surface p-6 rounded-2xl relative">
+                    ${isAdmin ? `
+                    <div class="absolute top-4 right-4 flex gap-1">
+                        <button onclick="openContactModal('${c.id}')" class="text-xs bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/20 text-gray-600 dark:text-gray-300 p-2 rounded-lg transition" title="แก้ไขเบอร์นี้">✏️</button>
+                        <button onclick="removeContact('${c.id}')" class="text-xs bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 text-red-600 dark:text-red-400 p-2 rounded-lg transition" title="ลบเบอร์นี้">${icons.trash}</button>
+                    </div>` : ''}
+                    <div class="flex justify-between items-start pr-12">
                         <div>
                             <h3 class="font-bold text-lg text-red-600 dark:text-red-400 mb-0.5">${c.fullname || c.dept}</h3>
                             ${c.nickname ? `<div class="text-xs text-gray-400 mb-1">(${c.nickname})</div>` : ''}
@@ -1094,24 +1110,42 @@
                     </div>
                 </div>
             `).join('');
-            if(!allContacts.length) container.innerHTML = '<div class="col-span-full text-center text-gray-400">ยังไม่มีเบอร์ติดต่อ</div>';
+            if(!allContacts.length) container.innerHTML = '<div class="col-span-full text-center text-gray-400 py-10 surface rounded-2xl border-dashed border-2">ยังไม่มีเบอร์ติดต่อในระบบ</div>';
         }
 
-        function openContactAddModal() {
-            document.getElementById('ca-fullname').value = '';
-            document.getElementById('ca-nickname').value = '';
-            document.getElementById('ca-position').value = '';
-            document.getElementById('ca-dept').value = 'กองช่าง';
-            document.getElementById('ca-phone').value = '';
-            document.getElementById('contact-add-modal').classList.remove('hide');
+        function openContactModal(id = null) {
+            if(id) {
+                const c = allContacts.find(x => x.id === id);
+                if(c) {
+                    document.getElementById('ca-id').value = c.id;
+                    document.getElementById('ca-fullname').value = c.fullname;
+                    document.getElementById('ca-nickname').value = c.nickname;
+                    document.getElementById('ca-position').value = c.position;
+                    document.getElementById('ca-dept').value = c.dept || 'กองช่าง';
+                    document.getElementById('ca-phone').value = c.phone;
+                    document.getElementById('contact-modal-title').innerHTML = '✏️ แก้ไขเบอร์ติดต่อ';
+                }
+            } else {
+                document.getElementById('ca-id').value = '';
+                document.getElementById('ca-fullname').value = '';
+                document.getElementById('ca-nickname').value = '';
+                document.getElementById('ca-position').value = '';
+                document.getElementById('ca-dept').value = 'กองช่าง';
+                document.getElementById('ca-phone').value = '';
+                document.getElementById('contact-modal-title').innerHTML = '➕ เพิ่มเบอร์ติดต่อ';
+            }
+            document.getElementById('contact-modal').classList.remove('hide');
         }
-        function closeContactAddModal() {
-            document.getElementById('contact-add-modal').classList.add('hide');
+
+        function closeContactModal() {
+            document.getElementById('contact-modal').classList.add('hide');
         }
-        async function submitContactAdd(e) {
+
+        async function submitContact(e) {
             e.preventDefault();
+            const id = document.getElementById('ca-id').value;
             const newContact = {
-                id: 'c-' + Date.now(),
+                id: id || ('c-' + Date.now()),
                 fullname: document.getElementById('ca-fullname').value,
                 nickname: document.getElementById('ca-nickname').value,
                 position: document.getElementById('ca-position').value,
@@ -1119,65 +1153,35 @@
                 phone: document.getElementById('ca-phone').value,
                 phone2: ''
             };
-            allContacts.push(newContact);
+
+            if(id) {
+                const idx = allContacts.findIndex(x => x.id === id);
+                if(idx > -1) allContacts[idx] = newContact;
+            } else {
+                allContacts.push(newContact);
+            }
+
             renderContacts();
-            closeContactAddModal();
+            closeContactModal();
 
             await fetch(WEB_APP_URL, {
                 method: 'POST',
                 body: JSON.stringify({ action: 'update_contacts', contacts: allContacts })
             });
-            alert('เพิ่มเบอร์ติดต่อสำเร็จ');
-            fetchData();
-        }
-
-        function editContacts() {
-            document.getElementById('contact-editor').classList.remove('hide');
-            const fields = document.getElementById('contact-fields');
-            fields.innerHTML = allContacts.map((c, i) => `
-                <div class="p-4 surface-alt rounded-xl flex flex-col gap-2 relative">
-                    <button onclick="removeContact(${i})" class="absolute top-2 right-2 text-red-500 hover:text-red-700 bg-red-100 p-1.5 rounded-lg transition" title="ลบข้อมูล">${icons.trash}</button>
-                    <div class="grid grid-cols-2 gap-2 mt-4 md:mt-0 pr-8 md:pr-10">
-                        <input type="text" id="c-fullname-${i}" value="${c.fullname || ''}" placeholder="ชื่อจริง/ชื่อหน่วยงาน" class="input-field font-bold col-span-2 md:col-span-1 p-2 rounded-lg text-sm">
-                        <input type="text" id="c-nickname-${i}" value="${c.nickname || ''}" placeholder="ชื่อเล่น" class="input-field p-2 rounded-lg text-sm">
-                        <input type="text" id="c-position-${i}" value="${c.position || ''}" placeholder="ตำแหน่ง" class="input-field p-2 rounded-lg text-sm">
-                        <input type="text" id="c-dept-${i}" value="${c.dept || ''}" placeholder="กอง" class="input-field p-2 rounded-lg text-sm">
-                        <input type="text" id="c-phone-${i}" value="${c.phone || ''}" placeholder="เบอร์โทร" class="input-field col-span-2 p-2 rounded-lg text-sm font-semibold text-blue-600 dark:text-blue-400">
-                    </div>
-                </div>
-            `).join('');
-            if(!allContacts.length) fields.innerHTML = '<div class="text-sm text-gray-400 text-center">ไม่มีเบอร์โทรศัพท์ให้แก้ไข</div>';
-        }
-
-        function removeContact(index) {
-            if(confirm('คุณแน่ใจหรือไม่ว่าต้องการลบเบอร์ติดต่อนิ้?')) {
-                allContacts.splice(index, 1);
-                editContacts();
-            }
-        }
-
-        async function saveContacts() {
-            const newContacts = [];
-            for(let i=0; i<allContacts.length; i++) {
-                newContacts.push({
-                    id: allContacts[i].id,
-                    fullname: document.getElementById(`c-fullname-${i}`).value,
-                    nickname: document.getElementById(`c-nickname-${i}`).value,
-                    position: document.getElementById(`c-position-${i}`).value,
-                    dept: document.getElementById(`c-dept-${i}`).value,
-                    phone: document.getElementById(`c-phone-${i}`).value
-                });
-            }
-            allContacts = newContacts;
-            renderContacts();
-
-            await fetch(WEB_APP_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'update_contacts', contacts: newContacts })
-            });
             alert('บันทึกเบอร์ติดต่อสำเร็จ');
-            document.getElementById('contact-editor').classList.add('hide');
             fetchData();
+        }
+
+        async function removeContact(id) {
+            if(confirm('คุณแน่ใจหรือไม่ว่าต้องการลบเบอร์ติดต่อนิ้?')) {
+                allContacts = allContacts.filter(c => c.id !== id);
+                renderContacts();
+                await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'update_contacts', contacts: allContacts })
+                });
+                fetchData();
+            }
         }
 
         fetchData();
